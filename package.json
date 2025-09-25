@@ -1,0 +1,11 @@
+{
+  "name": "testwise",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "concurrently \"npm run start --prefix server\" \"npm run dev --prefix client\"",
+    "start": "npm run build --prefix client && npm start --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

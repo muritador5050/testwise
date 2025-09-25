@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+  INSTRUCTOR
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+  ESSAY  
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  TIMED_OUT
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  attempts Attempt[]
+  
+  @@map("users")
+}
+
+model Test {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  duration    Int     
+  maxAttempts Int      @default(1)  
+  isPublished Boolean  @default(false)
+  
+  // Scheduling
+  availableFrom  DateTime?
+  availableUntil DateTime?
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  questions Question[]
+  attempts  Attempt[]
+  
+  @@map("tests")
+}
+
+
+model Question {
+  id           Int          @id @default(autoincrement())
+  text         String
+  questionType QuestionType
+  points       Float        @default(1.0)  
+  order        Int         
+  
+  testId Int
+  test   Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+  
+  options Option[]
+  answers Answer[]
+  
+  @@map("questions")
+}
+
+
+model Option {
+  id        Int     @id @default(autoincrement())
+  text      String
+  isCorrect Boolean @default(false)
+  order     Int   
+  
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  answers Answer[]
+  
+  @@map("options")
+}
+
+
+model Attempt {
+  id            Int           @id @default(autoincrement())
+  score         Float         @default(0)    
+  maxScore      Float?       
+  percentScore  Float?        
+  status        AttemptStatus @default(IN_PROGRESS)
+  
+  // Timing
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  timeSpent   Int?     
+  
+  attemptNumber Int       
+  ipAddress     String?
+  
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+  
+  testId Int
+  test   Test @relation(fields: [testId], references: [id])
+  
+  answers Answer[]
+  
+  @@unique([userId, testId, attemptNumber])
+  @@map("attempts")
+}
+
+model Answer {
+  id           Int     @id @default(autoincrement())
+  textAnswer   String? 
+  isCorrect    Boolean @default(false)
+  pointsEarned Float   @default(0)    
+  timeSpent    Int?    
+  
+  attemptId Int
+  attempt   Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id])
+  
+  optionId Int? 
+  option   Option? @relation(fields: [optionId], references: [id])
+  
+  @@unique([attemptId, questionId]) 
+  @@map("answers")
+}
