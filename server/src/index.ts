@@ -1,9 +1,11 @@
-dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { setupRoutes } from './v1/routes';
+import { errorHandler } from './middleware/errorHanler';
 
-const v1Routes = require('./v1/routes');
+// Configure dotenv
+dotenv.config();
 
 //App initialization
 const app = express();
@@ -11,13 +13,13 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/v1', v1Routes);
+//Setup routes
+setupRoutes(app);
 
-//Root endpoint
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
+// Error handling
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
