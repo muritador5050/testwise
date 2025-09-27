@@ -14,7 +14,12 @@ testRoutes.post(
 );
 testRoutes.get('/', TestController.getAll);
 testRoutes.get('/:id', TestController.getById);
-testRoutes.put(
+testRoutes.get(
+  '/:id/availability',
+  authenticate,
+  TestController.checkAvailability
+);
+testRoutes.patch(
   '/:id',
   authenticate,
   authorize('ADMIN', 'INSTRUCTOR'),

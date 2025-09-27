@@ -5,6 +5,7 @@ import AttemptController from '../controllers/attemtController';
 
 export const attemptRoutes = Router();
 
+attemptRoutes.get('/user', authenticate, AttemptController.getUserAttempts);
 attemptRoutes.post(
   '/test/:testId/start',
   authenticate,
@@ -14,8 +15,3 @@ attemptRoutes.post(
 attemptRoutes.get('/:id', authenticate, AttemptController.getById);
 attemptRoutes.post('/:id/answer', authenticate, AttemptController.submitAnswer);
 attemptRoutes.patch('/:id/complete', authenticate, AttemptController.complete);
-attemptRoutes.get(
-  '/user/attempts',
-  authenticate,
-  AttemptController.getUserAttempts
-);

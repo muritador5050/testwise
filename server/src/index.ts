@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { setupRoutes } from './v1/routes';
-import { errorHandler } from './middleware/errorHanler';
+import { errorHandler } from './middleware/errorHandler';
 
 // Configure dotenv
 dotenv.config();

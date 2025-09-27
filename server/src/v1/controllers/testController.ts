@@ -86,6 +86,19 @@ class TestController {
     }
   }
 
+  static async checkAvailability(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const availability = await TestService.isTestAvailable(parseInt(id));
+      if (!availability.available) {
+        return res.status(400).json({ error: availability.reason });
+      }
+      res.json({ available: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   static async delete(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;
