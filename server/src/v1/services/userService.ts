@@ -16,6 +16,10 @@ class UserService {
     });
   }
 
+  static async loginUser(email: string) {
+    return await prisma.user.findUnique({ where: { email } });
+  }
+
   static async getUserById(id: number) {
     return await prisma.user.findUnique({
       where: { id },

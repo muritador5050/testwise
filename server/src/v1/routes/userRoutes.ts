@@ -5,15 +5,16 @@ import { authorize } from '../../middleware/authorization';
 
 export const userRoutes = Router();
 
-userRoutes.post('/', authenticate, authorize('ADMIN'), UserController.create);
-userRoutes.get(
-  '/',
-  authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
-  UserController.getAll
-);
+userRoutes.post('/register', UserController.create);
+userRoutes.post('/login', UserController.login);
+userRoutes.get('/', authenticate, authorize('ADMIN'), UserController.getAll);
 userRoutes.get('/:id', authenticate, UserController.getById);
-userRoutes.put('/:id', authenticate, authorize('ADMIN'), UserController.update);
+userRoutes.patch(
+  '/:id',
+  authenticate,
+  authorize('ADMIN'),
+  UserController.update
+);
 userRoutes.delete(
   '/:id',
   authenticate,

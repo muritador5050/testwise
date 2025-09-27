@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import UserService from '../services/userService';
+import jwt from 'jsonwebtoken';
+import { error } from 'console';
+import { AuthenticatedRequest } from '../../middleware/authenticate';
 
 class UserController {
   static async create(req: Request, res: Response) {
@@ -20,9 +23,60 @@ class UserController {
     }
   }
 
-  static async getById(req: Request, res: Response) {
+  static async login(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+      const user = await UserService.loginUser(email);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Role-based token expiration
+      let tokenExpiration: string;
+
+      switch (user.role) {
+        case 'STUDENT':
+          tokenExpiration = '30m';
+          break;
+        case 'INSTRUCTOR':
+          tokenExpiration = '8h';
+          break;
+        case 'ADMIN':
+          tokenExpiration = '12h';
+          break;
+        default:
+          tokenExpiration = '1h';
+      }
+
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        throw new Error('JWT_SECRET environment variable is not set');
+      }
+
+      const token = jwt.sign(
+        { id: user.id, email: user.email, role: user.role },
+        jwtSecret,
+        { expiresIn: tokenExpiration } as jwt.SignOptions
+      );
+
+      res.json({ user, token, expiresIn: tokenExpiration });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getById(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;
+      const userId = parseInt(id);
+
+      if (req.user?.role !== 'ADMIN' && req.user?.id !== userId) {
+        return res.status(403).json({ error: 'Insufficient permissions' });
+      }
       const user = await UserService.getUserById(parseInt(id));
 
       if (!user) {
@@ -62,14 +116,24 @@ class UserController {
     }
   }
 
-  static async delete(req: Request, res: Response) {
+  static async delete(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;
-      await UserService.deleteUser(parseInt(id));
+      const userIdToDelete = parseInt(id);
+
+      const authenticatedUser = req.user;
+
+      if (authenticatedUser && authenticatedUser.id === userIdToDelete) {
+        return res
+          .status(400)
+          .json({ error: 'Users cannot delete themselves' });
+      }
+
+      await UserService.deleteUser(userIdToDelete);
       res.status(204).send();
     } catch (error: any) {
       if (error.code === 'P2025') {
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(404).json({ error: 'User not found or Invalid ID' });
       }
       res.status(500).json({ error: error.message });
     }

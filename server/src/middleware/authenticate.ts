@@ -18,7 +18,7 @@ export const authenticate = async (
   next: NextFunction
 ) => {
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    const token = req.headers['authorization']?.split(' ')[1];
 
     if (!token) {
       return res.status(401).json({ error: 'Authentication token required' });
@@ -26,7 +26,7 @@ export const authenticate = async (
 
     const decode = jwt.verify(token, process.env.JWT_SECRET!) as any;
     const user = await prisma.user.findUnique({
-      where: { id: decode.userId },
+      where: { id: decode.id },
     });
     if (!user) {
       return res.status(401).json({ error: 'Invalid token' });
