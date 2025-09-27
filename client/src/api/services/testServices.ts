@@ -1,0 +1,124 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiClient, getAuthToken } from '../apiClient';
+import type { Test } from '../../types/api';
+
+// Create test (Admin/Instructor only)
+export const useCreateTest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Test, Error, Omit<Test, 'id'>>({
+    mutationFn: async (testData) => {
+      return apiClient('tests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify(testData),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tests'] });
+    },
+  });
+};
+
+// Get all tests
+export const useGetAllTests = () => {
+  return useQuery<Test[]>({
+    queryKey: ['tests'],
+    queryFn: async () => {
+      return apiClient('tests');
+    },
+  });
+};
+
+// Get test by ID
+export const useGetTestById = (id: number) => {
+  return useQuery<Test>({
+    queryKey: ['test', id],
+    queryFn: async () => {
+      return apiClient(`tests/${id}`);
+    },
+    enabled: !!id,
+  });
+};
+
+// Check test availability
+export const useCheckTestAvailability = (id: number) => {
+  return useQuery<{ available: boolean; reason?: string }>({
+    queryKey: ['test-availability', id],
+    queryFn: async () => {
+      return apiClient(`tests/${id}/availability`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+    enabled: !!id,
+  });
+};
+
+// Update test (Admin/Instructor only)
+export const useUpdateTest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Test, Error, { id: number; testData: Partial<Test> }>({
+    mutationFn: async ({ id, testData }) => {
+      return apiClient(`tests/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify(testData),
+      });
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['tests'] });
+      queryClient.invalidateQueries({ queryKey: ['test', variables.id] });
+    },
+  });
+};
+
+// Publish test (Admin/Instructor only)
+export const usePublishTest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Test, Error, number>({
+    mutationFn: async (id) => {
+      return apiClient(`tests/${id}/publish`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+    onSuccess: (data, id) => {
+      queryClient.invalidateQueries({ queryKey: ['tests'] });
+      queryClient.invalidateQueries({ queryKey: ['test', id] });
+    },
+  });
+};
+
+// Delete test (Admin/Instructor only)
+export const useDeleteTest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, number>({
+    mutationFn: async (id) => {
+      return apiClient(`tests/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tests'] });
+    },
+  });
+};

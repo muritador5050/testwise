@@ -1,12 +1,12 @@
 const apiUrl = import.meta.env.VITE_API_URL;
 
-export const getToken = () => localStorage.getItem('authToken');
+export const getAuthToken = () => localStorage.getItem('authToken');
 export const setToken = (token: string) =>
   localStorage.setItem('authToken', token);
 export const clearToken = () => localStorage.removeItem('authToken');
 
 export async function apiClient(endpoint: string, options: RequestInit = {}) {
-  const token = getToken();
+  const token = getAuthToken();
   const response = await fetch(`${apiUrl}/${endpoint}`, {
     headers: {
       'Content-Type': 'application/json',
@@ -26,7 +26,6 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
     throw new Error(errorMessage);
   }
 
-  // Handle 204 No Content for DELETE/PATCH/etc.
   if (
     response.status === 204 ||
     response.headers.get('Content-Length') === '0'
