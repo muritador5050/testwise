@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { setupRoutes } from './v1/routes';
 import { errorHandler } from './middleware/errorHandler';
+import { createServer } from 'http';
+import webSocketService from './v1/services/webSocketService';
 
 // Configure dotenv
 dotenv.config();
@@ -21,6 +23,9 @@ setupRoutes(app);
 // Error handling
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+const server = createServer(app);
+webSocketService.init(server);
+
+server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

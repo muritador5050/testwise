@@ -13,12 +13,16 @@
     "@chakra-ui/react": "^2.10.9",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@tanstack/react-query-devtools": "^5.90.2",
     "framer-motion": "^12.23.21",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@tanstack/eslint-plugin-query": "^5.90.1",
+    "@tanstack/react-query": "^5.90.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react-swc": "^4.1.0",

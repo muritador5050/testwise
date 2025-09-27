@@ -1,7 +1,9 @@
-import e from 'express';
 import { PrismaClient } from '../../generated/prisma';
 import { SubmitAnswerData } from '../../types/types';
 import TestService from './testService';
+import webSocketService from './webSocketService';
+
+// Initialize Prisma Client
 const prisma = new PrismaClient();
 
 class AttemptService {
@@ -47,6 +49,15 @@ class AttemptService {
       return existingAttempt;
     }
 
+    webSocketService.emitToAttempt(
+      existingAttempt || attemptCount + 1,
+      'attempt_started',
+      {
+        userId,
+        testId,
+        attemptNumber: attemptCount + 1,
+      }
+    );
     // Create new attempt
     return await prisma.attempt.create({
       data: {
@@ -134,13 +145,14 @@ class AttemptService {
     }
     // For SHORT_ANSWER and ESSAY, manual grading would be required
 
-    return await prisma.answer.upsert({
+    const answer = await prisma.answer.upsert({
       where: {
         attemptId_questionId: {
           attemptId,
           questionId: answerData.questionId,
         },
       },
+
       update: {
         textAnswer: answerData.textAnswer,
         optionId: answerData.optionId,
@@ -156,6 +168,14 @@ class AttemptService {
         pointsEarned,
       },
     });
+
+    webSocketService.emitToAttempt(attemptId, 'answer_submitted', {
+      questionId: answerData.questionId,
+      isCorrect,
+      pointsEarned,
+    });
+
+    return answer;
   }
 
   static async completeAttempt(attemptId: number) {
@@ -190,6 +210,12 @@ class AttemptService {
     const timeSpent = Math.floor(
       (new Date().getTime() - attempt.startedAt.getTime()) / 1000
     );
+
+    webSocketService.emitToAttempt(attemptId, 'attempt_completed', {
+      score,
+      percentScore,
+      timeSpent,
+    });
 
     return await prisma.attempt.update({
       where: { id: attemptId },
