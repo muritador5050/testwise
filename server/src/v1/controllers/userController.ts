@@ -1,19 +1,18 @@
 import { Request, Response } from 'express';
 import UserService from '../services/userService';
 import jwt from 'jsonwebtoken';
-import { error } from 'console';
 import { AuthenticatedRequest } from '../../middleware/authenticate';
 
 class UserController {
   static async create(req: Request, res: Response) {
     try {
-      const { email, name, role } = req.body;
+      const { email, name, role, avatar } = req.body;
 
       if (!email) {
         return res.status(400).json({ error: 'Email is required' });
       }
 
-      const user = await UserService.createUser({ email, name, role });
+      const user = await UserService.createUser({ email, name, role, avatar });
       res.status(201).json(user);
     } catch (error: any) {
       if (error.code === 'P2002') {
@@ -104,9 +103,13 @@ class UserController {
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { name, role } = req.body;
+      const { name, role, avatar } = req.body;
 
-      const user = await UserService.updateUser(parseInt(id), { name, role });
+      const user = await UserService.updateUser(parseInt(id), {
+        name,
+        role,
+        avatar,
+      });
       res.json(user);
     } catch (error: any) {
       if (error.code === 'P2025') {

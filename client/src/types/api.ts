@@ -10,6 +10,7 @@ export interface User {
   id: number;
   email: string;
   name: string;
+  avatar?: string | File;
   role: Role;
 }
 export interface Option {

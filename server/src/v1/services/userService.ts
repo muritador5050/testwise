@@ -6,12 +6,14 @@ class UserService {
     email: string;
     name?: string;
     role?: 'STUDENT' | 'ADMIN' | 'INSTRUCTOR';
+    avatar?: string;
   }) {
     return await prisma.user.create({
       data: {
         email: data.email,
         name: data.name,
         role: data.role || 'STUDENT',
+        avatar: data.avatar || null,
       },
     });
   }
@@ -61,7 +63,11 @@ class UserService {
 
   static async updateUser(
     id: number,
-    data: Partial<{ name: string; role: 'STUDENT' | 'ADMIN' | 'INSTRUCTOR' }>
+    data: Partial<{
+      name: string;
+      avatar: string;
+      role: 'STUDENT' | 'ADMIN' | 'INSTRUCTOR';
+    }>
   ) {
     return await prisma.user.update({
       where: { id },

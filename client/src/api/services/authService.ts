@@ -1,17 +1,34 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AuthResponse, User } from '../../types/api';
-import { apiClient, getAuthToken } from '../apiClient';
+import {
+  apiClient,
+  getAuthToken,
+  getCurrentUser,
+  isAuthenticated,
+} from '../apiClient';
+import { uploadToCloudinary } from '../../utils/cloudinaryService';
 
+// Register user
 export const useRegisterUser = () => {
   return useMutation<
     User,
     Error,
-    { email: string; name: string; role: string }
+    { email: string; name: string; avatar: File; role: string }
   >({
     mutationFn: async (userData) => {
+      let avatarUrl = '';
+
+      if (userData.avatar) {
+        avatarUrl = await uploadToCloudinary(userData.avatar);
+      }
+
       return apiClient('users/register', {
         method: 'POST',
-        body: JSON.stringify(userData),
+
+        body: JSON.stringify({
+          ...userData,
+          avatar: avatarUrl,
+        }),
       });
     },
   });
@@ -26,6 +43,18 @@ export const useLoginUser = () => {
         body: JSON.stringify(credentials),
       });
     },
+  });
+};
+
+export const useCurrentUser = () => {
+  return useQuery<User>({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const user = getCurrentUser();
+      if (!user) throw new Error('Not authenticated');
+      return apiClient(`users/${user.id}`);
+    },
+    enabled: isAuthenticated(),
   });
 };
 
@@ -60,24 +89,39 @@ export const useGetUserById = (id: number) => {
   });
 };
 
-// Update user (Admin only)
+// Update user
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<User, Error, { id: number; userData: Partial<User> }>({
+  return useMutation<
+    User,
+    Error,
+    {
+      id: number;
+      userData: Partial<User> & { avatar?: File | string };
+    }
+  >({
     mutationFn: async ({ id, userData }) => {
+      const updateData = { ...userData };
+
+      if (userData.avatar) {
+        const avatarUrl = await uploadToCloudinary(userData.avatar as File);
+        updateData.avatar = avatarUrl;
+      }
+
       return apiClient(`users/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getAuthToken()}`,
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(updateData),
       });
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['user', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['current-user'] });
     },
   });
 };
