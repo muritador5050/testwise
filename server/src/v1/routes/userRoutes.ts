@@ -5,7 +5,7 @@ import { authorize } from '../../middleware/authorization';
 
 export const userRoutes = Router();
 
-userRoutes.post('/register', UserController.create);
+userRoutes.post('/signup', UserController.create);
 userRoutes.post('/login', UserController.login);
 userRoutes.get('/', authenticate, authorize('ADMIN'), UserController.getAll);
 userRoutes.get('/:id', authenticate, UserController.getById);

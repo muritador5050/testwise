@@ -1,4 +1,4 @@
-import type { User } from '../types/api';
+import type { Role, User } from '../types/api';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -74,7 +74,7 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
       error.message.includes('Unauthorized')
     ) {
       clearToken();
-      window.location.href = '/login';
+      window.location.href = '/users/login';
     }
 
     throw error;
@@ -96,5 +96,21 @@ export const getCurrentUser = (): User | null => {
     };
   } catch {
     return null;
+  }
+};
+
+export const navigateByRole = (role: Role) => {
+  switch (role) {
+    case 'ADMIN':
+      window.location.href = '/admin';
+      break;
+    case 'INSTRUCTOR':
+      window.location.href = '/instructor';
+      break;
+    case 'STUDENT':
+      window.location.href = '/student';
+      break;
+    default:
+      window.location.href = '/';
   }
 };

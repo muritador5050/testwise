@@ -13,7 +13,7 @@ createRoot(document.getElementById('root')!).render(
     <ChakraProvider>
       <QueryClientProvider client={queryClient}>
         <App />
-        <ReactQueryDevtools buttonPosition='top-right' initialIsOpen={false} />
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ChakraProvider>
   </StrictMode>

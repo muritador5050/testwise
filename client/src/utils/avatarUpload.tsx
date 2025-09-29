@@ -1,6 +1,14 @@
-// components/AvatarUpload.tsx
-import React, { useRef, useState } from 'react';
-import { useAvatarUpload } from '../hooks/useAvatarUpload';
+import { useRef, useState } from 'react';
+import {
+  Box,
+  Avatar,
+  Button,
+  VStack,
+  Text,
+  Icon,
+  IconButton,
+} from '@chakra-ui/react';
+import { Camera, X } from 'lucide-react';
 
 interface AvatarUploadProps {
   onAvatarChange: (file: File | null) => void;
@@ -15,33 +23,24 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const { isUploading, uploadProgress } = useAvatarUpload();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       alert('Please select an image file');
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert('Image must be less than 5MB');
       return;
     }
 
-    // Create preview
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
-
-    // Notify parent component
     onAvatarChange(file);
-
-    // Cleanup function
-    return () => URL.revokeObjectURL(objectUrl);
   };
 
   const handleClick = () => {
@@ -59,59 +58,64 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
   };
 
   return (
-    <div className='avatar-upload'>
+    <VStack spacing={3}>
       <input
         type='file'
         ref={fileInputRef}
         onChange={handleFileSelect}
         accept='image/*'
         style={{ display: 'none' }}
-        disabled={disabled || isUploading}
+        disabled={disabled}
       />
 
-      <div className='avatar-preview-container'>
-        {(previewUrl || currentAvatar) && (
-          <div className='avatar-preview'>
-            <img
-              src={previewUrl || currentAvatar}
-              alt='Avatar preview'
-              className='avatar-image'
-            />
-            {!disabled && !isUploading && (
-              <button
-                type='button'
-                onClick={handleRemove}
-                className='remove-avatar-btn'
-              >
-                ×
-              </button>
-            )}
-          </div>
+      <Box position='relative'>
+        <Avatar
+          size='2xl'
+          src={previewUrl || currentAvatar}
+          name='User Avatar'
+          bg='gray.300'
+        />
+
+        {(previewUrl || currentAvatar) && !disabled && (
+          <IconButton
+            aria-label='Remove avatar'
+            icon={<Icon as={X} />}
+            size='sm'
+            colorScheme='red'
+            rounded='full'
+            position='absolute'
+            top='-2'
+            right='-2'
+            onClick={handleRemove}
+          />
         )}
 
         {!previewUrl && !currentAvatar && (
-          <div
-            className={`avatar-placeholder ${disabled ? 'disabled' : ''}`}
-            onClick={handleClick}
+          <Box
+            position='absolute'
+            top='50%'
+            left='50%'
+            transform='translate(-50%, -50%)'
           >
-            {isUploading ? (
-              <div className='upload-progress'>
-                <div className='progress-text'>
-                  Uploading... {uploadProgress}%
-                </div>
-                <div className='progress-bar'>
-                  <div
-                    className='progress-fill'
-                    style={{ width: `${uploadProgress}%` }}
-                  />
-                </div>
-              </div>
-            ) : (
-              <span>Click to upload avatar</span>
-            )}
-          </div>
+            <Icon as={Camera} boxSize={8} color='gray.500' />
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+
+      <Button
+        onClick={handleClick}
+        disabled={disabled}
+        size='sm'
+        colorScheme='blue'
+        variant='outline'
+        leftIcon={<Icon as={Camera} />}
+      >
+        {previewUrl || currentAvatar ? 'Change Avatar' : 'Upload Avatar'}
+      </Button>
+
+      <Text fontSize='xs' color='gray.500'>
+        Max size: 5MB (JPG, PNG)
+      </Text>
+    </VStack>
   );
 };
