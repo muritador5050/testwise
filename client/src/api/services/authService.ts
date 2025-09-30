@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { AuthResponse, User } from '../../types/api';
+import type { AuthResponse, User, UsersResponse } from '../../types/api';
 import {
   apiClient,
+  clearToken,
   getAuthToken,
   getCurrentUser,
   isAuthenticated,
 } from '../apiClient';
 import { uploadToCloudinary } from '../../utils/cloudinaryService';
+import { useNavigate } from 'react-router-dom';
 
 // Register user
 export const useRegisterUser = () => {
@@ -22,9 +24,8 @@ export const useRegisterUser = () => {
         avatarUrl = await uploadToCloudinary(userData.avatar);
       }
 
-      return apiClient('users/register', {
+      return apiClient('users/signup', {
         method: 'POST',
-
         body: JSON.stringify({
           ...userData,
           avatar: avatarUrl,
@@ -36,12 +37,30 @@ export const useRegisterUser = () => {
 
 // Login user
 export const useLoginUser = () => {
-  return useMutation<AuthResponse, Error, { email: string; password: string }>({
+  return useMutation<AuthResponse, Error, { email: string }>({
     mutationFn: async (credentials) => {
       return apiClient('users/login', {
         method: 'POST',
         body: JSON.stringify(credentials),
       });
+    },
+  });
+};
+
+// Logout user
+export const useLogoutUser = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: async () => {
+      clearToken();
+    },
+    onSuccess: () => {
+      // Clear all cached data
+      queryClient.clear();
+      // Navigate to home
+      navigate('/', { replace: true });
     },
   });
 };
@@ -60,10 +79,10 @@ export const useCurrentUser = () => {
 
 // Get all users (Admin only)
 export const useGetAllUsers = () => {
-  return useQuery<User[]>({
+  return useQuery<UsersResponse>({
     queryKey: ['users'],
     queryFn: async () => {
-      return apiClient('users', {
+      return apiClient('/users/admin', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getAuthToken()}`,

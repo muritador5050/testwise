@@ -55,10 +55,10 @@ const AdminNavbar: React.FC<NavbarProps> = ({
 
   // Convert avatar to string URL if it's a File object
   const getAvatarSrc = (): string | undefined => {
-    if (!user.avatar) return undefined;
-    if (typeof user.avatar === 'string') return user.avatar;
+    if (!user?.avatar) return undefined;
+    if (typeof user?.avatar === 'string') return user?.avatar;
     // If it's a File object, create an object URL
-    return URL.createObjectURL(user.avatar);
+    return URL.createObjectURL(user?.avatar);
   };
 
   return (
@@ -111,13 +111,13 @@ const AdminNavbar: React.FC<NavbarProps> = ({
         {/* Right Section - User Menu */}
         <HStack spacing={4}>
           <Text fontSize='sm' color='gray.600'>
-            Welcome, {user.name}
+            Welcome, {user?.name}
           </Text>
           <Menu>
             <MenuButton>
               <Avatar
                 size='sm'
-                name={user.name}
+                name={user?.name}
                 src={getAvatarSrc()}
                 cursor='pointer'
               />

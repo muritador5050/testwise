@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Link, useLocation } from 'react-router-dom';
-import type { NavItem } from '../../types/navigation';
+import type { NavItem } from '../../../types/navigation';
 
 interface SidebarProps {
   isOpen: boolean;

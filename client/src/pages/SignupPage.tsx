@@ -39,13 +39,13 @@ export const SignupPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!formData.avatar) {
       toast({
         title: 'Avatar required',
         description: 'Please select an avatar image',
         status: 'warning',
         duration: 3000,
+        position: 'top-right',
         isClosable: true,
       });
       return;
@@ -63,6 +63,7 @@ export const SignupPage: React.FC = () => {
         description: 'Your account has been created',
         status: 'success',
         duration: 3000,
+        position: 'top-right',
         isClosable: true,
       });
 
@@ -76,6 +77,7 @@ export const SignupPage: React.FC = () => {
           error instanceof Error ? error.message : 'Something went wrong',
         status: 'error',
         duration: 5000,
+        position: 'top-right',
         isClosable: true,
       });
     }

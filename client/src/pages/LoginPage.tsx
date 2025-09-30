@@ -17,16 +17,17 @@ import {
   CardBody,
 } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useLoginUser } from '../api/services/authService';
+import { navigateByRole, getCurrentUser, setToken } from '../api/apiClient';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
+  const loginMutation = useLoginUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
     // Simple email validation
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
@@ -35,34 +36,41 @@ export default function LoginPage() {
         description: 'Please enter a valid email address',
         status: 'error',
         duration: 3000,
+        position: 'top-right',
         isClosable: true,
       });
-      setIsLoading(false);
+
       return;
     }
 
     try {
       // Simulate login process
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await loginMutation.mutateAsync({ email: email });
+      setToken(response.token);
+      const user = getCurrentUser();
+
+      if (!user) {
+        throw new Error('Failed to get user data');
+      }
+
+      navigate(navigateByRole(user.role), { replace: true });
       toast({
         title: 'Login successful!',
         description: `Welcome back!`,
         status: 'success',
         duration: 3000,
+        position: 'top-right',
         isClosable: true,
       });
-
-      navigate('/admin');
     } catch {
       toast({
         title: 'Login failed',
         description: 'Please try again',
         status: 'error',
+        position: 'top-right',
         duration: 3000,
         isClosable: true,
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -119,7 +127,7 @@ export default function LoginPage() {
                   colorScheme='blue'
                   size='lg'
                   w='full'
-                  isLoading={isLoading}
+                  isLoading={loginMutation.isPending}
                   loadingText='Signing in...'
                   fontSize='md'
                   fontWeight='semibold'

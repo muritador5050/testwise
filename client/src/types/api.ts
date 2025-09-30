@@ -10,8 +10,25 @@ export interface User {
   id: number;
   email: string;
   name: string;
-  avatar?: string | File;
   role: Role;
+  avatar: string | null;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  _count: {
+    attempts: number;
+  };
+}
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface UsersResponse {
+  users: User[];
+  pagination: Pagination;
 }
 export interface Option {
   id: number;

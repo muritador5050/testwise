@@ -99,18 +99,12 @@ export const getCurrentUser = (): User | null => {
   }
 };
 
-export const navigateByRole = (role: Role) => {
-  switch (role) {
-    case 'ADMIN':
-      window.location.href = '/admin';
-      break;
-    case 'INSTRUCTOR':
-      window.location.href = '/instructor';
-      break;
-    case 'STUDENT':
-      window.location.href = '/student';
-      break;
-    default:
-      window.location.href = '/';
-  }
+// Navigate based on user role
+export const navigateByRole = (role: Role): string => {
+  const routes: Record<Role, string> = {
+    ADMIN: '/admin',
+    INSTRUCTOR: '/instructor',
+    STUDENT: '/student',
+  };
+  return routes[role] || '/';
 };

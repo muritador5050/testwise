@@ -1,10 +1,13 @@
 // components/layout/AdminLayout.tsx
 import React, { useState, useCallback } from 'react';
 import { Box, useColorModeValue } from '@chakra-ui/react';
+import type { AdminLayoutProps } from '../../../types/navigation';
+import {
+  useCurrentUser,
+  useLogoutUser,
+} from '../../../api/services/authService';
+import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
-import AdminSidebar from '../layouts/adminSidebar';
-import type { AdminLayoutProps } from '../../types/navigation';
-import type { User } from '../../types/api';
 
 // Navigation items configuration
 const navItems = [
@@ -106,24 +109,16 @@ const navItems = [
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const bgColor = useColorModeValue('gray.50', 'gray.900');
-
-  // Mock user data - replace with actual authentication
-  const user: User = {
-    id: 1,
-    email: 'admin@cbtapp.com',
-    name: 'Admin User',
-    role: 'ADMIN',
-    avatar: undefined,
-  };
+  const logoutMutation = useLogoutUser();
+  const { data: user } = useCurrentUser();
 
   const handleToggleSidebar = useCallback(() => {
     setIsSidebarOpen((prev) => !prev);
   }, []);
 
-  const handleLogout = useCallback(() => {
-    // Implement logout logic here
-    console.log('Logging out...');
-  }, []);
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
 
   const contentMarginLeft = isSidebarOpen ? '64' : '16';
 
@@ -133,7 +128,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       <AdminNavbar
         onToggle={handleToggleSidebar}
         isSidebarOpen={isSidebarOpen}
-        user={user}
+        user={user!}
         onLogout={handleLogout}
       />
 
