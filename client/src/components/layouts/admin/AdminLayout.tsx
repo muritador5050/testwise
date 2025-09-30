@@ -31,11 +31,6 @@ const navItems = [
         path: '/admin/exams/create',
         icon: '➕',
       },
-      {
-        name: 'Exam Categories',
-        path: '/admin/exams/categories',
-        icon: '📑',
-      },
     ],
   },
   {
@@ -64,23 +59,6 @@ const navItems = [
     name: 'Users',
     path: '/admin/users',
     icon: '👥',
-    children: [
-      {
-        name: 'All Users',
-        path: '/admin/users',
-        icon: '👨‍💼',
-      },
-      {
-        name: 'Students',
-        path: '/admin/users/students',
-        icon: '🎓',
-      },
-      {
-        name: 'Instructors',
-        path: '/admin/users/instructors',
-        icon: '👨‍🏫',
-      },
-    ],
   },
   {
     name: 'Results',

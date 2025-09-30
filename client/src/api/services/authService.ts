@@ -78,11 +78,17 @@ export const useCurrentUser = () => {
 };
 
 // Get all users (Admin only)
-export const useGetAllUsers = () => {
+export const useGetAllUsers = ({
+  page,
+  limit,
+}: {
+  page?: number;
+  limit?: number;
+}) => {
   return useQuery<UsersResponse>({
-    queryKey: ['users'],
+    queryKey: ['users', page, limit],
     queryFn: async () => {
-      return apiClient('/users/admin', {
+      return apiClient(`users/?page=${page}&limit=${limit}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getAuthToken()}`,
@@ -117,14 +123,23 @@ export const useUpdateUser = () => {
     Error,
     {
       id: number;
-      userData: Partial<User> & { avatar?: File | string };
+      userData: { email?: string; name?: string; avatar?: File; role?: string };
     }
   >({
     mutationFn: async ({ id, userData }) => {
-      const updateData = { ...userData };
+      const updateData: {
+        email?: string;
+        name?: string;
+        avatar?: string;
+        role?: string;
+      } = {
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+      };
 
       if (userData.avatar) {
-        const avatarUrl = await uploadToCloudinary(userData.avatar as File);
+        const avatarUrl = await uploadToCloudinary(userData.avatar);
         updateData.avatar = avatarUrl;
       }
 

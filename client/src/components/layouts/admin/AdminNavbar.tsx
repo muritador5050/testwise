@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { HamburgerIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Link, useLocation } from 'react-router-dom';
-import type { User } from '../../types/api';
+import type { User } from '../../../types/api';
 
 interface NavbarProps {
   onToggle: () => void;
@@ -111,7 +111,7 @@ const AdminNavbar: React.FC<NavbarProps> = ({
         {/* Right Section - User Menu */}
         <HStack spacing={4}>
           <Text fontSize='sm' color='gray.600'>
-            Welcome, {user?.name}
+            Welcome, Admin {user?.name}
           </Text>
           <Menu>
             <MenuButton>

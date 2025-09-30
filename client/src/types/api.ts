@@ -11,10 +11,10 @@ export interface User {
   email: string;
   name: string;
   role: Role;
-  avatar: string | null;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-  _count: {
+  avatar?: string | null;
+  createdAt?: string; // ISO date string
+  updatedAt?: string; // ISO date string
+  _count?: {
     attempts: number;
   };
 }
