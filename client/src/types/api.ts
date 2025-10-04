@@ -12,8 +12,8 @@ export interface User {
   name: string;
   role: Role;
   avatar?: string | null;
-  createdAt?: string; // ISO date string
-  updatedAt?: string; // ISO date string
+  createdAt?: string;
+  updatedAt?: string;
   _count?: {
     attempts: number;
   };
@@ -30,6 +30,15 @@ export interface UsersResponse {
   users: User[];
   pagination: Pagination;
 }
+
+// For creating options (sent to backend)
+export interface CreateOption {
+  text: string;
+  isCorrect: boolean;
+  order: number;
+}
+
+// For options returned from backend
 export interface Option {
   id: number;
   text: string;
@@ -37,6 +46,8 @@ export interface Option {
   order: number;
   questionId: number;
 }
+
+// Question returned from backend
 export interface Question {
   id: number;
   text: string;
@@ -44,7 +55,16 @@ export interface Question {
   points: number;
   order: number;
   testId: number;
-  options: Option[];
+  options: Option[]; // Changed from CreateOption[] to Option[]
+}
+
+// Data sent to backend when creating/updating question
+export interface CreateQuestion {
+  text: string;
+  questionType: QuestionType;
+  points: number;
+  order: number;
+  options: CreateOption[]; // Changed from Option[] to CreateOption[]
 }
 
 export interface CreateTest {
@@ -97,6 +117,7 @@ export interface Attempt {
   userId: number;
   testId: number;
 }
+
 export interface Answer {
   id: number;
   textAnswer?: string;
@@ -106,6 +127,7 @@ export interface Answer {
   questionId: number;
   optionId?: number;
 }
+
 export interface AuthResponse {
   user: User;
   token: string;
@@ -122,7 +144,7 @@ export interface RecentActivity {
   testTitle: string;
   status: AttemptStatus;
   score: number;
-  startedAt: string; // ISO date string
+  startedAt: string;
 }
 
 export interface UserActivityStats {

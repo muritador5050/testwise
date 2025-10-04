@@ -32,7 +32,7 @@ import {
   useUpdateTest,
   usePublishTest,
 } from '../../api/services/testServices';
-import type { CreateTest } from '../../types/api';
+import type { CreateTest, Test } from '../../types/api';
 
 const TestCreator: React.FC = () => {
   const [formData, setFormData] = useState<CreateTest>({
@@ -92,7 +92,7 @@ const TestCreator: React.FC = () => {
     deleteTest.mutate(id);
   };
 
-  const handleEdit = (test: any) => {
+  const handleEdit = (test: Test) => {
     setFormData({
       title: test.title,
       description: test.description,
@@ -335,8 +335,8 @@ const TestCreator: React.FC = () => {
                     size='sm'
                     colorScheme='blue'
                     onClick={() =>
-                      navigate('/questions/create', {
-                        state: { testId: test.id },
+                      navigate(`/instructor/questions/create`, {
+                        state: { testId: test.id, title: test.title },
                       })
                     }
                   >

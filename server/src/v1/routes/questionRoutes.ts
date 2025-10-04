@@ -6,18 +6,15 @@ import QuestionController from '../controllers/questionController';
 // Question Routes
 export const questionRoutes = Router();
 
-// Create a question for a specific test
 questionRoutes.post(
-  '/:testId',
+  '/:testId/test',
   authenticate,
   authorize('ADMIN', 'INSTRUCTOR'),
   QuestionController.create
 );
 
-// Get all questions for a specific test
-questionRoutes.get('/:testId', QuestionController.getByTest);
+questionRoutes.get('/:testId/test', QuestionController.getByTest);
 
-// Update a question
 questionRoutes.patch(
   '/:id',
   authenticate,
@@ -25,7 +22,6 @@ questionRoutes.patch(
   QuestionController.update
 );
 
-// Delete a question
 questionRoutes.delete(
   '/:id',
   authenticate,

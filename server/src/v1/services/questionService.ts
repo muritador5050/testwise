@@ -34,9 +34,43 @@ class QuestionService {
   }
 
   static async updateQuestion(id: number, data: any) {
+    const { options, ...questionData } = data;
+
+    const updatePayload: any = { ...questionData };
+
+    if (options && Array.isArray(options)) {
+      const existingOptionIds = options.map((o: any) => o.id).filter(Boolean);
+
+      updatePayload.options = {
+        // Delete options that exist in the database but are NOT present in the incoming list
+        deleteMany: {
+          questionId: id,
+          id: {
+            notIn: existingOptionIds,
+          },
+        },
+
+        upsert: options.map((o: any) => ({
+          where: { id: o.id || -1 },
+
+          create: {
+            text: o.text,
+            isCorrect: o.isCorrect || false,
+            order: o.order,
+          },
+
+          update: {
+            text: o.text,
+            isCorrect: o.isCorrect || false,
+            order: o.order,
+          },
+        })),
+      };
+    }
+
     return await prisma.question.update({
       where: { id },
-      data,
+      data: updatePayload,
       include: { options: true },
     });
   }

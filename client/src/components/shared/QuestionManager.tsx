@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   Box,
   VStack,
@@ -32,6 +32,7 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import {
   DeleteIcon,
@@ -40,30 +41,72 @@ import {
   DragHandleIcon,
   DownloadIcon,
 } from '@chakra-ui/icons';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BulkUploadModal from './BulkUploadModal';
-import type { Option, Question, QuestionType } from '../../types/api';
+import {
+  useCreateQuestion,
+  useGetQuestionsByTest,
+  useUpdateQuestion,
+  useDeleteQuestion,
+} from '../../api/services/questionServices';
+import type {
+  Option,
+  Question,
+  QuestionType,
+  CreateQuestion,
+} from '../../types/api';
 
-interface QuestionManagerProps {
-  testId: number;
-  onQuestionsUpdate: (questions: Question[]) => void;
+interface QuestionFormData {
+  text: string;
+  questionType: QuestionType;
+  points: number;
+  order: number;
+  options: Option[];
+  correctAnswer: string;
+  isAnswerCorrect: boolean;
 }
 
-const QuestionManager: React.FC<QuestionManagerProps> = ({
-  testId,
-  onQuestionsUpdate,
-}) => {
-  const [questions, setQuestions] = useState<Question[]>([]);
+const QuestionManager: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const toast = useToast();
+
+  const { testId, title } =
+    (location.state as { testId: number; title: string }) || {};
+
+  useEffect(() => {
+    if (!testId) {
+      toast({
+        title: 'Error',
+        description: 'No test selected. Redirecting to tests page.',
+        status: 'error',
+        duration: 3000,
+      });
+      navigate('/instructor/tests');
+    }
+  }, [testId, navigate, toast]);
+
+  const { data: questionsData, isLoading } = useGetQuestionsByTest(testId);
+  const createQuestion = useCreateQuestion();
+  const updateQuestion = useUpdateQuestion();
+  const deleteQuestion = useDeleteQuestion();
+
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-  const [formData, setFormData] = useState({
-    text: '',
-    questionType: 'MULTIPLE_CHOICE' as QuestionType,
-    points: 1.0,
-    order: 1,
-  });
-  const [options, setOptions] = useState<Option[]>([
-    { id: 1, text: '', isCorrect: false, order: 1, questionId: 0 },
-    { id: 2, text: '', isCorrect: false, order: 2, questionId: 0 },
+  const [questionForms, setQuestionForms] = useState<QuestionFormData[]>([
+    {
+      text: '',
+      questionType: 'MULTIPLE_CHOICE',
+      points: 1.0,
+      order: 1,
+      options: [
+        { id: 1, text: '', isCorrect: false, order: 1, questionId: 0 },
+        { id: 2, text: '', isCorrect: false, order: 2, questionId: 0 },
+      ],
+      correctAnswer: '',
+      isAnswerCorrect: true,
+    },
   ]);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isBulkUploadOpen,
@@ -75,131 +118,276 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
   );
   const cancelRef = useRef<HTMLButtonElement>(null);
 
+  const questions = questionsData || [];
+
   const handleBulkUpload = useCallback(
     (uploadedQuestions: Question[]) => {
-      const updatedQuestions = [...questions, ...uploadedQuestions];
-      setQuestions(updatedQuestions);
-      onQuestionsUpdate(updatedQuestions);
       onBulkUploadClose();
+      toast({
+        title: 'Success',
+        description: `${uploadedQuestions.length} questions uploaded successfully.`,
+        status: 'success',
+        duration: 3000,
+      });
     },
-    [questions, onQuestionsUpdate, onBulkUploadClose]
+    [onBulkUploadClose, toast]
   );
 
-  const handleAddQuestion = useCallback(() => {
-    const newQuestion: Question = {
-      ...formData,
-      id: Date.now(),
-      testId,
-      options: options.filter((opt) => opt.text.trim()),
-    };
-
-    const updatedQuestions = [...questions, newQuestion];
-    setQuestions(updatedQuestions);
-    onQuestionsUpdate(updatedQuestions);
-
-    // Reset form
-    setFormData({
-      text: '',
-      questionType: 'MULTIPLE_CHOICE',
-      points: 1.0,
-      order: questions.length + 2,
-    });
-    setOptions([
+  const resetForms = useCallback(() => {
+    setQuestionForms([
       {
-        id: Date.now() + 1,
         text: '',
-        isCorrect: false,
-        order: 1,
-        questionId: 0,
-      },
-      {
-        id: Date.now() + 2,
-        text: '',
-        isCorrect: false,
-        order: 2,
-        questionId: 0,
+        questionType: 'MULTIPLE_CHOICE',
+        points: 1.0,
+        order: questions.length + 1,
+        options: [
+          {
+            id: Date.now() + 1,
+            text: '',
+            isCorrect: false,
+            order: 1,
+            questionId: 0,
+          },
+          {
+            id: Date.now() + 2,
+            text: '',
+            isCorrect: false,
+            order: 2,
+            questionId: 0,
+          },
+        ],
+        correctAnswer: '',
+        isAnswerCorrect: true,
       },
     ]);
     setEditingQuestion(null);
-  }, [formData, options, questions, testId, onQuestionsUpdate]);
+  }, [questions.length]);
 
-  const handleUpdateQuestion = useCallback(() => {
+  const addQuestionForm = useCallback(() => {
+    setQuestionForms((prev) => [
+      ...prev,
+      {
+        text: '',
+        questionType: 'MULTIPLE_CHOICE',
+        points: 1.0,
+        order: questions.length + prev.length + 1,
+        options: [
+          {
+            id: Date.now() + prev.length * 10 + 1,
+            text: '',
+            isCorrect: false,
+            order: 1,
+            questionId: 0,
+          },
+          {
+            id: Date.now() + prev.length * 10 + 2,
+            text: '',
+            isCorrect: false,
+            order: 2,
+            questionId: 0,
+          },
+        ],
+        correctAnswer: '',
+        isAnswerCorrect: true,
+      },
+    ]);
+  }, [questions.length]);
+
+  const removeQuestionForm = useCallback(
+    (index: number) => {
+      if (questionForms.length > 1) {
+        setQuestionForms((prev) => prev.filter((_, i) => i !== index));
+      }
+    },
+    [questionForms.length]
+  );
+
+  const updateQuestionForm = useCallback(
+    (index: number, updates: Partial<QuestionFormData>) => {
+      setQuestionForms((prev) =>
+        prev.map((form, i) => (i === index ? { ...form, ...updates } : form))
+      );
+    },
+    []
+  );
+
+  const handleAddQuestions = useCallback(async () => {
+    const validForms = questionForms.filter((form) => form.text.trim() !== '');
+
+    if (validForms.length === 0) {
+      toast({
+        title: 'Error',
+        description: 'Please add at least one question with text.',
+        status: 'error',
+        duration: 3000,
+      });
+      return;
+    }
+
+    try {
+      for (const form of validForms) {
+        let questionData: CreateQuestion;
+
+        if (['SHORT_ANSWER', 'ESSAY'].includes(form.questionType)) {
+          questionData = {
+            text: form.text,
+            questionType: form.questionType,
+            points: form.points,
+            order: form.order,
+            options: form.correctAnswer.trim()
+              ? [
+                  {
+                    text: form.correctAnswer,
+                    isCorrect: form.isAnswerCorrect,
+                    order: 1,
+                  },
+                ]
+              : [],
+          };
+        } else {
+          questionData = {
+            text: form.text,
+            questionType: form.questionType,
+            points: form.points,
+            order: form.order,
+            options: form.options
+              .filter((opt) => opt.text.trim())
+              .map((opt) => ({
+                text: opt.text,
+                isCorrect: opt.isCorrect,
+                order: opt.order,
+              })),
+          };
+        }
+
+        await createQuestion.mutateAsync({ testId, questionData });
+      }
+
+      toast({
+        title: 'Success',
+        description: `${validForms.length} question(s) created successfully.`,
+        status: 'success',
+        duration: 3000,
+      });
+
+      resetForms();
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to create questions.',
+        status: 'error',
+        duration: 3000,
+      });
+    }
+  }, [questionForms, testId, createQuestion, toast, resetForms]);
+
+  const handleUpdateQuestion = useCallback(async () => {
     if (!editingQuestion) return;
 
-    const updatedQuestion: Question = {
-      ...formData,
-      id: editingQuestion.id,
-      testId,
-      options: options.filter((opt) => opt.text.trim()),
-    };
+    const form = questionForms[0]; // When editing, we only have one form
+    let questionData: Partial<CreateQuestion>;
 
-    const updatedQuestions = questions.map((q) =>
-      q.id === editingQuestion.id ? updatedQuestion : q
-    );
-    setQuestions(updatedQuestions);
-    onQuestionsUpdate(updatedQuestions);
+    if (['SHORT_ANSWER', 'ESSAY'].includes(form.questionType)) {
+      questionData = {
+        text: form.text,
+        questionType: form.questionType,
+        points: form.points,
+        order: form.order,
+        options: form.correctAnswer.trim()
+          ? [
+              {
+                text: form.correctAnswer,
+                isCorrect: form.isAnswerCorrect,
+                order: 1,
+              },
+            ]
+          : [],
+      };
+    } else {
+      questionData = {
+        text: form.text,
+        questionType: form.questionType,
+        points: form.points,
+        order: form.order,
+        options: form.options
+          .filter((opt) => opt.text.trim())
+          .map((opt) => ({
+            id: opt.id,
+            text: opt.text,
+            isCorrect: opt.isCorrect,
+            order: opt.order,
+          })),
+      };
+    }
 
-    // Reset form
-    setFormData({
-      text: '',
-      questionType: 'MULTIPLE_CHOICE',
-      points: 1.0,
-      order: questions.length + 1,
-    });
-    setOptions([
-      {
-        id: Date.now() + 1,
-        text: '',
-        isCorrect: false,
-        order: 1,
-        questionId: 0,
-      },
-      {
-        id: Date.now() + 2,
-        text: '',
-        isCorrect: false,
-        order: 2,
-        questionId: 0,
-      },
-    ]);
-    setEditingQuestion(null);
+    try {
+      await updateQuestion.mutateAsync({
+        id: editingQuestion.id,
+        questionData,
+        testId,
+      });
+      toast({
+        title: 'Success',
+        description: 'Question updated successfully.',
+        status: 'success',
+        duration: 3000,
+      });
+      resetForms();
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to update question.',
+        status: 'error',
+        duration: 3000,
+      });
+    }
   }, [
-    formData,
-    options,
-    questions,
+    questionForms,
     editingQuestion,
     testId,
-    onQuestionsUpdate,
+    updateQuestion,
+    toast,
+    resetForms,
   ]);
 
   const handleEditQuestion = useCallback((question: Question) => {
     setEditingQuestion(question);
-    setFormData({
-      text: question.text,
-      questionType: question.questionType,
-      points: question.points,
-      order: question.order,
-    });
-    setOptions(
-      question.options && question.options.length > 0
-        ? question.options
-        : [
-            {
-              id: Date.now() + 1,
-              text: '',
-              isCorrect: false,
-              order: 1,
-              questionId: 0,
-            },
-            {
-              id: Date.now() + 2,
-              text: '',
-              isCorrect: false,
-              order: 2,
-              questionId: 0,
-            },
-          ]
-    );
+    setQuestionForms([
+      {
+        text: question.text,
+        questionType: question.questionType,
+        points: question.points,
+        order: question.order,
+        options:
+          question.options && question.options.length > 0
+            ? question.options
+            : [
+                {
+                  id: Date.now() + 1,
+                  text: '',
+                  isCorrect: false,
+                  order: 1,
+                  questionId: 0,
+                },
+                {
+                  id: Date.now() + 2,
+                  text: '',
+                  isCorrect: false,
+                  order: 2,
+                  questionId: 0,
+                },
+              ],
+        correctAnswer:
+          question.options && question.options.length > 0
+            ? question.options[0].text
+            : '',
+        isAnswerCorrect:
+          question.options && question.options.length > 0
+            ? question.options[0].isCorrect
+            : true,
+      },
+    ]);
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
@@ -211,87 +399,85 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
     [onOpen]
   );
 
-  const handleDeleteConfirm = useCallback(() => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (questionToDelete) {
-      const updatedQuestions = questions.filter(
-        (q) => q.id !== questionToDelete.id
-      );
-      setQuestions(updatedQuestions);
-      onQuestionsUpdate(updatedQuestions);
-      onClose();
-      setQuestionToDelete(null);
+      try {
+        await deleteQuestion.mutateAsync({ id: questionToDelete.id, testId });
+        toast({
+          title: 'Success',
+          description: 'Question deleted successfully.',
+          status: 'success',
+          duration: 3000,
+        });
+        onClose();
+        setQuestionToDelete(null);
+      } catch {
+        toast({
+          title: 'Error',
+          description: 'Failed to delete question.',
+          status: 'error',
+          duration: 3000,
+        });
+      }
     }
-  }, [questionToDelete, questions, onQuestionsUpdate, onClose]);
+  }, [questionToDelete, testId, deleteQuestion, toast, onClose]);
 
   const handleOptionChange = useCallback(
-    (index: number, field: keyof Option, value: string | boolean) => {
-      const newOptions = [...options];
-      newOptions[index] = { ...newOptions[index], [field]: value };
-      setOptions(newOptions);
+    (
+      formIndex: number,
+      optionIndex: number,
+      field: keyof Option,
+      value: string | boolean
+    ) => {
+      const newOptions = [...questionForms[formIndex].options];
+      newOptions[optionIndex] = { ...newOptions[optionIndex], [field]: value };
+      updateQuestionForm(formIndex, { options: newOptions });
     },
-    [options]
+    [questionForms, updateQuestionForm]
   );
 
   const handleCorrectOptionChange = useCallback(
-    (index: number) => {
-      const newOptions = options.map((opt, i) => ({
+    (formIndex: number, optionIndex: number) => {
+      const newOptions = questionForms[formIndex].options.map((opt, i) => ({
         ...opt,
-        isCorrect: i === index,
+        isCorrect: i === optionIndex,
       }));
-      setOptions(newOptions);
+      updateQuestionForm(formIndex, { options: newOptions });
     },
-    [options]
+    [questionForms, updateQuestionForm]
   );
 
-  const addOption = useCallback(() => {
-    const newId = Math.max(0, ...options.map((o) => o.id)) + 1;
-    setOptions([
-      ...options,
-      {
-        id: newId,
-        text: '',
-        isCorrect: false,
-        order: options.length + 1,
-        questionId: 0,
-      },
-    ]);
-  }, [options]);
+  const addOption = useCallback(
+    (formIndex: number) => {
+      const currentOptions = questionForms[formIndex].options;
+      const newId = Math.max(0, ...currentOptions.map((o) => o.id)) + 1;
+      const newOptions = [
+        ...currentOptions,
+        {
+          id: newId,
+          text: '',
+          isCorrect: false,
+          order: currentOptions.length + 1,
+          questionId: 0,
+        },
+      ];
+      updateQuestionForm(formIndex, { options: newOptions });
+    },
+    [questionForms, updateQuestionForm]
+  );
 
   const removeOption = useCallback(
-    (index: number) => {
-      if (options.length > 2) {
-        const newOptions = options.filter((_, i) => i !== index);
-        setOptions(newOptions.map((opt, i) => ({ ...opt, order: i + 1 })));
+    (formIndex: number, optionIndex: number) => {
+      const currentOptions = questionForms[formIndex].options;
+      if (currentOptions.length > 2) {
+        const newOptions = currentOptions.filter((_, i) => i !== optionIndex);
+        updateQuestionForm(formIndex, {
+          options: newOptions.map((opt, i) => ({ ...opt, order: i + 1 })),
+        });
       }
     },
-    [options]
+    [questionForms, updateQuestionForm]
   );
-
-  const handleCancelForm = useCallback(() => {
-    setFormData({
-      text: '',
-      questionType: 'MULTIPLE_CHOICE',
-      points: 1.0,
-      order: questions.length + 1,
-    });
-    setOptions([
-      {
-        id: Date.now() + 1,
-        text: '',
-        isCorrect: false,
-        order: 1,
-        questionId: 0,
-      },
-      {
-        id: Date.now() + 2,
-        text: '',
-        isCorrect: false,
-        order: 2,
-        questionId: 0,
-      },
-    ]);
-    setEditingQuestion(null);
-  }, [questions.length]);
 
   const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
   const questionTypes = Array.from(
@@ -318,14 +504,28 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
     return type.toLowerCase().replace('_', ' ');
   };
 
+  if (!testId) return null;
+
+  if (isLoading) {
+    return (
+      <Box p={6} textAlign='center'>
+        <Text>Loading questions...</Text>
+      </Box>
+    );
+  }
+
   return (
     <Box p={6} bg='gray.50' minH='100vh'>
       <VStack spacing={6} align='stretch'>
-        {/* Header with Bulk Upload Button */}
-        <HStack justify='space-between' align='center'>
-          <Heading size='lg' color='gray.800'>
-            Manage Questions
-          </Heading>
+        <HStack justify='space-between' align='center' flexWrap='wrap'>
+          <VStack align='flex-start' spacing={1}>
+            <Heading size='lg' color='gray.800'>
+              Manage Questions
+            </Heading>
+            <Text fontSize='md' color='blue.600' fontWeight='semibold'>
+              Test: {title}
+            </Text>
+          </VStack>
           <Button
             leftIcon={<DownloadIcon />}
             colorScheme='purple'
@@ -336,7 +536,6 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
           </Button>
         </HStack>
 
-        {/* Stats */}
         <SimpleGrid columns={3} spacing={4}>
           <Box
             p={4}
@@ -382,11 +581,9 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
           </Box>
         </SimpleGrid>
 
-        {/* Main Content - Side by Side */}
         <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap={6}>
-          {/* Left Side - Question Form */}
           <Box
-            bg='white'
+            bg='#FFF8E7'
             p={6}
             borderRadius='lg'
             shadow='lg'
@@ -394,185 +591,350 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
             borderColor='blue.200'
           >
             <VStack spacing={4} align='stretch'>
-              <Heading size='md' color='gray.800'>
-                {editingQuestion
-                  ? '✏️ Edit Question'
-                  : '➕ Create New Question'}
-              </Heading>
+              <HStack justify='space-between' align='center'>
+                <Heading size='md' color='gray.800'>
+                  {editingQuestion ? '✏️ Edit Question' : '➕ Create Questions'}
+                </Heading>
 
-              <FormControl isRequired>
-                <FormLabel fontWeight='semibold' color='gray.700'>
-                  Question Text
-                </FormLabel>
-                <Textarea
-                  value={formData.text}
-                  onChange={(e) =>
-                    setFormData({ ...formData, text: e.target.value })
-                  }
-                  placeholder='Enter your question here...'
-                  rows={3}
-                  color='gray.800'
-                  borderColor='gray.300'
-                  _hover={{ borderColor: 'blue.400' }}
-                  _focus={{
-                    borderColor: 'blue.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
-                  }}
-                  _placeholder={{ color: 'gray.400' }}
-                />
-              </FormControl>
-
-              <HStack width='100%' align='flex-start' spacing={3}>
-                <FormControl flex={2}>
-                  <FormLabel fontWeight='semibold' color='gray.700'>
-                    Question Type
-                  </FormLabel>
-                  <Select
-                    value={formData.questionType}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        questionType: e.target.value as QuestionType,
-                      })
-                    }
-                    color='gray.800'
-                    borderColor='gray.300'
-                    _hover={{ borderColor: 'blue.400' }}
+                {!editingQuestion && (
+                  <Button
+                    leftIcon={<AddIcon />}
+                    colorScheme='green'
+                    size='sm'
+                    onClick={addQuestionForm}
                   >
-                    <option value='MULTIPLE_CHOICE'>Multiple Choice</option>
-                    <option value='TRUE_FALSE'>True/False</option>
-                    <option value='SHORT_ANSWER'>Short Answer</option>
-                    <option value='ESSAY'>Essay</option>
-                  </Select>
-                </FormControl>
-
-                <FormControl flex={1} isRequired>
-                  <FormLabel fontWeight='semibold' color='gray.700'>
-                    Points
-                  </FormLabel>
-                  <NumberInput
-                    value={formData.points}
-                    onChange={(_valueString, valueNumber) =>
-                      setFormData({ ...formData, points: valueNumber })
-                    }
-                    min={0.5}
-                    step={0.5}
-                    precision={1}
-                  >
-                    <NumberInputField color='gray.800' borderColor='gray.300' />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
-                </FormControl>
-
-                <FormControl flex={1}>
-                  <FormLabel fontWeight='semibold' color='gray.700'>
-                    Order
-                  </FormLabel>
-                  <NumberInput
-                    value={formData.order}
-                    onChange={(_valueString, valueNumber) =>
-                      setFormData({ ...formData, order: valueNumber })
-                    }
-                    min={1}
-                  >
-                    <NumberInputField color='gray.800' borderColor='gray.300' />
-                  </NumberInput>
-                </FormControl>
+                    Add Another Question
+                  </Button>
+                )}
               </HStack>
 
-              {/* Options */}
-              {['MULTIPLE_CHOICE', 'TRUE_FALSE'].includes(
-                formData.questionType
-              ) && (
-                <FormControl>
-                  <FormLabel fontWeight='semibold' color='gray.700'>
-                    Options{' '}
-                    {formData.questionType === 'TRUE_FALSE' && '(True/False)'}
-                  </FormLabel>
-                  <VStack spacing={2} align='stretch'>
-                    {options.map((option, index) => (
-                      <HStack key={option.id}>
-                        <Checkbox
-                          isChecked={option.isCorrect}
-                          onChange={() => handleCorrectOptionChange(index)}
-                          colorScheme='blue'
-                        />
-                        <Input
-                          value={option.text}
+              {!editingQuestion && questionForms.length > 1 && (
+                <Alert status='info' borderRadius='md' fontSize='sm'>
+                  <AlertIcon />
+                  Multiple question mode. You can create {
+                    questionForms.length
+                  }{' '}
+                  questions at once.
+                </Alert>
+              )}
+
+              {questionForms.map((form, formIndex) => (
+                <Box
+                  key={formIndex}
+                  p={4}
+                  bg='white'
+                  borderRadius='md'
+                  border='1px'
+                  borderColor='gray.200'
+                  position='relative'
+                >
+                  {!editingQuestion && questionForms.length > 1 && (
+                    <IconButton
+                      aria-label='Remove question'
+                      icon={<DeleteIcon />}
+                      size='sm'
+                      colorScheme='red'
+                      variant='ghost'
+                      position='absolute'
+                      top={2}
+                      right={2}
+                      onClick={() => removeQuestionForm(formIndex)}
+                    />
+                  )}
+
+                  {!editingQuestion && questionForms.length > 1 && (
+                    <Badge
+                      colorScheme='blue'
+                      position='absolute'
+                      top={2}
+                      left={2}
+                    >
+                      Question {formIndex + 1}
+                    </Badge>
+                  )}
+
+                  <VStack
+                    spacing={4}
+                    align='stretch'
+                    mt={questionForms.length > 1 ? 6 : 0}
+                  >
+                    <FormControl isRequired>
+                      <FormLabel fontWeight='semibold' color='gray.700'>
+                        Question Text
+                      </FormLabel>
+                      <Textarea
+                        value={form.text}
+                        onChange={(e) =>
+                          updateQuestionForm(formIndex, {
+                            text: e.target.value,
+                          })
+                        }
+                        placeholder='Enter your question here...'
+                        rows={2}
+                        color='gray.800'
+                        bg='white'
+                        borderColor='gray.300'
+                        _hover={{ borderColor: 'blue.400' }}
+                        _focus={{
+                          borderColor: 'blue.500',
+                          boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+                        }}
+                        _placeholder={{ color: 'gray.400' }}
+                      />
+                    </FormControl>
+
+                    <HStack width='100%' align='flex-start' spacing={3}>
+                      <FormControl flex={2}>
+                        <FormLabel fontWeight='semibold' color='gray.700'>
+                          Question Type
+                        </FormLabel>
+                        <Select
+                          value={form.questionType}
                           onChange={(e) =>
-                            handleOptionChange(index, 'text', e.target.value)
+                            updateQuestionForm(formIndex, {
+                              questionType: e.target.value as QuestionType,
+                            })
                           }
-                          placeholder={`Option ${index + 1}`}
                           color='gray.800'
+                          bg='white'
                           borderColor='gray.300'
                           _hover={{ borderColor: 'blue.400' }}
+                        >
+                          <option value='MULTIPLE_CHOICE'>
+                            Multiple Choice
+                          </option>
+                          <option value='TRUE_FALSE'>True/False</option>
+                          <option value='SHORT_ANSWER'>Short Answer</option>
+                          <option value='ESSAY'>Essay</option>
+                        </Select>
+                      </FormControl>
+
+                      <FormControl flex={1} isRequired>
+                        <FormLabel fontWeight='semibold' color='gray.700'>
+                          Points
+                        </FormLabel>
+                        <NumberInput
+                          value={form.points}
+                          onChange={(_valueString, valueNumber) =>
+                            updateQuestionForm(formIndex, {
+                              points: valueNumber,
+                            })
+                          }
+                          min={0.5}
+                          step={0.5}
+                          precision={1}
+                        >
+                          <NumberInputField
+                            color='gray.800'
+                            bg='white'
+                            borderColor='gray.300'
+                          />
+                          <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                          </NumberInputStepper>
+                        </NumberInput>
+                      </FormControl>
+
+                      <FormControl flex={1}>
+                        <FormLabel fontWeight='semibold' color='gray.700'>
+                          Order
+                        </FormLabel>
+                        <NumberInput
+                          value={form.order}
+                          onChange={(_valueString, valueNumber) =>
+                            updateQuestionForm(formIndex, {
+                              order: valueNumber,
+                            })
+                          }
+                          min={1}
+                        >
+                          <NumberInputField
+                            color='gray.800'
+                            bg='white'
+                            borderColor='gray.300'
+                          />
+                        </NumberInput>
+                      </FormControl>
+                    </HStack>
+
+                    {['MULTIPLE_CHOICE', 'TRUE_FALSE'].includes(
+                      form.questionType
+                    ) && (
+                      <FormControl>
+                        <FormLabel fontWeight='semibold' color='gray.700'>
+                          Options (Check the correct answer)
+                        </FormLabel>
+                        <VStack spacing={2} align='stretch'>
+                          {form.options.map((option, optionIndex) => (
+                            <HStack
+                              key={option.id}
+                              p={2}
+                              borderWidth='1px'
+                              borderColor={
+                                option.isCorrect ? 'green.400' : 'gray.200'
+                              }
+                              borderRadius='md'
+                              bg={option.isCorrect ? 'green.50' : 'white'}
+                            >
+                              <Checkbox
+                                isChecked={option.isCorrect}
+                                onChange={() =>
+                                  handleCorrectOptionChange(
+                                    formIndex,
+                                    optionIndex
+                                  )
+                                }
+                                colorScheme='green'
+                                size='lg'
+                              />
+                              <Input
+                                value={option.text}
+                                onChange={(e) =>
+                                  handleOptionChange(
+                                    formIndex,
+                                    optionIndex,
+                                    'text',
+                                    e.target.value
+                                  )
+                                }
+                                placeholder={`Option ${optionIndex + 1}`}
+                                color='gray.800'
+                                bg='white'
+                                borderColor='gray.300'
+                                _hover={{ borderColor: 'blue.400' }}
+                                _placeholder={{ color: 'gray.400' }}
+                              />
+                              {form.options.length > 2 && (
+                                <IconButton
+                                  aria-label='Remove option'
+                                  icon={<DeleteIcon />}
+                                  onClick={() =>
+                                    removeOption(formIndex, optionIndex)
+                                  }
+                                  size='sm'
+                                  colorScheme='red'
+                                  variant='ghost'
+                                />
+                              )}
+                            </HStack>
+                          ))}
+                          {form.questionType === 'MULTIPLE_CHOICE' && (
+                            <Button
+                              leftIcon={<AddIcon />}
+                              onClick={() => addOption(formIndex)}
+                              size='sm'
+                              variant='outline'
+                              colorScheme='blue'
+                              alignSelf='flex-start'
+                            >
+                              Add Option
+                            </Button>
+                          )}
+                        </VStack>
+                      </FormControl>
+                    )}
+
+                    {['SHORT_ANSWER', 'ESSAY'].includes(form.questionType) && (
+                      <FormControl>
+                        <HStack justify='space-between' align='center' mb={2}>
+                          <FormLabel
+                            fontWeight='semibold'
+                            color='gray.700'
+                            mb={0}
+                          >
+                            Expected Answer (Optional)
+                          </FormLabel>
+                          <HStack spacing={2}>
+                            <Text fontSize='sm' color='gray.600'>
+                              Mark as correct
+                            </Text>
+                            <Checkbox
+                              isChecked={form.isAnswerCorrect}
+                              onChange={(e) =>
+                                updateQuestionForm(formIndex, {
+                                  isAnswerCorrect: e.target.checked,
+                                })
+                              }
+                              colorScheme='green'
+                            />
+                          </HStack>
+                        </HStack>
+                        <Textarea
+                          value={form.correctAnswer}
+                          onChange={(e) =>
+                            updateQuestionForm(formIndex, {
+                              correctAnswer: e.target.value,
+                            })
+                          }
+                          placeholder='Enter the expected/sample answer here...'
+                          rows={3}
+                          color='gray.800'
+                          bg='white'
+                          borderWidth='2px'
+                          borderColor={
+                            form.isAnswerCorrect ? 'green.300' : 'gray.300'
+                          }
+                          _hover={{
+                            borderColor: form.isAnswerCorrect
+                              ? 'green.400'
+                              : 'blue.400',
+                          }}
+                          _focus={{
+                            borderColor: form.isAnswerCorrect
+                              ? 'green.500'
+                              : 'blue.500',
+                            boxShadow: `0 0 0 1px var(--chakra-colors-${
+                              form.isAnswerCorrect ? 'green' : 'blue'
+                            }-500)`,
+                          }}
                           _placeholder={{ color: 'gray.400' }}
                         />
-                        {options.length > 2 && (
-                          <IconButton
-                            aria-label='Remove option'
-                            icon={<DeleteIcon />}
-                            onClick={() => removeOption(index)}
-                            size='sm'
-                            colorScheme='red'
-                            variant='ghost'
-                          />
-                        )}
-                      </HStack>
-                    ))}
-                    {formData.questionType === 'MULTIPLE_CHOICE' && (
-                      <Button
-                        leftIcon={<AddIcon />}
-                        onClick={addOption}
-                        size='sm'
-                        variant='outline'
-                        colorScheme='blue'
-                      >
-                        Add Option
-                      </Button>
+                        <Alert
+                          status='info'
+                          borderRadius='md'
+                          mt={2}
+                          fontSize='sm'
+                        >
+                          <AlertIcon />
+                          {form.questionType === 'SHORT_ANSWER'
+                            ? 'Short answer questions require manual grading.'
+                            : 'Essay questions require manual grading and review.'}
+                        </Alert>
+                      </FormControl>
                     )}
                   </VStack>
-                </FormControl>
-              )}
+                </Box>
+              ))}
 
-              {/* Info Messages */}
-              {formData.questionType === 'SHORT_ANSWER' && (
-                <Alert status='info' borderRadius='md'>
-                  <AlertIcon />
-                  Short answer questions require manual grading.
-                </Alert>
-              )}
-
-              {formData.questionType === 'ESSAY' && (
-                <Alert status='info' borderRadius='md'>
-                  <AlertIcon />
-                  Essay questions require manual grading and review.
-                </Alert>
-              )}
-
-              {/* Action Buttons */}
               <HStack justify='flex-end' pt={4}>
-                <Button variant='outline' onClick={handleCancelForm}>
+                <Button variant='outline' onClick={resetForms}>
                   Cancel
                 </Button>
                 <Button
                   colorScheme='blue'
                   onClick={
-                    editingQuestion ? handleUpdateQuestion : handleAddQuestion
+                    editingQuestion ? handleUpdateQuestion : handleAddQuestions
+                  }
+                  isLoading={
+                    createQuestion.isPending || updateQuestion.isPending
                   }
                 >
-                  {editingQuestion ? 'Update' : 'Create'} Question
+                  {editingQuestion
+                    ? 'Update'
+                    : `Create ${
+                        questionForms.length > 1
+                          ? `${questionForms.length} Questions`
+                          : 'Question'
+                      }`}
                 </Button>
               </HStack>
             </VStack>
           </Box>
 
-          {/* Right Side - Question List */}
+          {/* The Questions List section remains the same */}
           <Box
-            bg='white'
+            bg='#F5F5DC'
             p={6}
             borderRadius='lg'
             shadow='lg'
@@ -608,6 +970,7 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
                       variant='outline'
                       borderWidth='2px'
                       borderColor='gray.200'
+                      bg='white'
                       _hover={{ borderColor: 'blue.300' }}
                     >
                       <CardBody>
@@ -680,25 +1043,55 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
                                 </VStack>
                               )}
 
-                            {question.questionType === 'SHORT_ANSWER' && (
-                              <Text
-                                fontSize='sm'
-                                color='gray.500'
-                                fontStyle='italic'
-                              >
-                                Manual grading required
-                              </Text>
-                            )}
+                            {['SHORT_ANSWER', 'ESSAY'].includes(
+                              question.questionType
+                            ) &&
+                              question.options &&
+                              question.options.length > 0 && (
+                                <Box
+                                  p={3}
+                                  bg='green.50'
+                                  borderRadius='md'
+                                  borderWidth='1px'
+                                  borderColor='green.200'
+                                >
+                                  <Text
+                                    fontSize='xs'
+                                    fontWeight='bold'
+                                    color='green.700'
+                                    mb={1}
+                                  >
+                                    Expected Answer:
+                                  </Text>
+                                  <Text fontSize='sm' color='gray.700'>
+                                    {question.options[0].text}
+                                  </Text>
+                                </Box>
+                              )}
 
-                            {question.questionType === 'ESSAY' && (
-                              <Text
-                                fontSize='sm'
-                                color='gray.500'
-                                fontStyle='italic'
-                              >
-                                Essay - manual grading required
-                              </Text>
-                            )}
+                            {question.questionType === 'SHORT_ANSWER' &&
+                              (!question.options ||
+                                question.options.length === 0) && (
+                                <Text
+                                  fontSize='sm'
+                                  color='gray.500'
+                                  fontStyle='italic'
+                                >
+                                  Manual grading required
+                                </Text>
+                              )}
+
+                            {question.questionType === 'ESSAY' &&
+                              (!question.options ||
+                                question.options.length === 0) && (
+                                <Text
+                                  fontSize='sm'
+                                  color='gray.500'
+                                  fontStyle='italic'
+                                >
+                                  Essay - manual grading required
+                                </Text>
+                              )}
                           </VStack>
 
                           <HStack flexShrink={0}>
@@ -729,7 +1122,6 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
           </Box>
         </Grid>
 
-        {/* Delete Confirmation Dialog */}
         <AlertDialog
           isOpen={isOpen}
           leastDestructiveRef={cancelRef}
@@ -750,7 +1142,12 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
                 <Button ref={cancelRef} onClick={onClose}>
                   Cancel
                 </Button>
-                <Button colorScheme='red' onClick={handleDeleteConfirm} ml={3}>
+                <Button
+                  colorScheme='red'
+                  onClick={handleDeleteConfirm}
+                  ml={3}
+                  isLoading={deleteQuestion.isPending}
+                >
                   Delete
                 </Button>
               </AlertDialogFooter>
@@ -758,7 +1155,6 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
           </AlertDialogOverlay>
         </AlertDialog>
 
-        {/* Bulk Upload Modal */}
         <BulkUploadModal
           isOpen={isBulkUploadOpen}
           onClose={onBulkUploadClose}
