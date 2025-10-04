@@ -242,6 +242,187 @@ class AttemptService {
       orderBy: { startedAt: 'desc' },
     });
   }
+
+  // Add to AttemptService class
+
+  static async getAttemptAnalytics(testId?: number) {
+    const where = testId ? { testId } : {};
+
+    const [
+      totalAttempts,
+      completedAttempts,
+      inProgressAttempts,
+      timedOutAttempts,
+      averageScore,
+      averageTimeSpent,
+      passRate,
+    ] = await Promise.all([
+      prisma.attempt.count({ where }),
+      prisma.attempt.count({ where: { ...where, status: 'COMPLETED' } }),
+      prisma.attempt.count({ where: { ...where, status: 'IN_PROGRESS' } }),
+      prisma.attempt.count({ where: { ...where, status: 'TIMED_OUT' } }),
+      prisma.attempt.aggregate({
+        where: { ...where, status: 'COMPLETED' },
+        _avg: { percentScore: true },
+      }),
+      prisma.attempt.aggregate({
+        where: { ...where, status: 'COMPLETED' },
+        _avg: { timeSpent: true },
+      }),
+      prisma.attempt.count({
+        where: { ...where, status: 'COMPLETED', percentScore: { gte: 50 } },
+      }),
+    ]);
+
+    return {
+      totalAttempts,
+      completedAttempts,
+      inProgressAttempts,
+      timedOutAttempts,
+      averageScore: averageScore._avg.percentScore || 0,
+      averageTimeSpent: averageTimeSpent._avg.timeSpent || 0,
+      passRate:
+        completedAttempts > 0 ? (passRate / completedAttempts) * 100 : 0,
+    };
+  }
+
+  static async getTestPerformanceByUser(testId: number) {
+    const attempts = await prisma.attempt.findMany({
+      where: { testId, status: 'COMPLETED' },
+      include: { user: true },
+      orderBy: { percentScore: 'desc' },
+    });
+
+    return attempts.map((attempt) => ({
+      userId: attempt.userId,
+      userName: attempt.user.name || attempt.user.email,
+      attemptNumber: attempt.attemptNumber,
+      score: attempt.score,
+      percentScore: attempt.percentScore,
+      timeSpent: attempt.timeSpent,
+      completedAt: attempt.completedAt,
+    }));
+  }
+
+  static async getAttemptTrends(testId?: number, days: number = 30) {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const where = testId
+      ? { testId, startedAt: { gte: startDate } }
+      : { startedAt: { gte: startDate } };
+
+    const attempts = await prisma.attempt.groupBy({
+      by: ['status'],
+      where,
+      _count: { id: true },
+    });
+
+    const dailyAttempts = await prisma.$queryRaw`
+    SELECT DATE(started_at) as date, COUNT(*) as count
+    FROM attempts
+    WHERE started_at >= ${startDate}
+    ${testId ? prisma.$queryRaw`AND test_id = ${testId}` : prisma.$queryRaw``}
+    GROUP BY DATE(started_at)
+    ORDER BY date ASC
+  `;
+
+    return {
+      statusBreakdown: attempts,
+      dailyAttempts,
+    };
+  }
+
+  static async getQuestionPerformance(testId: number) {
+    const questions = await prisma.question.findMany({
+      where: { testId },
+      include: {
+        answers: {
+          where: {
+            attempt: { status: 'COMPLETED' },
+          },
+        },
+      },
+    });
+
+    return questions.map((question) => {
+      const totalAnswers = question.answers.length;
+      const correctAnswers = question.answers.filter((a) => a.isCorrect).length;
+      const avgPointsEarned =
+        totalAnswers > 0
+          ? question.answers.reduce((sum, a) => sum + a.pointsEarned, 0) /
+            totalAnswers
+          : 0;
+
+      return {
+        questionId: question.id,
+        text: question.text,
+        questionType: question.questionType,
+        totalAttempts: totalAnswers,
+        correctCount: correctAnswers,
+        accuracyRate:
+          totalAnswers > 0 ? (correctAnswers / totalAnswers) * 100 : 0,
+        averagePointsEarned: avgPointsEarned,
+        maxPoints: question.points,
+      };
+    });
+  }
+
+  static async getUserPerformanceHistory(userId: number) {
+    const attempts = await prisma.attempt.findMany({
+      where: { userId, status: 'COMPLETED' },
+      include: { test: { select: { title: true } } },
+      orderBy: { completedAt: 'desc' },
+    });
+
+    const totalAttempts = attempts.length;
+    const avgScore =
+      totalAttempts > 0
+        ? attempts.reduce((sum, a) => sum + (a.percentScore || 0), 0) /
+          totalAttempts
+        : 0;
+
+    const passed = attempts.filter((a) => (a.percentScore || 0) >= 50).length;
+
+    return {
+      totalAttempts,
+      averageScore: avgScore,
+      passRate: totalAttempts > 0 ? (passed / totalAttempts) * 100 : 0,
+      attempts: attempts.map((a) => ({
+        testTitle: a.test.title,
+        score: a.score,
+        percentScore: a.percentScore,
+        timeSpent: a.timeSpent,
+        completedAt: a.completedAt,
+      })),
+    };
+  }
+
+  static async getScoreDistribution(testId: number) {
+    const attempts = await prisma.attempt.findMany({
+      where: { testId, status: 'COMPLETED' },
+      select: { percentScore: true },
+    });
+
+    const ranges = [
+      { label: '0-20%', min: 0, max: 20 },
+      { label: '21-40%', min: 21, max: 40 },
+      { label: '41-60%', min: 41, max: 60 },
+      { label: '61-80%', min: 61, max: 80 },
+      { label: '81-100%', min: 81, max: 100 },
+    ];
+
+    const distribution = ranges.map((range) => ({
+      range: range.label,
+      count: attempts.filter(
+        (a) =>
+          (a.percentScore || 0) >= range.min &&
+          (a.percentScore || 0) <= range.max
+      ).length,
+    }));
+
+    return distribution;
+  }
 }
 
 export default AttemptService;

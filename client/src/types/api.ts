@@ -46,6 +46,17 @@ export interface Question {
   testId: number;
   options: Option[];
 }
+
+export interface CreateTest {
+  title: string;
+  description: string;
+  duration: number;
+  maxAttempts: number;
+  isPublished: boolean;
+  availableFrom: string | null;
+  availableUntil: string | null;
+}
+
 export interface Test {
   id: number;
   title: string;
@@ -53,10 +64,26 @@ export interface Test {
   duration: number;
   maxAttempts: number;
   isPublished: boolean;
-  availableFrom?: string;
-  availableUntil?: string;
-  questions: Question[];
+  availableFrom?: string | null;
+  availableUntil?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  _count: {
+    questions: number;
+    attempts: number;
+  };
 }
+
+export interface TestResponse {
+  tests: Test[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export interface Attempt {
   id: number;
   score: number;
@@ -82,4 +109,26 @@ export interface Answer {
 export interface AuthResponse {
   user: User;
   token: string;
+}
+
+export interface UserAnalytics {
+  total: number;
+  instructors: number;
+  students: number;
+  admins: number;
+}
+
+export interface RecentActivity {
+  testTitle: string;
+  status: AttemptStatus;
+  score: number;
+  startedAt: string; // ISO date string
+}
+
+export interface UserActivityStats {
+  totalAttempts: number;
+  completedAttempts: number;
+  averageScore: number;
+  inProgressAttempts: number;
+  recentActivity: RecentActivity[];
 }

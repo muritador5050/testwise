@@ -1,13 +1,20 @@
-// components/layout/AdminLayout.tsx
 import React, { useState, useCallback } from 'react';
 import { Box, useColorModeValue } from '@chakra-ui/react';
-import type { AdminLayoutProps } from '../../../types/navigation';
 import {
   useCurrentUser,
   useLogoutUser,
 } from '../../../api/services/authService';
 import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
+import { Route, Routes } from 'react-router-dom';
+import AdminDashboard from '../../../pages/admin/AdminDashboard';
+import ExamsPage from '../../../pages/ExamsPage';
+import QuestionPage from '../../../pages/QuestionsPage';
+import UsersPage from '../../../pages/admin/UsersPage';
+import Students from '../../../pages/admin/Students';
+import Instructors from '../../../pages/admin/Instructors';
+import ResultsPage from '../../../pages/ResultsPage';
+import SettingsPage from '../../../pages/SettingsPage';
 
 // Navigation items configuration
 const navItems = [
@@ -30,6 +37,11 @@ const navItems = [
         name: 'Create Exam',
         path: '/admin/exams/create',
         icon: '➕',
+      },
+      {
+        name: 'Exam Categories',
+        path: '/admin/exams/categories',
+        icon: '📑',
       },
     ],
   },
@@ -59,6 +71,23 @@ const navItems = [
     name: 'Users',
     path: '/admin/users',
     icon: '👥',
+    children: [
+      {
+        name: 'All Users',
+        path: '/admin/users',
+        icon: '👨‍💼',
+      },
+      {
+        name: 'Students',
+        path: '/admin/users/students',
+        icon: '🎓',
+      },
+      {
+        name: 'Instructors',
+        path: '/admin/users/instructors',
+        icon: '👨‍🏫',
+      },
+    ],
   },
   {
     name: 'Results',
@@ -84,7 +113,7 @@ const navItems = [
   },
 ];
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
+const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const bgColor = useColorModeValue('gray.50', 'gray.900');
   const logoutMutation = useLogoutUser();
@@ -121,7 +150,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         transition='margin-left 0.2s'
         minH='calc(100vh - 4rem)'
       >
-        {children}
+        <Routes>
+          <Route index element={<AdminDashboard />} />
+          <Route path='exams' element={<ExamsPage />} />
+          <Route path='questions' element={<QuestionPage />} />
+          <Route path='users' element={<UsersPage />} />
+          <Route path='users/students' element={<Students />} />
+          <Route path='users/instructors' element={<Instructors />} />
+          <Route path='results' element={<ResultsPage />} />
+          <Route path='results/analytics' element={<div>Analytics</div>} />
+          <Route path='settings' element={<SettingsPage />} />
+        </Routes>
       </Box>
     </Box>
   );

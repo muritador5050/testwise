@@ -115,6 +115,91 @@ class AttemptController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  static async getAnalytics(req: AuthenticatedRequest, res: Response) {
+    try {
+      const testId = req.query.testId
+        ? parseInt(req.query.testId as string)
+        : undefined;
+
+      const analytics = await AttemptService.getAttemptAnalytics(testId);
+      res.json(analytics);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getTestPerformance(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { testId } = req.params;
+      const performance = await AttemptService.getTestPerformanceByUser(
+        parseInt(testId)
+      );
+      res.json(performance);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getTrends(req: AuthenticatedRequest, res: Response) {
+    try {
+      const testId = req.query.testId
+        ? parseInt(req.query.testId as string)
+        : undefined;
+      const days = req.query.days ? parseInt(req.query.days as string) : 30;
+
+      const trends = await AttemptService.getAttemptTrends(testId, days);
+      res.json(trends);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getQuestionAnalytics(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { testId } = req.params;
+      const performance = await AttemptService.getQuestionPerformance(
+        parseInt(testId)
+      );
+      res.json(performance);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getUserPerformance(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { userId } = req.params;
+      const requestingUserId = req.user!.id;
+
+      // Only allow users to view their own performance or admins/instructors
+      if (
+        parseInt(userId) !== requestingUserId &&
+        !['ADMIN', 'INSTRUCTOR'].includes(req.user!.role)
+      ) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const performance = await AttemptService.getUserPerformanceHistory(
+        parseInt(userId)
+      );
+      res.json(performance);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getScoreDistribution(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { testId } = req.params;
+      const distribution = await AttemptService.getScoreDistribution(
+        parseInt(testId)
+      );
+      res.json(distribution);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 export default AttemptController;

@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
+  Box,
   VStack,
   FormControl,
   FormLabel,
@@ -24,14 +18,14 @@ import {
   Checkbox,
   Alert,
   AlertIcon,
+  Heading,
 } from '@chakra-ui/react';
 import { DeleteIcon, AddIcon } from '@chakra-ui/icons';
 import type { Option, Question, QuestionType } from '../../types/api';
 
 interface QuestionFormProps {
-  isOpen: boolean;
-  onClose: () => void;
   onSave: (question: Question | Omit<Question, 'id'>) => void;
+  onCancel: () => void;
   question?: Question | null;
   testId: number;
   nextOrder: number;
@@ -45,9 +39,8 @@ interface FormDataState {
 }
 
 const QuestionForm: React.FC<QuestionFormProps> = ({
-  isOpen,
-  onClose,
   onSave,
+  onCancel,
   question,
   testId,
   nextOrder,
@@ -86,7 +79,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       ]);
     }
     setErrors({});
-  }, [question, nextOrder, isOpen]);
+  }, [question, nextOrder]);
 
   const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
@@ -262,110 +255,108 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   ]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='xl'>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>
+    <Box
+      p={6}
+      bg='white'
+      borderRadius='lg'
+      boxShadow='md'
+      border='1px'
+      borderColor='gray.200'
+    >
+      <VStack spacing={4} align='stretch'>
+        <Heading size='md'>
           {question ? 'Edit Question' : 'Create New Question'}
-        </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <VStack spacing={4}>
-            <FormControl isInvalid={!!errors.text} isRequired>
-              <FormLabel>Question Text</FormLabel>
-              <Textarea
-                value={formData.text}
-                onChange={(e) =>
-                  setFormData({ ...formData, text: e.target.value })
-                }
-                placeholder='Enter your question here...'
-                rows={3}
-              />
-            </FormControl>
+        </Heading>
 
-            <HStack width='100%' align='flex-start'>
-              <FormControl>
-                <FormLabel>Question Type</FormLabel>
-                <Select
-                  value={formData.questionType}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      questionType: e.target.value as QuestionType,
-                    })
-                  }
-                >
-                  <option value='MULTIPLE_CHOICE'>Multiple Choice</option>
-                  <option value='TRUE_FALSE'>True/False</option>
-                  <option value='SHORT_ANSWER'>Short Answer</option>
-                  <option value='ESSAY'>Essay</option>
-                </Select>
-              </FormControl>
+        <FormControl isInvalid={!!errors.text} isRequired>
+          <FormLabel>Question Text</FormLabel>
+          <Textarea
+            value={formData.text}
+            onChange={(e) => setFormData({ ...formData, text: e.target.value })}
+            placeholder='Enter your question here...'
+            rows={3}
+          />
+        </FormControl>
 
-              <FormControl isInvalid={!!errors.points} width='150px' isRequired>
-                <FormLabel>Points</FormLabel>
-                <NumberInput
-                  value={formData.points}
-                  onChange={(valueString, valueNumber) =>
-                    setFormData({ ...formData, points: valueNumber })
-                  }
-                  min={0.5}
-                  step={0.5}
-                  precision={1}
-                >
-                  <NumberInputField />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-              </FormControl>
+        <HStack width='100%' align='flex-start'>
+          <FormControl>
+            <FormLabel>Question Type</FormLabel>
+            <Select
+              value={formData.questionType}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  questionType: e.target.value as QuestionType,
+                })
+              }
+            >
+              <option value='MULTIPLE_CHOICE'>Multiple Choice</option>
+              <option value='TRUE_FALSE'>True/False</option>
+              <option value='SHORT_ANSWER'>Short Answer</option>
+              <option value='ESSAY'>Essay</option>
+            </Select>
+          </FormControl>
 
-              <FormControl width='100px'>
-                <FormLabel>Order</FormLabel>
-                <NumberInput
-                  value={formData.order}
-                  onChange={(valueString, valueNumber) =>
-                    setFormData({ ...formData, order: valueNumber })
-                  }
-                  min={1}
-                >
-                  <NumberInputField />
-                </NumberInput>
-              </FormControl>
-            </HStack>
+          <FormControl isInvalid={!!errors.points} width='150px' isRequired>
+            <FormLabel>Points</FormLabel>
+            <NumberInput
+              value={formData.points}
+              onChange={(_valueString, valueNumber) =>
+                setFormData({ ...formData, points: valueNumber })
+              }
+              min={0.5}
+              step={0.5}
+              precision={1}
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+          </FormControl>
 
-            {renderOptions()}
+          <FormControl width='100px'>
+            <FormLabel>Order</FormLabel>
+            <NumberInput
+              value={formData.order}
+              onChange={(_valueString, valueNumber) =>
+                setFormData({ ...formData, order: valueNumber })
+              }
+              min={1}
+            >
+              <NumberInputField />
+            </NumberInput>
+          </FormControl>
+        </HStack>
 
-            {formData.questionType === 'SHORT_ANSWER' && (
-              <Alert status='info' size='sm'>
-                <AlertIcon />
-                For short answer questions, you'll need to manually grade
-                student responses.
-              </Alert>
-            )}
+        {renderOptions()}
 
-            {formData.questionType === 'ESSAY' && (
-              <Alert status='info' size='sm'>
-                <AlertIcon />
-                Essay questions require manual grading and review.
-              </Alert>
-            )}
-          </VStack>
-        </ModalBody>
+        {formData.questionType === 'SHORT_ANSWER' && (
+          <Alert status='info' size='sm'>
+            <AlertIcon />
+            For short answer questions, you'll need to manually grade student
+            responses.
+          </Alert>
+        )}
 
-        <ModalFooter>
-          <HStack>
-            <Button variant='outline' onClick={onClose}>
-              Cancel
-            </Button>
-            <Button colorScheme='blue' onClick={handleSubmit}>
-              {question ? 'Update' : 'Create'} Question
-            </Button>
-          </HStack>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        {formData.questionType === 'ESSAY' && (
+          <Alert status='info' size='sm'>
+            <AlertIcon />
+            Essay questions require manual grading and review.
+          </Alert>
+        )}
+
+        <HStack justify='flex-end' pt={4}>
+          <Button variant='outline' onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button colorScheme='blue' onClick={handleSubmit}>
+            {question ? 'Update' : 'Create'} Question
+          </Button>
+        </HStack>
+      </VStack>
+    </Box>
   );
 };
 

@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { AuthResponse, User, UsersResponse } from '../../types/api';
+import type {
+  AuthResponse,
+  User,
+  UserActivityStats,
+  UserAnalytics,
+  UsersResponse,
+} from '../../types/api';
 import {
   apiClient,
   clearToken,
@@ -177,5 +183,34 @@ export const useDeleteUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
+  });
+};
+
+export const useUserAnalytics = () => {
+  return useQuery<UserAnalytics>({
+    queryKey: ['count'],
+    queryFn: async () => {
+      return apiClient(`users/analytics/counts`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+  });
+};
+
+export const useUserActivityStats = (id: number) => {
+  return useQuery<UserActivityStats>({
+    queryKey: ['metrics', id],
+    queryFn: async () => {
+      return apiClient(`users/${id}/activity`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+    enabled: !!id,
   });
 };

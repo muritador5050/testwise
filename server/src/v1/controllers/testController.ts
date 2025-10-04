@@ -8,14 +8,10 @@ class TestController {
     try {
       const testData: CreateTestData = req.body;
 
-      if (
-        !testData.title ||
-        !testData.duration ||
-        !testData.questions?.length
-      ) {
+      if (!testData.title || !testData.duration) {
         return res
           .status(400)
-          .json({ error: 'Title, duration, and questions are required' });
+          .json({ error: 'Title and duration are required' });
       }
 
       const test = await TestService.createTest(testData);
@@ -108,6 +104,26 @@ class TestController {
       if (error.code === 'P2025') {
         return res.status(404).json({ error: 'Test not found' });
       }
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getStatistics(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const stats = await TestService.getTestStatistics(parseInt(id));
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getPopular(req: Request, res: Response) {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const popular = await TestService.getPopularTests(limit);
+      res.json(popular);
+    } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   }

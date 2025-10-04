@@ -141,6 +141,38 @@ class UserController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  static async getCounts(req: Request, res: Response) {
+    try {
+      const counts = await UserService.getUserCounts();
+      res.json(counts);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getUserActivity(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const userId = parseInt(id);
+
+      if (req.user?.role === 'STUDENT' && req.user?.id !== userId) {
+        return res.status(403).json({ error: 'Insufficient permissions' });
+      }
+
+      if (req.user?.role !== 'ADMIN' && req.user?.id !== userId) {
+        return res.status(403).json({ error: 'Insufficient permissions' });
+      }
+
+      const stats = await UserService.getUserActivityStats(userId);
+      res.json(stats);
+    } catch (error: any) {
+      if (error.message === 'Activity stats are only available for students') {
+        return res.status(400).json({ error: error.message });
+      }
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 export default UserController;

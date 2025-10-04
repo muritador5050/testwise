@@ -80,6 +80,66 @@ class UserService {
       where: { id },
     });
   }
+
+  static async getUserCounts() {
+    const [total, instructors, students, admins] = await Promise.all([
+      prisma.user.count(),
+      prisma.user.count({ where: { role: 'INSTRUCTOR' } }),
+      prisma.user.count({ where: { role: 'STUDENT' } }),
+      prisma.user.count({ where: { role: 'ADMIN' } }),
+    ]);
+
+    return {
+      total,
+      instructors,
+      students,
+      admins,
+    };
+  }
+
+  static async getUserActivityStats(userId: number) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (user.role !== 'STUDENT') {
+      throw new Error('Activity stats are only available for students');
+    }
+
+    const [totalAttempts, completedAttempts, avgScore, recentActivity] =
+      await Promise.all([
+        prisma.attempt.count({ where: { userId } }),
+        prisma.attempt.count({ where: { userId, status: 'COMPLETED' } }),
+        prisma.attempt.aggregate({
+          where: { userId, status: 'COMPLETED' },
+          _avg: { percentScore: true },
+        }),
+        prisma.attempt.findMany({
+          where: { userId },
+          take: 10,
+          orderBy: { startedAt: 'desc' },
+          include: { test: { select: { title: true } } },
+        }),
+      ]);
+
+    return {
+      totalAttempts,
+      completedAttempts,
+      averageScore: avgScore._avg.percentScore || 0,
+      inProgressAttempts: totalAttempts - completedAttempts,
+      recentActivity: recentActivity.map((a) => ({
+        testTitle: a.test.title,
+        status: a.status,
+        score: a.percentScore,
+        startedAt: a.startedAt,
+      })),
+    };
+  }
 }
 
 export default UserService;

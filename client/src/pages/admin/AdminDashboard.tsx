@@ -1,43 +1,42 @@
 import React from 'react';
-import {
-  SimpleGrid,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  Heading,
-  VStack,
-} from '@chakra-ui/react';
+import { SimpleGrid, Heading, VStack } from '@chakra-ui/react';
+import StatCard from '../../components/admin/StatCard';
+import { BookCheck, BookOpen, CircleQuestionMark, Users } from 'lucide-react';
+import { useUserAnalytics } from '../../api/services/authService';
 
-const Dashboard: React.FC = () => {
+const AdminDashboard: React.FC = () => {
+  const { data } = useUserAnalytics();
+
+  if (!data) {
+    return;
+  }
+
   return (
     <VStack spacing={6} align='stretch'>
       <Heading size='lg'>Dashboard</Heading>
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-        <Stat px={4} py={5} bg='white' shadow='md' borderRadius='lg'>
-          <StatLabel>Total Exams</StatLabel>
-          <StatNumber>45</StatNumber>
-          <StatHelpText>+12% from last month</StatHelpText>
-        </Stat>
+        <StatCard title='Exams' count={5} iconBg='red' icon={<BookOpen />} />
+        <StatCard
+          title='Questions'
+          count={5}
+          iconBg='green'
+          icon={<CircleQuestionMark />}
+        />
 
-        <Stat px={4} py={5} bg='white' shadow='md' borderRadius='lg'>
-          <StatLabel>Total Questions</StatLabel>
-          <StatNumber>1,234</StatNumber>
-          <StatHelpText>+8% from last month</StatHelpText>
-        </Stat>
+        <StatCard
+          title='Total Users'
+          count={data?.total}
+          iconBg='blue'
+          icon={<Users />}
+        />
 
-        <Stat px={4} py={5} bg='white' shadow='md' borderRadius='lg'>
-          <StatLabel>Active Users</StatLabel>
-          <StatNumber>892</StatNumber>
-          <StatHelpText>+15% from last month</StatHelpText>
-        </Stat>
-
-        <Stat px={4} py={5} bg='white' shadow='md' borderRadius='lg'>
-          <StatLabel>Completed Tests</StatLabel>
-          <StatNumber>2,567</StatNumber>
-          <StatHelpText>+23% from last month</StatHelpText>
-        </Stat>
+        <StatCard
+          title='Tests'
+          count={5}
+          iconBg='yellow'
+          icon={<BookCheck />}
+        />
       </SimpleGrid>
 
       {/* Add more dashboard content here */}
@@ -45,4 +44,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;

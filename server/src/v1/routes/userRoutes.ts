@@ -8,6 +8,15 @@ export const userRoutes = Router();
 userRoutes.post('/signup', UserController.create);
 userRoutes.post('/login', UserController.login);
 userRoutes.get('/', authenticate, authorize('ADMIN'), UserController.getAll);
+userRoutes.get(
+  '/analytics/counts',
+  authenticate,
+  authorize('ADMIN'),
+  UserController.getCounts
+);
+
+userRoutes.get('/:id/activity', authenticate, UserController.getUserActivity);
+
 userRoutes.get('/:id', authenticate, UserController.getById);
 userRoutes.patch(
   '/:id',

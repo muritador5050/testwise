@@ -1,12 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient, getAuthToken } from '../apiClient';
-import type { Test } from '../../types/api';
+import type { CreateTest, Test, TestResponse } from '../../types/api';
 
-// Create test (Admin/Instructor only)
 export const useCreateTest = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Test, Error, Omit<Test, 'id'>>({
+  return useMutation<Test, Error, CreateTest>({
     mutationFn: async (testData) => {
       return apiClient('tests', {
         method: 'POST',
@@ -25,7 +24,7 @@ export const useCreateTest = () => {
 
 // Get all tests
 export const useGetAllTests = () => {
-  return useQuery<Test[]>({
+  return useQuery<TestResponse>({
     queryKey: ['tests'],
     queryFn: async () => {
       return apiClient('tests');
@@ -64,7 +63,11 @@ export const useCheckTestAvailability = (id: number) => {
 export const useUpdateTest = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Test, Error, { id: number; testData: Partial<Test> }>({
+  return useMutation<
+    Test,
+    Error,
+    { id: number; testData: Partial<CreateTest> }
+  >({
     mutationFn: async ({ id, testData }) => {
       return apiClient(`tests/${id}`, {
         method: 'PATCH',
@@ -75,7 +78,7 @@ export const useUpdateTest = () => {
         body: JSON.stringify(testData),
       });
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tests'] });
       queryClient.invalidateQueries({ queryKey: ['test', variables.id] });
     },
@@ -96,7 +99,7 @@ export const usePublishTest = () => {
         },
       });
     },
-    onSuccess: (data, id) => {
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: ['tests'] });
       queryClient.invalidateQueries({ queryKey: ['test', id] });
     },

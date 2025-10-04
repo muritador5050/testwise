@@ -13,6 +13,19 @@ testRoutes.post(
   TestController.create
 );
 testRoutes.get('/', TestController.getAll);
+testRoutes.get(
+  '/popular',
+  authenticate,
+  authorize('ADMIN', 'INSTRUCTOR'),
+  TestController.getPopular
+);
+testRoutes.get(
+  '/:id/statistics',
+  authenticate,
+  authorize('ADMIN', 'INSTRUCTOR'),
+  TestController.getStatistics
+);
+
 testRoutes.get('/:id', TestController.getById);
 testRoutes.get(
   '/:id/availability',
