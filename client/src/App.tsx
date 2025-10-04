@@ -8,6 +8,8 @@ import { ProtectedRoute } from './components/protected/ProtectedRoute';
 import StudentDashboard from './pages/student/StudentDashboard';
 import InstructorLayout from './components/layouts/instructor/instructorLayout';
 import AdminLayout from './components/layouts/admin/AdminLayout';
+import ExamPage from './pages/student/ExamsPage';
+import StudentExamPage from './pages/student/StudentExamPage';
 
 const App: React.FC = () => {
   return (
@@ -35,6 +37,23 @@ const App: React.FC = () => {
           element={
             <ProtectedRoute allowedRoles={['STUDENT', 'ADMIN']}>
               <StudentDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/student/exam'
+          element={
+            <ProtectedRoute allowedRoles={['STUDENT', 'ADMIN']}>
+              <ExamPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path='/student/exampage'
+          element={
+            <ProtectedRoute allowedRoles={['STUDENT', 'ADMIN']}>
+              <StudentExamPage />
             </ProtectedRoute>
           }
         />

@@ -8,7 +8,7 @@ import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
 import { Route, Routes } from 'react-router-dom';
 import AdminDashboard from '../../../pages/admin/AdminDashboard';
-import ExamsPage from '../../../pages/ExamsPage';
+import ExamsPage from '../../../pages/student/ExamsPage';
 import QuestionPage from '../../../pages/QuestionsPage';
 import UsersPage from '../../../pages/admin/UsersPage';
 import Students from '../../../pages/admin/Students';

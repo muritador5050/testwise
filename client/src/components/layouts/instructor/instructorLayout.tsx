@@ -1,6 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
 import InstructorDashboard from '../../../pages/instructor/InstructorDashboard';
-import ExamsPage from '../../../pages/ExamsPage';
 import ResultsPage from '../../../pages/ResultsPage';
 import SettingsPage from '../../../pages/SettingsPage';
 import QuestionManager from '../../shared/QuestionManager';
@@ -12,7 +11,6 @@ export default function InstructorLayout() {
     <Box>
       <Routes>
         <Route index element={<InstructorDashboard />} />
-        <Route path='exams' element={<ExamsPage />} />
         <Route path='exams/create' element={<TestCreator />} />
         <Route path='questions/create' element={<QuestionManager />} />
         <Route path='results' element={<ResultsPage />} />
