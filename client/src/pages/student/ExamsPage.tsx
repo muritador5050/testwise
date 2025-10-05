@@ -19,13 +19,34 @@ import {
   CircularProgress,
   CircularProgressLabel,
   useToast,
+  Checkbox,
+  CheckboxGroup,
+  Textarea,
 } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react';
 
+// Enhanced Types
+type QuestionType =
+  | 'MULTIPLE_CHOICE'
+  | 'MULTIPLE_ANSWER'
+  | 'TRUE_FALSE'
+  | 'SHORT_ANSWER'
+  | 'ESSAY';
+// type AttemptStatus = 'IN_PROGRESS' | 'COMPLETED' | 'TIMED_OUT';
+
+interface Option {
+  id: number;
+  text: string;
+  isCorrect?: boolean;
+  order: number;
+}
+
 interface Question {
   id: number;
-  question: string;
-  options: string[];
+  text: string;
+  type: QuestionType;
+  options?: Option[];
+  points?: number;
 }
 
 interface StudentInfo {
@@ -36,19 +57,20 @@ interface StudentInfo {
 interface ExamDetails {
   title: string;
   subject: string;
-  duration: number; // in minutes
+  duration: number;
   totalQuestions: number;
 }
 
-interface Answer {
-  questionId: number;
-  answer: string;
+// Answer can be string (for single choice/text) or string[] (for multiple choice)
+type AnswerValue = string | string[];
+
+interface Answers {
+  [questionId: number]: AnswerValue;
 }
 
 const ExamPage: React.FC = () => {
   const toast = useToast();
 
-  // Sample data
   const studentInfo: StudentInfo = {
     name: 'John Doe',
     avatar: 'https://bit.ly/broken-link',
@@ -58,22 +80,112 @@ const ExamPage: React.FC = () => {
     title: 'Mid-Term Examination',
     subject: 'Computer Science',
     duration: 60,
-    totalQuestions: 20,
+    totalQuestions: 8,
   };
 
-  const questions: Question[] = Array.from({ length: 20 }, (_, i) => ({
-    id: i + 1,
-    question: `Question ${
-      i + 1
-    }: What is the correct answer for this sample question about programming concepts and best practices?`,
-    options: ['Option A', 'Option B', 'Option C', 'Option D'],
-  }));
+  // Sample questions with different types
+  const questions: Question[] = [
+    {
+      id: 1,
+      text: 'What is the correct definition of polymorphism in Object-Oriented Programming?',
+      type: 'MULTIPLE_CHOICE',
+      points: 5,
+      options: [
+        {
+          id: 1,
+          text: 'The ability of different objects to respond to the same message in different ways',
+          order: 1,
+        },
+        {
+          id: 2,
+          text: 'The process of hiding implementation details',
+          order: 2,
+        },
+        {
+          id: 3,
+          text: 'The ability to create multiple instances of a class',
+          order: 3,
+        },
+        {
+          id: 4,
+          text: 'The process of inheriting properties from a parent class',
+          order: 4,
+        },
+      ],
+    },
+    {
+      id: 2,
+      text: 'Select all valid JavaScript data types:',
+      type: 'MULTIPLE_ANSWER',
+      points: 10,
+      options: [
+        { id: 5, text: 'String', order: 1 },
+        { id: 6, text: 'Number', order: 2 },
+        { id: 7, text: 'Character', order: 3 },
+        { id: 8, text: 'Boolean', order: 4 },
+        { id: 9, text: 'Symbol', order: 5 },
+        { id: 10, text: 'Integer', order: 6 },
+      ],
+    },
+    {
+      id: 3,
+      text: 'Arrays in JavaScript are zero-indexed.',
+      type: 'TRUE_FALSE',
+      points: 3,
+      options: [
+        { id: 11, text: 'True', order: 1 },
+        { id: 12, text: 'False', order: 2 },
+      ],
+    },
+    {
+      id: 4,
+      text: 'What is the time complexity of binary search?',
+      type: 'SHORT_ANSWER',
+      points: 5,
+    },
+    {
+      id: 5,
+      text: 'Explain the concept of closure in JavaScript with an example.',
+      type: 'ESSAY',
+      points: 15,
+    },
+    {
+      id: 6,
+      text: 'Which HTTP method is used to update an existing resource?',
+      type: 'MULTIPLE_CHOICE',
+      points: 5,
+      options: [
+        { id: 13, text: 'GET', order: 1 },
+        { id: 14, text: 'POST', order: 2 },
+        { id: 15, text: 'PUT', order: 3 },
+        { id: 16, text: 'DELETE', order: 4 },
+      ],
+    },
+    {
+      id: 7,
+      text: 'Select all features that are part of ES6:',
+      type: 'MULTIPLE_ANSWER',
+      points: 10,
+      options: [
+        { id: 17, text: 'Arrow functions', order: 1 },
+        { id: 18, text: 'Classes', order: 2 },
+        { id: 19, text: 'Promises', order: 3 },
+        { id: 20, text: 'Async/Await', order: 4 },
+      ],
+    },
+    {
+      id: 8,
+      text: 'Discuss the differences between SQL and NoSQL databases, including use cases for each.',
+      type: 'ESSAY',
+      points: 20,
+    },
+  ];
 
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
-  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [answers, setAnswers] = useState<Answers>({});
   const [timeRemaining, setTimeRemaining] = useState<number>(
     examDetails.duration * 60
-  ); // in seconds
+  );
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -103,35 +215,19 @@ const ExamPage: React.FC = () => {
     return (timeRemaining / (examDetails.duration * 60)) * 100;
   };
 
-  const handleAnswerChange = (value: string): void => {
-    const existingAnswerIndex = answers.findIndex(
-      (ans) => ans.questionId === questions[currentQuestion].id
-    );
-
-    if (existingAnswerIndex !== -1) {
-      const newAnswers = [...answers];
-      newAnswers[existingAnswerIndex] = {
-        questionId: questions[currentQuestion].id,
-        answer: value,
-      };
-      setAnswers(newAnswers);
-    } else {
-      setAnswers([
-        ...answers,
-        { questionId: questions[currentQuestion].id, answer: value },
-      ]);
-    }
-  };
-
-  const getCurrentAnswer = (): string => {
-    const answer = answers.find(
-      (ans) => ans.questionId === questions[currentQuestion].id
-    );
-    return answer ? answer.answer : '';
+  const handleAnswerChange = (questionId: number, value: AnswerValue): void => {
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: value,
+    }));
   };
 
   const isQuestionAnswered = (questionId: number): boolean => {
-    return answers.some((ans) => ans.questionId === questionId);
+    const answer = answers[questionId];
+    if (Array.isArray(answer)) {
+      return answer.length > 0;
+    }
+    return answer !== undefined && answer !== '';
   };
 
   const handleNext = (): void => {
@@ -151,14 +247,210 @@ const ExamPage: React.FC = () => {
   };
 
   const handleSubmit = (): void => {
+    const answeredCount = Object.keys(answers).filter((key) => {
+      const answer = answers[parseInt(key)];
+      if (Array.isArray(answer)) return answer.length > 0;
+      return answer !== undefined && answer !== '';
+    }).length;
+
     toast({
       title: 'Exam Submitted',
-      description: `You answered ${answers.length} out of ${examDetails.totalQuestions} questions.`,
+      description: `You answered ${answeredCount} out of ${examDetails.totalQuestions} questions.`,
       status: 'success',
       duration: 5000,
       isClosable: true,
     });
   };
+
+  // Enhanced render function based on question type
+  const renderQuestion = (question: Question) => {
+    const currentAnswer = answers[question.id];
+
+    switch (question.type) {
+      case 'MULTIPLE_CHOICE':
+        return (
+          <RadioGroup
+            value={currentAnswer as string}
+            onChange={(value) => handleAnswerChange(question.id, value)}
+          >
+            <Stack spacing={4}>
+              {question.options?.map((option) => (
+                <Box
+                  key={option.id}
+                  p={4}
+                  borderWidth='2px'
+                  borderRadius='lg'
+                  borderColor={
+                    currentAnswer === option.id.toString()
+                      ? 'blue.400'
+                      : 'gray.200'
+                  }
+                  bg={
+                    currentAnswer === option.id.toString() ? 'blue.50' : 'white'
+                  }
+                  cursor='pointer'
+                  transition='all 0.2s'
+                  _hover={{ borderColor: 'blue.300', bg: 'blue.50' }}
+                >
+                  <Radio
+                    value={option.id.toString()}
+                    size='lg'
+                    colorScheme='blue'
+                  >
+                    <Text ml={2} fontSize='md'>
+                      {option.text}
+                    </Text>
+                  </Radio>
+                </Box>
+              ))}
+            </Stack>
+          </RadioGroup>
+        );
+
+      case 'MULTIPLE_ANSWER':
+        return (
+          <CheckboxGroup
+            value={(currentAnswer as string[]) || []}
+            onChange={(value) =>
+              handleAnswerChange(question.id, value as string[])
+            }
+          >
+            <Stack spacing={4}>
+              {question.options?.map((option) => (
+                <Box
+                  key={option.id}
+                  p={4}
+                  borderWidth='2px'
+                  borderRadius='lg'
+                  borderColor={
+                    (currentAnswer as string[])?.includes(option.id.toString())
+                      ? 'blue.400'
+                      : 'gray.200'
+                  }
+                  bg={
+                    (currentAnswer as string[])?.includes(option.id.toString())
+                      ? 'blue.50'
+                      : 'white'
+                  }
+                  cursor='pointer'
+                  transition='all 0.2s'
+                  _hover={{ borderColor: 'blue.300', bg: 'blue.50' }}
+                >
+                  <Checkbox
+                    value={option.id.toString()}
+                    size='lg'
+                    colorScheme='blue'
+                  >
+                    <Text ml={2} fontSize='md'>
+                      {option.text}
+                    </Text>
+                  </Checkbox>
+                </Box>
+              ))}
+            </Stack>
+          </CheckboxGroup>
+        );
+
+      case 'TRUE_FALSE':
+        return (
+          <RadioGroup
+            value={currentAnswer as string}
+            onChange={(value) => handleAnswerChange(question.id, value)}
+          >
+            <Stack spacing={4}>
+              {question.options?.map((option) => (
+                <Box
+                  key={option.id}
+                  p={4}
+                  borderWidth='2px'
+                  borderRadius='lg'
+                  borderColor={
+                    currentAnswer === option.id.toString()
+                      ? 'blue.400'
+                      : 'gray.200'
+                  }
+                  bg={
+                    currentAnswer === option.id.toString() ? 'blue.50' : 'white'
+                  }
+                  cursor='pointer'
+                  transition='all 0.2s'
+                  _hover={{ borderColor: 'blue.300', bg: 'blue.50' }}
+                >
+                  <Radio
+                    value={option.id.toString()}
+                    size='lg'
+                    colorScheme='blue'
+                  >
+                    <Text ml={2} fontSize='md' fontWeight='semibold'>
+                      {option.text}
+                    </Text>
+                  </Radio>
+                </Box>
+              ))}
+            </Stack>
+          </RadioGroup>
+        );
+
+      case 'SHORT_ANSWER':
+        return (
+          <Textarea
+            value={(currentAnswer as string) || ''}
+            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+            placeholder='Type your short answer here...'
+            size='lg'
+            minH='120px'
+            resize='vertical'
+            borderWidth='2px'
+            borderColor='gray.200'
+            _focus={{
+              borderColor: 'blue.400',
+              boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)',
+            }}
+          />
+        );
+
+      case 'ESSAY':
+        return (
+          <Box>
+            <Textarea
+              value={(currentAnswer as string) || ''}
+              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+              placeholder='Type your detailed answer here...'
+              size='lg'
+              minH='300px'
+              resize='vertical'
+              borderWidth='2px'
+              borderColor='gray.200'
+              _focus={{
+                borderColor: 'blue.400',
+                boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)',
+              }}
+            />
+            <Text mt={2} fontSize='sm' color='gray.500' textAlign='right'>
+              {(currentAnswer as string)?.length || 0} characters
+            </Text>
+          </Box>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  // Get question type badge color
+  const getQuestionTypeBadge = (type: QuestionType) => {
+    const badges = {
+      MULTIPLE_CHOICE: { color: 'blue', text: 'Multiple Choice' },
+      MULTIPLE_ANSWER: { color: 'purple', text: 'Multiple Answer' },
+      TRUE_FALSE: { color: 'green', text: 'True/False' },
+      SHORT_ANSWER: { color: 'orange', text: 'Short Answer' },
+      ESSAY: { color: 'red', text: 'Essay' },
+    };
+    return badges[type] || { color: 'gray', text: type };
+  };
+
+  const currentQ = questions[currentQuestion];
+  const typeBadge = getQuestionTypeBadge(currentQ.type);
 
   return (
     <ChakraProvider>
@@ -174,7 +466,6 @@ const ExamPage: React.FC = () => {
           <Card>
             <CardBody>
               <VStack spacing={4} align='stretch'>
-                {/* Student Info */}
                 <VStack spacing={3}>
                   <Avatar
                     size='xl'
@@ -189,7 +480,6 @@ const ExamPage: React.FC = () => {
 
                 <Divider />
 
-                {/* Exam Details */}
                 <VStack spacing={2} align='stretch'>
                   <Text fontWeight='semibold' color='gray.600' fontSize='sm'>
                     EXAM DETAILS
@@ -218,7 +508,6 @@ const ExamPage: React.FC = () => {
 
                 <Divider />
 
-                {/* Time Remaining */}
                 <VStack spacing={3}>
                   <Text fontWeight='semibold' color='gray.600' fontSize='sm'>
                     TIME REMAINING
@@ -244,63 +533,48 @@ const ExamPage: React.FC = () => {
           <Card h='full'>
             <CardBody>
               <VStack spacing={6} align='stretch' h='full'>
-                <Flex justify='space-between' align='center'>
-                  <Badge colorScheme='blue' fontSize='md' px={3} py={1}>
-                    Question {currentQuestion + 1} of{' '}
-                    {examDetails.totalQuestions}
-                  </Badge>
+                <Flex
+                  justify='space-between'
+                  align='center'
+                  wrap='wrap'
+                  gap={3}
+                >
+                  <HStack spacing={2}>
+                    <Badge colorScheme='blue' fontSize='md' px={3} py={1}>
+                      Question {currentQuestion + 1} of{' '}
+                      {examDetails.totalQuestions}
+                    </Badge>
+                    <Badge
+                      colorScheme={typeBadge.color}
+                      fontSize='sm'
+                      px={2}
+                      py={1}
+                    >
+                      {typeBadge.text}
+                    </Badge>
+                    {currentQ.points && (
+                      <Badge colorScheme='gray' fontSize='sm' px={2} py={1}>
+                        {currentQ.points} pts
+                      </Badge>
+                    )}
+                  </HStack>
                   <Progress
                     value={
                       ((currentQuestion + 1) / examDetails.totalQuestions) * 100
                     }
                     size='sm'
                     colorScheme='blue'
-                    w='200px'
+                    w={{ base: '100%', md: '200px' }}
                     borderRadius='full'
                   />
                 </Flex>
 
                 <Box flex='1'>
                   <Text fontSize='xl' fontWeight='semibold' mb={6}>
-                    {questions[currentQuestion].question}
+                    {currentQ.text}
                   </Text>
 
-                  <RadioGroup
-                    onChange={handleAnswerChange}
-                    value={getCurrentAnswer()}
-                  >
-                    <Stack spacing={4}>
-                      {questions[currentQuestion].options.map(
-                        (option, index) => (
-                          <Box
-                            key={index}
-                            p={4}
-                            borderWidth='2px'
-                            borderRadius='lg'
-                            borderColor={
-                              getCurrentAnswer() === option
-                                ? 'blue.400'
-                                : 'gray.200'
-                            }
-                            bg={
-                              getCurrentAnswer() === option
-                                ? 'blue.50'
-                                : 'white'
-                            }
-                            cursor='pointer'
-                            transition='all 0.2s'
-                            _hover={{ borderColor: 'blue.300', bg: 'blue.50' }}
-                          >
-                            <Radio value={option} size='lg' colorScheme='blue'>
-                              <Text ml={2} fontSize='md'>
-                                {option}
-                              </Text>
-                            </Radio>
-                          </Box>
-                        )
-                      )}
-                    </Stack>
-                  </RadioGroup>
+                  {renderQuestion(currentQ)}
                 </Box>
 
                 <HStack justify='space-between'>
@@ -348,7 +622,6 @@ const ExamPage: React.FC = () => {
 
                 <Divider />
 
-                {/* Question Grid */}
                 <Grid templateColumns='repeat(5, 1fr)' gap={2}>
                   {questions.map((q, index) => (
                     <Button
@@ -380,6 +653,7 @@ const ExamPage: React.FC = () => {
                           ? 'green.400'
                           : 'gray.300'
                       }
+                      borderRadius='full'
                       _hover={{
                         bg:
                           currentQuestion === index
@@ -399,14 +673,19 @@ const ExamPage: React.FC = () => {
 
                 <Divider />
 
-                {/* Statistics */}
                 <VStack spacing={2} align='stretch'>
                   <HStack justify='space-between'>
                     <Text fontSize='sm' color='gray.600'>
                       Answered:
                     </Text>
                     <Badge colorScheme='green' fontSize='md'>
-                      {answers.length}
+                      {
+                        Object.keys(answers).filter((key) => {
+                          const answer = answers[parseInt(key)];
+                          if (Array.isArray(answer)) return answer.length > 0;
+                          return answer !== undefined && answer !== '';
+                        }).length
+                      }
                     </Badge>
                   </HStack>
                   <HStack justify='space-between'>
@@ -414,7 +693,12 @@ const ExamPage: React.FC = () => {
                       Remaining:
                     </Text>
                     <Badge colorScheme='orange' fontSize='md'>
-                      {examDetails.totalQuestions - answers.length}
+                      {examDetails.totalQuestions -
+                        Object.keys(answers).filter((key) => {
+                          const answer = answers[parseInt(key)];
+                          if (Array.isArray(answer)) return answer.length > 0;
+                          return answer !== undefined && answer !== '';
+                        }).length}
                     </Badge>
                   </HStack>
                 </VStack>
