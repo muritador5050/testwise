@@ -24,44 +24,11 @@ import {
   Textarea,
 } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react';
+import { useLocation } from 'react-router-dom';
+import { useCurrentUser } from '../../api/services/authService';
+import type { Test, Question, QuestionType } from '../../types/api';
+import { useGetTestById } from '../../api/services/testServices';
 
-// Enhanced Types
-type QuestionType =
-  | 'MULTIPLE_CHOICE'
-  | 'MULTIPLE_ANSWER'
-  | 'TRUE_FALSE'
-  | 'SHORT_ANSWER'
-  | 'ESSAY';
-// type AttemptStatus = 'IN_PROGRESS' | 'COMPLETED' | 'TIMED_OUT';
-
-interface Option {
-  id: number;
-  text: string;
-  isCorrect?: boolean;
-  order: number;
-}
-
-interface Question {
-  id: number;
-  text: string;
-  type: QuestionType;
-  options?: Option[];
-  points?: number;
-}
-
-interface StudentInfo {
-  name: string;
-  avatar: string;
-}
-
-interface ExamDetails {
-  title: string;
-  subject: string;
-  duration: number;
-  totalQuestions: number;
-}
-
-// Answer can be string (for single choice/text) or string[] (for multiple choice)
 type AnswerValue = string | string[];
 
 interface Answers {
@@ -70,122 +37,47 @@ interface Answers {
 
 const ExamPage: React.FC = () => {
   const toast = useToast();
+  const location = useLocation();
+  const { id } = location.state as { id: number };
 
-  const studentInfo: StudentInfo = {
-    name: 'John Doe',
-    avatar: 'https://bit.ly/broken-link',
+  const currentUser = useCurrentUser();
+  const studentInfo = {
+    name: currentUser.data?.name || 'Student',
+    avatar: currentUser.data?.avatar,
   };
 
-  const examDetails: ExamDetails = {
-    title: 'Mid-Term Examination',
-    subject: 'Computer Science',
-    duration: 60,
-    totalQuestions: 8,
-  };
+  const { data: testData, isLoading } = useGetTestById(id);
 
-  // Sample questions with different types
-  const questions: Question[] = [
-    {
-      id: 1,
-      text: 'What is the correct definition of polymorphism in Object-Oriented Programming?',
-      type: 'MULTIPLE_CHOICE',
-      points: 5,
-      options: [
-        {
-          id: 1,
-          text: 'The ability of different objects to respond to the same message in different ways',
-          order: 1,
-        },
-        {
-          id: 2,
-          text: 'The process of hiding implementation details',
-          order: 2,
-        },
-        {
-          id: 3,
-          text: 'The ability to create multiple instances of a class',
-          order: 3,
-        },
-        {
-          id: 4,
-          text: 'The process of inheriting properties from a parent class',
-          order: 4,
-        },
-      ],
+  const questions: Question[] = testData?.questions || [];
+
+  const examDetails: Test = {
+    id: testData?.id || 0,
+    title: testData?.title || '',
+    description: testData?.description || null,
+    duration: testData?.duration || 60,
+    maxAttempts: testData?.maxAttempts || 1,
+    isPublished: testData?.isPublished || false,
+    availableFrom: testData?.availableFrom || null,
+    availableUntil: testData?.availableUntil || null,
+    createdAt: testData?.createdAt || '',
+    updatedAt: testData?.updatedAt || '',
+    _count: {
+      questions: testData?._count?.questions ?? questions.length,
+      attempts: testData?._count?.attempts || 0,
     },
-    {
-      id: 2,
-      text: 'Select all valid JavaScript data types:',
-      type: 'MULTIPLE_ANSWER',
-      points: 10,
-      options: [
-        { id: 5, text: 'String', order: 1 },
-        { id: 6, text: 'Number', order: 2 },
-        { id: 7, text: 'Character', order: 3 },
-        { id: 8, text: 'Boolean', order: 4 },
-        { id: 9, text: 'Symbol', order: 5 },
-        { id: 10, text: 'Integer', order: 6 },
-      ],
-    },
-    {
-      id: 3,
-      text: 'Arrays in JavaScript are zero-indexed.',
-      type: 'TRUE_FALSE',
-      points: 3,
-      options: [
-        { id: 11, text: 'True', order: 1 },
-        { id: 12, text: 'False', order: 2 },
-      ],
-    },
-    {
-      id: 4,
-      text: 'What is the time complexity of binary search?',
-      type: 'SHORT_ANSWER',
-      points: 5,
-    },
-    {
-      id: 5,
-      text: 'Explain the concept of closure in JavaScript with an example.',
-      type: 'ESSAY',
-      points: 15,
-    },
-    {
-      id: 6,
-      text: 'Which HTTP method is used to update an existing resource?',
-      type: 'MULTIPLE_CHOICE',
-      points: 5,
-      options: [
-        { id: 13, text: 'GET', order: 1 },
-        { id: 14, text: 'POST', order: 2 },
-        { id: 15, text: 'PUT', order: 3 },
-        { id: 16, text: 'DELETE', order: 4 },
-      ],
-    },
-    {
-      id: 7,
-      text: 'Select all features that are part of ES6:',
-      type: 'MULTIPLE_ANSWER',
-      points: 10,
-      options: [
-        { id: 17, text: 'Arrow functions', order: 1 },
-        { id: 18, text: 'Classes', order: 2 },
-        { id: 19, text: 'Promises', order: 3 },
-        { id: 20, text: 'Async/Await', order: 4 },
-      ],
-    },
-    {
-      id: 8,
-      text: 'Discuss the differences between SQL and NoSQL databases, including use cases for each.',
-      type: 'ESSAY',
-      points: 20,
-    },
-  ];
+  };
 
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [timeRemaining, setTimeRemaining] = useState<number>(
     examDetails.duration * 60
   );
+
+  useEffect(() => {
+    if (testData?.duration) {
+      setTimeRemaining(testData.duration * 60);
+    }
+  }, [testData]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -255,18 +147,19 @@ const ExamPage: React.FC = () => {
 
     toast({
       title: 'Exam Submitted',
-      description: `You answered ${answeredCount} out of ${examDetails.totalQuestions} questions.`,
+      description: `You answered ${answeredCount} out of ${
+        examDetails._count?.questions || questions.length
+      } questions.`,
       status: 'success',
       duration: 5000,
       isClosable: true,
     });
   };
 
-  // Enhanced render function based on question type
   const renderQuestion = (question: Question) => {
     const currentAnswer = answers[question.id];
 
-    switch (question.type) {
+    switch (question.questionType) {
       case 'MULTIPLE_CHOICE':
         return (
           <RadioGroup
@@ -437,7 +330,6 @@ const ExamPage: React.FC = () => {
     }
   };
 
-  // Get question type badge color
   const getQuestionTypeBadge = (type: QuestionType) => {
     const badges = {
       MULTIPLE_CHOICE: { color: 'blue', text: 'Multiple Choice' },
@@ -449,8 +341,43 @@ const ExamPage: React.FC = () => {
     return badges[type] || { color: 'gray', text: type };
   };
 
+  if (isLoading) {
+    return (
+      <Flex minH='100vh' align='center' justify='center' bg='gray.50'>
+        <VStack spacing={4}>
+          <CircularProgress isIndeterminate color='blue.400' size='80px' />
+          <Text fontSize='lg' color='gray.600'>
+            Loading exam...
+          </Text>
+        </VStack>
+      </Flex>
+    );
+  }
+
+  if (!testData || questions.length === 0) {
+    return (
+      <Flex minH='100vh' align='center' justify='center' bg='gray.50'>
+        <Card>
+          <CardBody>
+            <VStack spacing={4} p={8}>
+              <Text fontSize='xl' fontWeight='bold' color='red.500'>
+                Exam Not Found
+              </Text>
+              <Text color='gray.600'>
+                The exam you're looking for doesn't exist or has no questions.
+              </Text>
+              <Button colorScheme='blue' onClick={() => window.history.back()}>
+                Go Back
+              </Button>
+            </VStack>
+          </CardBody>
+        </Card>
+      </Flex>
+    );
+  }
+
   const currentQ = questions[currentQuestion];
-  const typeBadge = getQuestionTypeBadge(currentQ.type);
+  const typeBadge = getQuestionTypeBadge(currentQ.questionType);
 
   return (
     <ChakraProvider>
@@ -470,7 +397,7 @@ const ExamPage: React.FC = () => {
                   <Avatar
                     size='xl'
                     name={studentInfo.name}
-                    src={studentInfo.avatar}
+                    src={studentInfo.avatar || ''}
                     bg='blue.500'
                   />
                   <Text fontWeight='bold' fontSize='lg' textAlign='center'>
@@ -492,16 +419,16 @@ const ExamPage: React.FC = () => {
                   </Box>
                   <Box>
                     <Text fontSize='sm' color='gray.500'>
-                      Subject
+                      Description
                     </Text>
-                    <Text fontWeight='medium'>{examDetails.subject}</Text>
+                    <Text fontWeight='medium'>{examDetails.description}</Text>
                   </Box>
                   <Box>
                     <Text fontSize='sm' color='gray.500'>
                       Total Questions
                     </Text>
                     <Text fontWeight='medium'>
-                      {examDetails.totalQuestions}
+                      {examDetails._count?.questions || questions.length}
                     </Text>
                   </Box>
                 </VStack>
@@ -542,7 +469,7 @@ const ExamPage: React.FC = () => {
                   <HStack spacing={2}>
                     <Badge colorScheme='blue' fontSize='md' px={3} py={1}>
                       Question {currentQuestion + 1} of{' '}
-                      {examDetails.totalQuestions}
+                      {examDetails._count?.questions || questions.length}
                     </Badge>
                     <Badge
                       colorScheme={typeBadge.color}
@@ -560,7 +487,9 @@ const ExamPage: React.FC = () => {
                   </HStack>
                   <Progress
                     value={
-                      ((currentQuestion + 1) / examDetails.totalQuestions) * 100
+                      ((currentQuestion + 1) /
+                        (examDetails._count?.questions || questions.length)) *
+                      100
                     }
                     size='sm'
                     colorScheme='blue'
@@ -666,7 +595,7 @@ const ExamPage: React.FC = () => {
                       fontSize='md'
                       fontWeight='semibold'
                     >
-                      {q.id}
+                      {index + 1}
                     </Button>
                   ))}
                 </Grid>
@@ -693,7 +622,7 @@ const ExamPage: React.FC = () => {
                       Remaining:
                     </Text>
                     <Badge colorScheme='orange' fontSize='md'>
-                      {examDetails.totalQuestions -
+                      {(examDetails._count?.questions || questions.length) -
                         Object.keys(answers).filter((key) => {
                           const answer = answers[parseInt(key)];
                           if (Array.isArray(answer)) return answer.length > 0;

@@ -9,22 +9,35 @@ import {
   Text,
   Button,
   Progress,
+  Badge,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import { TrendingUp } from 'lucide-react';
-
-interface Result {
-  id: number;
-  examTitle: string;
-  score: number;
-  totalQuestions: number;
-  date: string;
-  status: string;
-}
+import type { AttemptStatus, UserActivityStats } from '../../types/api';
 
 interface Props {
-  results: Result[];
+  results: UserActivityStats;
 }
+
+const getStatusColor = (status: AttemptStatus) => {
+  switch (status) {
+    case 'COMPLETED':
+      return 'green';
+    case 'IN_PROGRESS':
+      return 'blue';
+    case 'TIMED_OUT':
+      return 'red';
+    default:
+      return 'gray';
+  }
+};
+
+const getStatusLabel = (status: AttemptStatus) => {
+  return status
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
 
 const RecentResults: React.FC<Props> = ({ results }) => (
   <Card>
@@ -41,9 +54,9 @@ const RecentResults: React.FC<Props> = ({ results }) => (
     </CardHeader>
     <CardBody>
       <VStack spacing={4} align='stretch'>
-        {results.map((result) => (
+        {results.recentActivity.map((activity, index) => (
           <Box
-            key={result.id}
+            key={index}
             p={4}
             borderWidth='1px'
             borderRadius='lg'
@@ -51,31 +64,40 @@ const RecentResults: React.FC<Props> = ({ results }) => (
           >
             <HStack justify='space-between' mb={2}>
               <VStack align='start' spacing={0}>
-                <Heading size='sm'>{result.examTitle}</Heading>
+                <Heading size='sm'>{activity.testTitle}</Heading>
                 <Text fontSize='sm' color='gray.600'>
-                  {new Date(result.date).toLocaleDateString()}
+                  {new Date(activity.startedAt).toLocaleDateString()}
                 </Text>
               </VStack>
-              <VStack align='end' spacing={0}>
-                <Heading
-                  size='lg'
-                  color={result.score >= 70 ? 'green.500' : 'red.500'}
-                >
-                  {result.score}%
-                </Heading>
-                <Text fontSize='xs' color='gray.600'>
-                  {result.totalQuestions} questions
-                </Text>
+              <VStack align='end' spacing={1}>
+                <Badge colorScheme={getStatusColor(activity.status)}>
+                  {getStatusLabel(activity.status)}
+                </Badge>
+                {activity.status === 'COMPLETED' && (
+                  <Heading
+                    size='lg'
+                    color={activity.score >= 70 ? 'green.500' : 'red.500'}
+                  >
+                    {activity.score}%
+                  </Heading>
+                )}
               </VStack>
             </HStack>
-            <Progress
-              value={result.score}
-              colorScheme={result.score >= 70 ? 'green' : 'red'}
-              size='sm'
-              borderRadius='full'
-            />
+            {activity.status === 'COMPLETED' && (
+              <Progress
+                value={activity.score}
+                colorScheme={activity.score >= 70 ? 'green' : 'red'}
+                size='sm'
+                borderRadius='full'
+              />
+            )}
           </Box>
         ))}
+        {results.recentActivity.length === 0 && (
+          <Text color='gray.500' textAlign='center' py={4}>
+            No recent activity
+          </Text>
+        )}
       </VStack>
     </CardBody>
   </Card>

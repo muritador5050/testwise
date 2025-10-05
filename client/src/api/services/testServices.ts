@@ -32,7 +32,6 @@ export const useGetAllTests = () => {
   });
 };
 
-// Get test by ID
 export const useGetTestById = (id: number) => {
   return useQuery<Test>({
     queryKey: ['test', id],

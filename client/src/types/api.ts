@@ -1,6 +1,7 @@
 export type Role = 'STUDENT' | 'ADMIN' | 'INSTRUCTOR';
 export type QuestionType =
   | 'MULTIPLE_CHOICE'
+  | 'MULTIPLE_ANSWER'
   | 'TRUE_FALSE'
   | 'SHORT_ANSWER'
   | 'ESSAY';
@@ -31,14 +32,12 @@ export interface UsersResponse {
   pagination: Pagination;
 }
 
-// For creating options (sent to backend)
 export interface CreateOption {
   text: string;
   isCorrect: boolean;
   order: number;
 }
 
-// For options returned from backend
 export interface Option {
   id: number;
   text: string;
@@ -47,7 +46,6 @@ export interface Option {
   questionId: number;
 }
 
-// Question returned from backend
 export interface Question {
   id: number;
   text: string;
@@ -55,16 +53,15 @@ export interface Question {
   points: number;
   order: number;
   testId: number;
-  options: Option[]; // Changed from CreateOption[] to Option[]
+  options: Option[];
 }
 
-// Data sent to backend when creating/updating question
 export interface CreateQuestion {
   text: string;
   questionType: QuestionType;
   points: number;
   order: number;
-  options: CreateOption[]; // Changed from Option[] to CreateOption[]
+  options: CreateOption[];
 }
 
 export interface CreateTest {
@@ -77,10 +74,27 @@ export interface CreateTest {
   availableUntil: string | null;
 }
 
+// export interface Test {
+//   id: number;
+//   title: string;
+//   description: string;
+//   duration: number;
+//   maxAttempts: number;
+//   isPublished: boolean;
+//   availableFrom?: string | null;
+//   availableUntil?: string | null;
+//   createdAt: string;
+//   updatedAt: string;
+//   _count?: {
+//     questions: number;
+//     attempts: number;
+//   };
+// }
+
 export interface Test {
   id: number;
   title: string;
-  description: string;
+  description: string | null;
   duration: number;
   maxAttempts: number;
   isPublished: boolean;
@@ -88,10 +102,12 @@ export interface Test {
   availableUntil?: string | null;
   createdAt: string;
   updatedAt: string;
-  _count: {
-    questions: number;
+  _count?: {
+    questions?: number;
     attempts: number;
   };
+  questions?: Question[];
+  attempts?: Attempt[];
 }
 
 export interface TestResponse {

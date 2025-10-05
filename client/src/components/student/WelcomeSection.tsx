@@ -9,15 +9,13 @@ import {
   Spacer,
 } from '@chakra-ui/react';
 import { LogOut } from 'lucide-react';
-import { useLogoutUser } from '../../api/services/authService';
 
 interface Props {
   studentName: string;
+  handleLogout: () => void;
 }
 
-const WelcomeSection: React.FC<Props> = ({ studentName }) => {
-  const logoutMutation = useLogoutUser();
-
+const WelcomeSection: React.FC<Props> = ({ studentName, handleLogout }) => {
   return (
     <HStack spacing={4} mb={8} w='full'>
       <Avatar size='lg' name={studentName}>
@@ -38,7 +36,7 @@ const WelcomeSection: React.FC<Props> = ({ studentName }) => {
         icon={<LogOut />}
         colorScheme='red'
         variant='ghost'
-        onClick={() => logoutMutation.mutate()}
+        onClick={handleLogout}
       />
     </HStack>
   );

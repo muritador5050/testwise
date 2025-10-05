@@ -6,16 +6,13 @@ import {
   StatLabel,
   StatNumber,
   StatHelpText,
-  StatArrow,
 } from '@chakra-ui/react';
 
 interface StudentStats {
-  totalExams: number;
-  completedExams: number;
+  totalAttempts: number;
+  completedAttempts: number;
   averageScore: number;
-  improvement: number;
-  totalStudyHours: number;
-  currentStreak: number;
+  inProgressAttempts: number;
 }
 
 interface Props {
@@ -28,8 +25,8 @@ const StatsOverview: React.FC<Props> = ({ stats }) => (
       <CardBody>
         <Stat>
           <StatLabel>Total Exams</StatLabel>
-          <StatNumber>{stats.totalExams}</StatNumber>
-          <StatHelpText>{stats.completedExams} completed</StatHelpText>
+          <StatNumber>{stats.totalAttempts}</StatNumber>
+          <StatHelpText>{stats.completedAttempts} completed</StatHelpText>
         </Stat>
       </CardBody>
     </Card>
@@ -37,32 +34,9 @@ const StatsOverview: React.FC<Props> = ({ stats }) => (
     <Card>
       <CardBody>
         <Stat>
-          <StatLabel>Average Score</StatLabel>
-          <StatNumber>{stats.averageScore}%</StatNumber>
-          <StatHelpText>
-            <StatArrow type='increase' />
-            {stats.improvement}%
-          </StatHelpText>
-        </Stat>
-      </CardBody>
-    </Card>
-
-    <Card>
-      <CardBody>
-        <Stat>
-          <StatLabel>Study Hours</StatLabel>
-          <StatNumber>{stats.totalStudyHours}h</StatNumber>
+          <StatLabel>Inprogress Attempts</StatLabel>
+          <StatNumber>{stats.inProgressAttempts}</StatNumber>
           <StatHelpText>This month</StatHelpText>
-        </Stat>
-      </CardBody>
-    </Card>
-
-    <Card>
-      <CardBody>
-        <Stat>
-          <StatLabel>Current Streak</StatLabel>
-          <StatNumber>{stats.currentStreak} days</StatNumber>
-          <StatHelpText>Keep it up! 🔥</StatHelpText>
         </Stat>
       </CardBody>
     </Card>

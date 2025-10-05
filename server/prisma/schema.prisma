@@ -16,6 +16,7 @@ enum Role {
 
 enum QuestionType {
   MULTIPLE_CHOICE
+  MULTIPLE_ANSWER
   TRUE_FALSE
   SHORT_ANSWER
   ESSAY  

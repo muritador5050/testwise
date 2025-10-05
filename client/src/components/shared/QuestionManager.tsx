@@ -284,7 +284,7 @@ const QuestionManager: React.FC = () => {
   const handleUpdateQuestion = useCallback(async () => {
     if (!editingQuestion) return;
 
-    const form = questionForms[0]; // When editing, we only have one form
+    const form = questionForms[0];
     let questionData: Partial<CreateQuestion>;
 
     if (['SHORT_ANSWER', 'ESSAY'].includes(form.questionType)) {

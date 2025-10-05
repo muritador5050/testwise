@@ -1,4 +1,3 @@
-// queries/attemptQueries.ts
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient, getAuthToken } from '../apiClient';
 import type { Attempt, Answer } from '../../types/api';

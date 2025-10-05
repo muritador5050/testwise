@@ -11,25 +11,61 @@ import {
 } from '@chakra-ui/react';
 import { Target } from 'lucide-react';
 
-const PerformanceOverview: React.FC = () => (
-  <Card mb={6}>
-    <CardHeader>
-      <HStack>
-        <Target size={16} color='purple.500' />
-        <Heading size='md'>Performance</Heading>
-      </HStack>
-    </CardHeader>
-    <CardBody>
-      <VStack spacing={4} align='stretch'>
-        <BoxSection label='Completion Rate' value={75} color='blue' />
-        <Divider />
-        <BoxSection label='Accuracy Rate' value={82} color='green' />
-        <Divider />
-        <BoxSection label='Time Management' value={88} color='purple' />
-      </VStack>
-    </CardBody>
-  </Card>
-);
+type UserActivityStats = {
+  totalAttempts: number;
+  completedAttempts: number;
+  averageScore: number;
+};
+
+interface PerformanceOverviewProps {
+  stats: UserActivityStats;
+}
+
+const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ stats }) => {
+  const completionRate =
+    stats?.totalAttempts > 0
+      ? Math.round((stats.completedAttempts / stats.totalAttempts) * 100)
+      : 0;
+
+  const accuracyRate = Math.round(stats?.averageScore);
+
+  const timeManagement =
+    stats?.totalAttempts > 0
+      ? Math.round((stats.completedAttempts / stats.totalAttempts) * 100)
+      : 0;
+
+  return (
+    <Card mb={6}>
+      <CardHeader>
+        <HStack>
+          <Target size={16} color='purple.500' />
+          <Heading size='md'>Performance</Heading>
+        </HStack>
+      </CardHeader>
+      <CardBody>
+        <VStack spacing={4} align='stretch'>
+          <BoxSection
+            label='Completion Rate'
+            value={completionRate}
+            color='blue'
+          />
+          <Divider />
+          <BoxSection
+            label='Accuracy Rate'
+            value={accuracyRate}
+            color='green'
+          />
+          <Divider />
+          <BoxSection
+            label='Time Management'
+            value={timeManagement}
+            color='purple'
+          />
+        </VStack>
+      </CardBody>
+    </Card>
+  );
+};
 
 interface BoxSectionProps {
   label: string;
