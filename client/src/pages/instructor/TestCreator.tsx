@@ -95,7 +95,7 @@ const TestCreator: React.FC = () => {
   const handleEdit = (test: Test) => {
     setFormData({
       title: test.title,
-      description: test.description,
+      description: test.description || '',
       duration: test.duration,
       maxAttempts: test.maxAttempts,
       isPublished: test.isPublished,

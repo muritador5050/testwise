@@ -39,7 +39,6 @@ class AttemptController {
         return res.status(404).json({ error: 'Attempt not found' });
       }
 
-      // Check if user owns this attempt or is admin/instructor
       if (
         attempt.userId !== req.user!.id &&
         !['ADMIN', 'INSTRUCTOR'].includes(req.user!.role)

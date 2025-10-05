@@ -1,4 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import {
   Box,
   Flex,
@@ -24,10 +30,14 @@ import {
   Textarea,
 } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react';
-import { useLocation } from 'react-router-dom';
-import { useCurrentUser } from '../../api/services/authService';
+import { useParams } from 'react-router-dom';
 import type { Test, Question, QuestionType } from '../../types/api';
-import { useGetTestById } from '../../api/services/testServices';
+import {
+  useCompleteAttempt,
+  useGetAttemptById,
+  useSubmitAnswer,
+} from '../../api/services/attemptService';
+import { useWebSocket } from '../../hooks/useWebsocket';
 
 type AnswerValue = string | string[];
 
@@ -37,18 +47,27 @@ interface Answers {
 
 const ExamPage: React.FC = () => {
   const toast = useToast();
-  const location = useLocation();
-  const { id } = location.state as { id: number };
 
-  const currentUser = useCurrentUser();
+  const { attemptId } = useParams();
+
+  //Hooks
+  const submitAnswer = useSubmitAnswer();
+  const completeAttempt = useCompleteAttempt();
+  const { data: attemptData, isLoading } = useGetAttemptById(Number(attemptId));
+
+  // Websocket hook
+  const { isConnected, on, off } = useWebSocket(Number(attemptId));
+
+  //Test info
+  const testData = attemptData?.test;
+  const questions = React.useMemo(() => testData?.questions || [], [testData]);
+
+  //User info
+  const user_info = attemptData?.user;
   const studentInfo = {
-    name: currentUser.data?.name || 'Student',
-    avatar: currentUser.data?.avatar,
+    name: user_info?.name || 'Student',
+    avatar: user_info?.avatar || '',
   };
-
-  const { data: testData, isLoading } = useGetTestById(id);
-
-  const questions: Question[] = testData?.questions || [];
 
   const examDetails: Test = {
     id: testData?.id || 0,
@@ -67,23 +86,105 @@ const ExamPage: React.FC = () => {
     },
   };
 
+  //States
+  const [wsStatus, setWsStatus] = useState<'connected' | 'disconnected'>(
+    'disconnected'
+  );
+  const timerRef = useRef<number | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [timeRemaining, setTimeRemaining] = useState<number>(
     examDetails.duration * 60
   );
 
+  //Duration
   useEffect(() => {
     if (testData?.duration) {
       setTimeRemaining(testData.duration * 60);
     }
   }, [testData]);
 
+  // Listen for WebSocket events
   useEffect(() => {
-    const timer = setInterval(() => {
+    if (!isConnected) return;
+
+    setWsStatus('connected');
+
+    const handleAnswerSubmitted = (data: {
+      questionId: number;
+      isCorrect: boolean;
+      pointsEarned: number;
+    }) => {
+      console.log('Answer submitted:', data);
+      toast({
+        title: 'Answer Saved',
+        status: 'success',
+        duration: 2000,
+        position: 'bottom-right',
+      });
+    };
+
+    const handleAttemptCompleted = (data: {
+      score: number;
+      percentScore: number;
+      timeSpent: number;
+    }) => {
+      toast({
+        title: 'Exam Completed',
+        description: `Your score: ${data.percentScore.toFixed(1)}%`,
+        status: 'success',
+        duration: 5000,
+        position: 'top',
+      });
+      // Navigate to results page
+    };
+
+    on('answer_submitted', handleAnswerSubmitted);
+    on('attempt_completed', handleAttemptCompleted);
+
+    return () => {
+      off('answer_submitted', handleAnswerSubmitted);
+      off('attempt_completed', handleAttemptCompleted);
+    };
+  }, [isConnected, on, off, toast]);
+
+  //HandleSubmit
+  const handleSubmit = useCallback((): void => {
+    if (!testData || questions.length === 0) {
+      console.error('Cannot submit: No test data available');
+      return;
+    }
+
+    completeAttempt.mutate(Number(attemptId), {
+      onSuccess: (data) => {
+        toast({
+          title: 'Exam Submitted Successfully',
+          description: `Score: ${data.percentScore}%`,
+          status: 'success',
+          position: 'top-right',
+          duration: 5000,
+        });
+        // Navigate to results page
+      },
+      onError: (error) => {
+        toast({
+          title: 'Submission Failed',
+          description: error.message,
+          status: 'error',
+          position: 'top-right',
+        });
+      },
+    });
+  }, [testData, questions, attemptId, completeAttempt, toast]);
+
+  //Timer
+  useEffect(() => {
+    if (!testData) return;
+
+    timerRef.current = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
+          if (timerRef.current) clearInterval(timerRef.current);
           handleSubmit();
           return 0;
         }
@@ -91,9 +192,12 @@ const ExamPage: React.FC = () => {
       });
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, []);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [testData, handleSubmit]);
 
+  //Time formatter
   const formatTime = (seconds: number): string => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -107,12 +211,20 @@ const ExamPage: React.FC = () => {
     return (timeRemaining / (examDetails.duration * 60)) * 100;
   };
 
-  const handleAnswerChange = (questionId: number, value: AnswerValue): void => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: value,
-    }));
-  };
+  const handleAnswerChange = useCallback(
+    (questionId: number, value: AnswerValue): void => {
+      setAnswers((prev) => ({ ...prev, [questionId]: value }));
+
+      // Auto-save answer
+      submitAnswer.mutate({
+        attemptId: Number(attemptId),
+        questionId,
+        textAnswer: typeof value === 'string' ? value : undefined,
+        optionId: typeof value === 'string' ? parseInt(value) : undefined,
+      });
+    },
+    [attemptId, submitAnswer]
+  );
 
   const isQuestionAnswered = (questionId: number): boolean => {
     const answer = answers[questionId];
@@ -122,39 +234,33 @@ const ExamPage: React.FC = () => {
     return answer !== undefined && answer !== '';
   };
 
-  const handleNext = (): void => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    }
-  };
-
-  const handlePrevious = (): void => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
-    }
-  };
-
-  const handleQuestionJump = (index: number): void => {
-    setCurrentQuestion(index);
-  };
-
-  const handleSubmit = (): void => {
-    const answeredCount = Object.keys(answers).filter((key) => {
+  const answeredCount = useMemo(() => {
+    return Object.keys(answers).filter((key) => {
       const answer = answers[parseInt(key)];
       if (Array.isArray(answer)) return answer.length > 0;
       return answer !== undefined && answer !== '';
     }).length;
+  }, [answers]);
 
-    toast({
-      title: 'Exam Submitted',
-      description: `You answered ${answeredCount} out of ${
-        examDetails._count?.questions || questions.length
-      } questions.`,
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    });
-  };
+  const remainingCount = useMemo(() => {
+    return questions.length - answeredCount;
+  }, [questions.length, answeredCount]);
+
+  const handleNext = useCallback((): void => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    }
+  }, [currentQuestion, questions.length]);
+
+  const handlePrevious = useCallback((): void => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+    }
+  }, [currentQuestion]);
+
+  const handleQuestionJump = useCallback((index: number): void => {
+    setCurrentQuestion(index);
+  }, []);
 
   const renderQuestion = (question: Question) => {
     const currentAnswer = answers[question.id];
@@ -341,6 +447,47 @@ const ExamPage: React.FC = () => {
     return badges[type] || { color: 'gray', text: type };
   };
 
+  // Prevent cheating - track if user leaves tab
+  useEffect(() => {
+    let tabSwitchCount = 0;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        tabSwitchCount++;
+        toast({
+          title: 'Warning',
+          description: `Tab switch detected (${tabSwitchCount})`,
+          status: 'warning',
+          position: 'top',
+        });
+
+        // Optional: Auto-submit after X switches
+        if (tabSwitchCount >= 3) {
+          handleSubmit();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () =>
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [handleSubmit, toast]);
+
+  // Restore answers from localStorage on mount (if connection drops)
+  useEffect(() => {
+    const savedAnswers = localStorage.getItem(`exam-${attemptId}`);
+    if (savedAnswers) {
+      setAnswers(JSON.parse(savedAnswers));
+    }
+  }, [attemptId]);
+
+  // Save answers to localStorage
+  useEffect(() => {
+    if (Object.keys(answers).length > 0) {
+      localStorage.setItem(`exam-${attemptId}`, JSON.stringify(answers));
+    }
+  }, [answers, attemptId]);
+
   if (isLoading) {
     return (
       <Flex minH='100vh' align='center' justify='center' bg='gray.50'>
@@ -354,7 +501,7 @@ const ExamPage: React.FC = () => {
     );
   }
 
-  if (!testData || questions.length === 0) {
+  if (!testData) {
     return (
       <Flex minH='100vh' align='center' justify='center' bg='gray.50'>
         <Card>
@@ -364,7 +511,27 @@ const ExamPage: React.FC = () => {
                 Exam Not Found
               </Text>
               <Text color='gray.600'>
-                The exam you're looking for doesn't exist or has no questions.
+                The exam you're looking for doesn't exist!.
+              </Text>
+              <Button colorScheme='blue' onClick={() => window.history.back()}>
+                Go Back
+              </Button>
+            </VStack>
+          </CardBody>
+        </Card>
+      </Flex>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <Flex minH='100vh' align='center' justify='center' bg='gray.50'>
+        <Card>
+          <CardBody>
+            <VStack spacing={4} p={8}>
+              <Text fontSize='xl' fontWeight='bold' color='red.500'>
+                No question yet for this exam please wait or contact admin for
+                support.
               </Text>
               <Button colorScheme='blue' onClick={() => window.history.back()}>
                 Go Back
@@ -449,6 +616,12 @@ const ExamPage: React.FC = () => {
                       {formatTime(timeRemaining)}
                     </CircularProgressLabel>
                   </CircularProgress>
+                  <Badge
+                    colorScheme={wsStatus === 'connected' ? 'green' : 'red'}
+                    fontSize='xs'
+                  >
+                    {wsStatus === 'connected' ? '● Live' : '● Offline'}
+                  </Badge>
                 </VStack>
               </VStack>
             </CardBody>
@@ -533,7 +706,7 @@ const ExamPage: React.FC = () => {
         <Box w={{ base: '100%', lg: '300px' }} flexShrink={0}>
           <Card>
             <CardBody>
-              <VStack spacing={4} align='stretch'>
+              <Stack spacing={4} align='stretch'>
                 <Text fontWeight='bold' fontSize='lg'>
                   Question Navigator
                 </Text>
@@ -551,7 +724,7 @@ const ExamPage: React.FC = () => {
 
                 <Divider />
 
-                <Grid templateColumns='repeat(5, 1fr)' gap={2}>
+                <Grid templateColumns='repeat(4, 1fr)' gap={2}>
                   {questions.map((q, index) => (
                     <Button
                       key={q.id}
@@ -582,7 +755,6 @@ const ExamPage: React.FC = () => {
                           ? 'green.400'
                           : 'gray.300'
                       }
-                      borderRadius='full'
                       _hover={{
                         bg:
                           currentQuestion === index
@@ -591,7 +763,9 @@ const ExamPage: React.FC = () => {
                             ? 'green.500'
                             : 'gray.100',
                       }}
-                      h='50px'
+                      h='45px'
+                      w='45px'
+                      borderRadius='full'
                       fontSize='md'
                       fontWeight='semibold'
                     >
@@ -608,13 +782,7 @@ const ExamPage: React.FC = () => {
                       Answered:
                     </Text>
                     <Badge colorScheme='green' fontSize='md'>
-                      {
-                        Object.keys(answers).filter((key) => {
-                          const answer = answers[parseInt(key)];
-                          if (Array.isArray(answer)) return answer.length > 0;
-                          return answer !== undefined && answer !== '';
-                        }).length
-                      }
+                      {answeredCount}
                     </Badge>
                   </HStack>
                   <HStack justify='space-between'>
@@ -622,12 +790,7 @@ const ExamPage: React.FC = () => {
                       Remaining:
                     </Text>
                     <Badge colorScheme='orange' fontSize='md'>
-                      {(examDetails._count?.questions || questions.length) -
-                        Object.keys(answers).filter((key) => {
-                          const answer = answers[parseInt(key)];
-                          if (Array.isArray(answer)) return answer.length > 0;
-                          return answer !== undefined && answer !== '';
-                        }).length}
+                      {remainingCount}
                     </Badge>
                   </HStack>
                 </VStack>
@@ -641,7 +804,7 @@ const ExamPage: React.FC = () => {
                 >
                   Submit Exam
                 </Button>
-              </VStack>
+              </Stack>
             </CardBody>
           </Card>
         </Box>

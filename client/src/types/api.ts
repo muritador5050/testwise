@@ -74,23 +74,6 @@ export interface CreateTest {
   availableUntil: string | null;
 }
 
-// export interface Test {
-//   id: number;
-//   title: string;
-//   description: string;
-//   duration: number;
-//   maxAttempts: number;
-//   isPublished: boolean;
-//   availableFrom?: string | null;
-//   availableUntil?: string | null;
-//   createdAt: string;
-//   updatedAt: string;
-//   _count?: {
-//     questions: number;
-//     attempts: number;
-//   };
-// }
-
 export interface Test {
   id: number;
   title: string;
@@ -118,20 +101,6 @@ export interface TestResponse {
     total: number;
     totalPages: number;
   };
-}
-
-export interface Attempt {
-  id: number;
-  score: number;
-  maxScore: number;
-  percentScore?: number;
-  status: AttemptStatus;
-  startedAt: string;
-  completedAt?: string;
-  timeSpent?: number;
-  attemptNumber: number;
-  userId: number;
-  testId: number;
 }
 
 export interface Answer {
@@ -169,4 +138,82 @@ export interface UserActivityStats {
   averageScore: number;
   inProgressAttempts: number;
   recentActivity: RecentActivity[];
+}
+
+export interface Attempt {
+  id: number;
+  score: number;
+  maxScore: number | null;
+  percentScore: number | null;
+  status: AttemptStatus;
+  startedAt: string;
+  completedAt: string | null;
+  timeSpent: number | null;
+  attemptNumber: number;
+  ipAddress: string | null;
+  userId: number;
+  testId: number;
+  test: Test;
+  answers: Answer[];
+  user: User;
+}
+
+export interface AttemptAnalytics {
+  totalAttempts: number;
+  completedAttempts: number;
+  inProgressAttempts: number;
+  timedOutAttempts: number;
+  averageScore: number;
+  averageTimeSpent: number;
+  passRate: number;
+}
+
+export interface AttemptTrends {
+  statusBreakdown: Array<{
+    status: string;
+    _count: { id: number };
+  }>;
+  dailyAttempts: Array<{
+    date: string;
+    count: number;
+  }>;
+}
+
+export interface TestPerformance {
+  userId: number;
+  userName: string;
+  attemptNumber: number;
+  score: number;
+  percentScore: number | null;
+  timeSpent: number | null;
+  completedAt: string | null;
+}
+
+export interface QuestionPerformance {
+  questionId: number;
+  text: string;
+  questionType: string;
+  totalAttempts: number;
+  correctCount: number;
+  accuracyRate: number;
+  averagePointsEarned: number;
+  maxPoints: number;
+}
+
+export interface UserPerformanceHistory {
+  totalAttempts: number;
+  averageScore: number;
+  passRate: number;
+  attempts: Array<{
+    testTitle: string;
+    score: number;
+    percentScore: number | null;
+    timeSpent: number | null;
+    completedAt: string | null;
+  }>;
+}
+
+export interface ScoreDistribution {
+  range: string;
+  count: number;
 }

@@ -41,7 +41,9 @@ const StudentDashboard: React.FC = () => {
         <GridItem>
           <UpcomingExams
             exams={upcoming_test}
-            onClick={(id) => navigate(`/student/exam`, { state: { id } })}
+            onClick={(testId) =>
+              navigate(`/student/instructions`, { state: { testId } })
+            }
           />
           <RecentResults results={studentStats} />
         </GridItem>

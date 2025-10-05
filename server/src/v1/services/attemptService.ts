@@ -143,7 +143,6 @@ class AttemptService {
         }
       }
     }
-    // For SHORT_ANSWER and ESSAY, manual grading would be required
 
     const answer = await prisma.answer.upsert({
       where: {
@@ -211,13 +210,7 @@ class AttemptService {
       (new Date().getTime() - attempt.startedAt.getTime()) / 1000
     );
 
-    webSocketService.emitToAttempt(attemptId, 'attempt_completed', {
-      score,
-      percentScore,
-      timeSpent,
-    });
-
-    return await prisma.attempt.update({
+    const newAttempt = await prisma.attempt.update({
       where: { id: attemptId },
       data: {
         status: 'COMPLETED',
@@ -228,6 +221,13 @@ class AttemptService {
         timeSpent,
       },
     });
+    webSocketService.emitToAttempt(attemptId, 'attempt_completed', {
+      score,
+      percentScore,
+      timeSpent,
+    });
+
+    return newAttempt;
   }
 
   static async getUserAttempts(userId: number, testId?: number) {
@@ -242,8 +242,6 @@ class AttemptService {
       orderBy: { startedAt: 'desc' },
     });
   }
-
-  // Add to AttemptService class
 
   static async getAttemptAnalytics(testId?: number) {
     const where = testId ? { testId } : {};

@@ -5,10 +5,9 @@ import LoginPage from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import UnauthorizedPage from './pages/UnathourizedPage';
 import { ProtectedRoute } from './components/protected/ProtectedRoute';
-import StudentDashboard from './pages/student/StudentDashboard';
 import InstructorLayout from './components/layouts/instructor/instructorLayout';
 import AdminLayout from './components/layouts/admin/AdminLayout';
-import ExamPage from './pages/student/ExamPage';
+import StudentLayout from './components/layouts/student/studentLayout';
 
 const App: React.FC = () => {
   return (
@@ -35,15 +34,7 @@ const App: React.FC = () => {
           path='/student/*'
           element={
             <ProtectedRoute allowedRoles={['STUDENT', 'ADMIN']}>
-              <StudentDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path='/student/exam'
-          element={
-            <ProtectedRoute allowedRoles={['STUDENT', 'ADMIN']}>
-              <ExamPage />
+              <StudentLayout />
             </ProtectedRoute>
           }
         />

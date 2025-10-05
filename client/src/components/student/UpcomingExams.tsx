@@ -15,7 +15,7 @@ import type { Test } from '../../types/api';
 
 interface Props {
   exams: Test[];
-  onClick: (id: number) => void;
+  onClick: (testId: number) => void;
 }
 
 const UpcomingExams = ({ exams, onClick }: Props) => {

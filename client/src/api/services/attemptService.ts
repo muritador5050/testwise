@@ -1,6 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient, getAuthToken } from '../apiClient';
-import type { Attempt, Answer } from '../../types/api';
+import type {
+  Attempt,
+  Answer,
+  AttemptAnalytics,
+  AttemptTrends,
+  TestPerformance,
+  QuestionPerformance,
+  UserPerformanceHistory,
+  ScoreDistribution,
+} from '../../types/api';
 
 // Get user attempts
 export const useGetUserAttempts = (testId?: number) => {
@@ -41,29 +50,7 @@ export const useStartAttempt = () => {
 
 // Get attempt by ID
 export const useGetAttemptById = (id: number) => {
-  return useQuery<
-    Attempt & {
-      test: {
-        id: number;
-        title: string;
-        questions: Array<{
-          id: number;
-          text: string;
-          questionType: string;
-          points: number;
-          order: number;
-          options: Array<{
-            id: number;
-            text: string;
-            isCorrect: boolean;
-            order: number;
-          }>;
-        }>;
-      };
-      answers: Answer[];
-      user: { id: number; name: string; email: string };
-    }
-  >({
+  return useQuery<Attempt>({
     queryKey: ['attempt', id],
     queryFn: async () => {
       return apiClient(`attempts/${id}`, {
@@ -101,7 +88,7 @@ export const useSubmitAnswer = () => {
         body: JSON.stringify(answerData),
       });
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ['attempt', variables.attemptId],
       });
@@ -123,9 +110,108 @@ export const useCompleteAttempt = () => {
         },
       });
     },
-    onSuccess: (data, attemptId) => {
+    onSuccess: (_data, attemptId) => {
       queryClient.invalidateQueries({ queryKey: ['user-attempts'] });
       queryClient.invalidateQueries({ queryKey: ['attempt', attemptId] });
     },
+  });
+};
+
+// Get attempt analytics (Admin/Instructor only)
+export const useGetAttemptAnalytics = (testId?: number) => {
+  return useQuery<AttemptAnalytics>({
+    queryKey: ['attempt-analytics', testId],
+    queryFn: async () => {
+      const params = testId ? `?testId=${testId}` : '';
+      return apiClient(`attempts/analytics${params}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+  });
+};
+
+// Get attempt trends (Admin/Instructor only)
+export const useGetAttemptTrends = (testId?: number, days: number = 30) => {
+  return useQuery<AttemptTrends>({
+    queryKey: ['attempt-trends', testId, days],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (testId) params.append('testId', testId.toString());
+      params.append('days', days.toString());
+
+      return apiClient(`attempts/trends?${params.toString()}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+  });
+};
+
+// Get test performance by user (Admin/Instructor only)
+export const useGetTestPerformance = (testId: number) => {
+  return useQuery<TestPerformance[]>({
+    queryKey: ['test-performance', testId],
+    queryFn: async () => {
+      return apiClient(`attempts/test/${testId}/performance`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+    enabled: !!testId,
+  });
+};
+
+// Get question analytics for a test (Admin/Instructor only)
+export const useGetQuestionAnalytics = (testId: number) => {
+  return useQuery<QuestionPerformance[]>({
+    queryKey: ['question-analytics', testId],
+    queryFn: async () => {
+      return apiClient(`attempts/test/${testId}/questions/analytics`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+    enabled: !!testId,
+  });
+};
+
+// Get user performance history
+export const useGetUserPerformance = (userId: number) => {
+  return useQuery<UserPerformanceHistory>({
+    queryKey: ['user-performance', userId],
+    queryFn: async () => {
+      return apiClient(`attempts/user/${userId}/performance`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+    enabled: !!userId,
+  });
+};
+
+// Get score distribution for a test (Admin/Instructor only)
+export const useGetScoreDistribution = (testId: number) => {
+  return useQuery<ScoreDistribution[]>({
+    queryKey: ['score-distribution', testId],
+    queryFn: async () => {
+      return apiClient(`attempts/test/${testId}/score-distribution`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+    enabled: !!testId,
   });
 };
