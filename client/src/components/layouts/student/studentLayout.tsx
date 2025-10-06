@@ -3,6 +3,7 @@ import { Box } from '@chakra-ui/react';
 import StudentDashboard from '../../../pages/student/StudentDashboard';
 import ExamPage from '../../../pages/student/ExamPage';
 import ExamInstructions from '../../../pages/student/ExamInstructions';
+import ExamResult from '../../../pages/student/ExamResults';
 export default function StudentLayout() {
   return (
     <Box>
@@ -10,6 +11,7 @@ export default function StudentLayout() {
         <Route index element={<StudentDashboard />} />
         <Route path='exam/:attemptId' element={<ExamPage />} />
         <Route path='instructions' element={<ExamInstructions />} />
+        <Route path='exam/results' element={<ExamResult />} />
       </Routes>
     </Box>
   );

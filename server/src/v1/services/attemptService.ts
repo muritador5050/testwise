@@ -210,6 +210,13 @@ class AttemptService {
       (new Date().getTime() - attempt.startedAt.getTime()) / 1000
     );
 
+    const totalQuestions = attempt.test.questions.length;
+    const correctAnswers = attempt.answers.filter(
+      (answer) => answer.isCorrect
+    ).length;
+    const incorrectAnswers = totalQuestions - correctAnswers;
+    const unansweredQuestions = totalQuestions - attempt.answers.length;
+
     const newAttempt = await prisma.attempt.update({
       where: { id: attemptId },
       data: {
@@ -220,14 +227,28 @@ class AttemptService {
         percentScore,
         timeSpent,
       },
+      include: {
+        test: {
+          select: { title: true, duration: true },
+        },
+      },
     });
+
     webSocketService.emitToAttempt(attemptId, 'attempt_completed', {
       score,
       percentScore,
       timeSpent,
     });
 
-    return newAttempt;
+    return {
+      attempt: newAttempt,
+      summary: {
+        totalQuestions,
+        correctAnswers,
+        incorrectAnswers,
+        unansweredQuestions,
+      },
+    };
   }
 
   static async getUserAttempts(userId: number, testId?: number) {

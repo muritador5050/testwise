@@ -1,114 +1,89 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  Box,
   Flex,
   Text,
-  Avatar,
   Button,
-  Radio,
-  RadioGroup,
-  Stack,
   Progress,
   Card,
   CardBody,
   VStack,
   HStack,
-  Grid,
   Badge,
-  Divider,
   CircularProgress,
-  CircularProgressLabel,
   useToast,
-  Checkbox,
-  CheckboxGroup,
-  Textarea,
+  Box,
 } from '@chakra-ui/react';
-import { ChakraProvider } from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
-import type { Test, Question, QuestionType } from '../../types/api';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   useCompleteAttempt,
   useGetAttemptById,
   useSubmitAnswer,
 } from '../../api/services/attemptService';
 import { useWebSocket } from '../../hooks/useWebsocket';
-
-type AnswerValue = string | string[];
-
-interface Answers {
-  [questionId: number]: AnswerValue;
-}
+import { QuestionRenderer } from './components/QuestionRenderer';
+import { ExamSidebar } from './components/ExamSidebar';
+import { getQuestionTypeBadge, getTimePercentage } from './hooks/useExamHelper';
+import { QuestionNavigator } from './components/QuestionNavigator';
+import { useExamAnswers } from './hooks/useExamAnswer';
+import { useExamTimer } from './hooks/useExamTimer';
+import { useTabSwitchDetection } from './hooks/useTabSwicthDetection';
 
 const ExamPage: React.FC = () => {
   const toast = useToast();
-
+  const navigate = useNavigate();
   const { attemptId } = useParams();
 
-  //Hooks
+  // API Hooks
   const submitAnswer = useSubmitAnswer();
   const completeAttempt = useCompleteAttempt();
   const { data: attemptData, isLoading } = useGetAttemptById(Number(attemptId));
 
-  // Websocket hook
+  // WebSocket hook
   const { isConnected, on, off } = useWebSocket(Number(attemptId));
 
-  //Test info
+  // Extract data
   const testData = attemptData?.test;
-  const questions = React.useMemo(() => testData?.questions || [], [testData]);
+  const questions = useMemo(() => testData?.questions || [], [testData]);
+  const userInfo = attemptData?.user;
 
-  //User info
-  const user_info = attemptData?.user;
-  const studentInfo = {
-    name: user_info?.name || 'Student',
-    avatar: user_info?.avatar || '',
-  };
-
-  const examDetails: Test = {
-    id: testData?.id || 0,
-    title: testData?.title || '',
-    description: testData?.description || null,
-    duration: testData?.duration || 60,
-    maxAttempts: testData?.maxAttempts || 1,
-    isPublished: testData?.isPublished || false,
-    availableFrom: testData?.availableFrom || null,
-    availableUntil: testData?.availableUntil || null,
-    createdAt: testData?.createdAt || '',
-    updatedAt: testData?.updatedAt || '',
-    _count: {
-      questions: testData?._count?.questions ?? questions.length,
-      attempts: testData?._count?.attempts || 0,
-    },
-  };
-
-  //States
-  const [wsStatus, setWsStatus] = useState<'connected' | 'disconnected'>(
-    'disconnected'
-  );
-  const timerRef = useRef<number | null>(null);
+  // Custom hooks
+  const { answers, setAnswers, isQuestionAnswered, answeredCount } =
+    useExamAnswers(Number(attemptId));
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
-  const [answers, setAnswers] = useState<Answers>({});
-  const [timeRemaining, setTimeRemaining] = useState<number>(
-    examDetails.duration * 60
+
+  // Handle exam submission
+  const handleSubmit = useCallback(async (): Promise<void> => {
+    if (!testData || questions.length === 0) {
+      console.error('Cannot submit: No test data available');
+      return;
+    }
+
+    try {
+      const data = await completeAttempt.mutateAsync(Number(attemptId));
+      navigate('/student/exam/results', { state: { data }, replace: true });
+    } catch (error) {
+      toast({
+        title: 'Submission Failed',
+        description: error instanceof Error ? error.message : String(error),
+        status: 'error',
+        position: 'top-right',
+      });
+    }
+  }, [testData, questions, attemptId, completeAttempt, toast, navigate]);
+
+  // Timer hook
+  const timeRemaining = useExamTimer(
+    testData?.duration || 60,
+    handleSubmit,
+    !!testData
   );
 
-  //Duration
-  useEffect(() => {
-    if (testData?.duration) {
-      setTimeRemaining(testData.duration * 60);
-    }
-  }, [testData]);
+  // Tab switch detection
+  useTabSwitchDetection(handleSubmit, 3);
 
-  // Listen for WebSocket events
+  // WebSocket event listeners
   useEffect(() => {
     if (!isConnected) return;
-
-    setWsStatus('connected');
 
     const handleAnswerSubmitted = (data: {
       questionId: number;
@@ -116,12 +91,6 @@ const ExamPage: React.FC = () => {
       pointsEarned: number;
     }) => {
       console.log('Answer submitted:', data);
-      toast({
-        title: 'Answer Saved',
-        status: 'success',
-        duration: 2000,
-        position: 'bottom-right',
-      });
     };
 
     const handleAttemptCompleted = (data: {
@@ -129,14 +98,7 @@ const ExamPage: React.FC = () => {
       percentScore: number;
       timeSpent: number;
     }) => {
-      toast({
-        title: 'Exam Completed',
-        description: `Your score: ${data.percentScore.toFixed(1)}%`,
-        status: 'success',
-        duration: 5000,
-        position: 'top',
-      });
-      // Navigate to results page
+      console.log('WebSocket completion:', data);
     };
 
     on('answer_submitted', handleAnswerSubmitted);
@@ -146,106 +108,31 @@ const ExamPage: React.FC = () => {
       off('answer_submitted', handleAnswerSubmitted);
       off('attempt_completed', handleAttemptCompleted);
     };
-  }, [isConnected, on, off, toast]);
+  }, [isConnected, on, off]);
 
-  //HandleSubmit
-  const handleSubmit = useCallback((): void => {
-    if (!testData || questions.length === 0) {
-      console.error('Cannot submit: No test data available');
-      return;
-    }
-
-    completeAttempt.mutate(Number(attemptId), {
-      onSuccess: (data) => {
-        toast({
-          title: 'Exam Submitted Successfully',
-          description: `Score: ${data.percentScore}%`,
-          status: 'success',
-          position: 'top-right',
-          duration: 5000,
-        });
-        // Navigate to results page
-      },
-      onError: (error) => {
-        toast({
-          title: 'Submission Failed',
-          description: error.message,
-          status: 'error',
-          position: 'top-right',
-        });
-      },
-    });
-  }, [testData, questions, attemptId, completeAttempt, toast]);
-
-  //Timer
-  useEffect(() => {
-    if (!testData) return;
-
-    timerRef.current = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          handleSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [testData, handleSubmit]);
-
-  //Time formatter
-  const formatTime = (seconds: number): string => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hrs.toString().padStart(2, '0')}:${mins
-      .toString()
-      .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const getTimePercentage = (): number => {
-    return (timeRemaining / (examDetails.duration * 60)) * 100;
-  };
-
+  // Handle answer change
   const handleAnswerChange = useCallback(
-    (questionId: number, value: AnswerValue): void => {
+    (questionId: number, value: string | string[]): void => {
       setAnswers((prev) => ({ ...prev, [questionId]: value }));
 
-      // Auto-save answer
+      const question = questions.find((q) => q.id === questionId);
+      if (!question) return;
+
+      const isTextQuestion = ['SHORT_ANSWER', 'ESSAY'].includes(
+        question.questionType
+      );
+
       submitAnswer.mutate({
         attemptId: Number(attemptId),
         questionId,
-        textAnswer: typeof value === 'string' ? value : undefined,
-        optionId: typeof value === 'string' ? parseInt(value) : undefined,
+        textAnswer: isTextQuestion ? (value as string) : undefined,
+        optionId: !isTextQuestion ? parseInt(value as string) : undefined,
       });
     },
-    [attemptId, submitAnswer]
+    [attemptId, submitAnswer, questions, setAnswers]
   );
 
-  const isQuestionAnswered = (questionId: number): boolean => {
-    const answer = answers[questionId];
-    if (Array.isArray(answer)) {
-      return answer.length > 0;
-    }
-    return answer !== undefined && answer !== '';
-  };
-
-  const answeredCount = useMemo(() => {
-    return Object.keys(answers).filter((key) => {
-      const answer = answers[parseInt(key)];
-      if (Array.isArray(answer)) return answer.length > 0;
-      return answer !== undefined && answer !== '';
-    }).length;
-  }, [answers]);
-
-  const remainingCount = useMemo(() => {
-    return questions.length - answeredCount;
-  }, [questions.length, answeredCount]);
-
+  // Navigation handlers
   const handleNext = useCallback((): void => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
@@ -262,232 +149,7 @@ const ExamPage: React.FC = () => {
     setCurrentQuestion(index);
   }, []);
 
-  const renderQuestion = (question: Question) => {
-    const currentAnswer = answers[question.id];
-
-    switch (question.questionType) {
-      case 'MULTIPLE_CHOICE':
-        return (
-          <RadioGroup
-            value={currentAnswer as string}
-            onChange={(value) => handleAnswerChange(question.id, value)}
-          >
-            <Stack spacing={4}>
-              {question.options?.map((option) => (
-                <Box
-                  key={option.id}
-                  p={4}
-                  borderWidth='2px'
-                  borderRadius='lg'
-                  borderColor={
-                    currentAnswer === option.id.toString()
-                      ? 'blue.400'
-                      : 'gray.200'
-                  }
-                  bg={
-                    currentAnswer === option.id.toString() ? 'blue.50' : 'white'
-                  }
-                  cursor='pointer'
-                  transition='all 0.2s'
-                  _hover={{ borderColor: 'blue.300', bg: 'blue.50' }}
-                >
-                  <Radio
-                    value={option.id.toString()}
-                    size='lg'
-                    colorScheme='blue'
-                  >
-                    <Text ml={2} fontSize='md'>
-                      {option.text}
-                    </Text>
-                  </Radio>
-                </Box>
-              ))}
-            </Stack>
-          </RadioGroup>
-        );
-
-      case 'MULTIPLE_ANSWER':
-        return (
-          <CheckboxGroup
-            value={(currentAnswer as string[]) || []}
-            onChange={(value) =>
-              handleAnswerChange(question.id, value as string[])
-            }
-          >
-            <Stack spacing={4}>
-              {question.options?.map((option) => (
-                <Box
-                  key={option.id}
-                  p={4}
-                  borderWidth='2px'
-                  borderRadius='lg'
-                  borderColor={
-                    (currentAnswer as string[])?.includes(option.id.toString())
-                      ? 'blue.400'
-                      : 'gray.200'
-                  }
-                  bg={
-                    (currentAnswer as string[])?.includes(option.id.toString())
-                      ? 'blue.50'
-                      : 'white'
-                  }
-                  cursor='pointer'
-                  transition='all 0.2s'
-                  _hover={{ borderColor: 'blue.300', bg: 'blue.50' }}
-                >
-                  <Checkbox
-                    value={option.id.toString()}
-                    size='lg'
-                    colorScheme='blue'
-                  >
-                    <Text ml={2} fontSize='md'>
-                      {option.text}
-                    </Text>
-                  </Checkbox>
-                </Box>
-              ))}
-            </Stack>
-          </CheckboxGroup>
-        );
-
-      case 'TRUE_FALSE':
-        return (
-          <RadioGroup
-            value={currentAnswer as string}
-            onChange={(value) => handleAnswerChange(question.id, value)}
-          >
-            <Stack spacing={4}>
-              {question.options?.map((option) => (
-                <Box
-                  key={option.id}
-                  p={4}
-                  borderWidth='2px'
-                  borderRadius='lg'
-                  borderColor={
-                    currentAnswer === option.id.toString()
-                      ? 'blue.400'
-                      : 'gray.200'
-                  }
-                  bg={
-                    currentAnswer === option.id.toString() ? 'blue.50' : 'white'
-                  }
-                  cursor='pointer'
-                  transition='all 0.2s'
-                  _hover={{ borderColor: 'blue.300', bg: 'blue.50' }}
-                >
-                  <Radio
-                    value={option.id.toString()}
-                    size='lg'
-                    colorScheme='blue'
-                  >
-                    <Text ml={2} fontSize='md' fontWeight='semibold'>
-                      {option.text}
-                    </Text>
-                  </Radio>
-                </Box>
-              ))}
-            </Stack>
-          </RadioGroup>
-        );
-
-      case 'SHORT_ANSWER':
-        return (
-          <Textarea
-            value={(currentAnswer as string) || ''}
-            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-            placeholder='Type your short answer here...'
-            size='lg'
-            minH='120px'
-            resize='vertical'
-            borderWidth='2px'
-            borderColor='gray.200'
-            _focus={{
-              borderColor: 'blue.400',
-              boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)',
-            }}
-          />
-        );
-
-      case 'ESSAY':
-        return (
-          <Box>
-            <Textarea
-              value={(currentAnswer as string) || ''}
-              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-              placeholder='Type your detailed answer here...'
-              size='lg'
-              minH='300px'
-              resize='vertical'
-              borderWidth='2px'
-              borderColor='gray.200'
-              _focus={{
-                borderColor: 'blue.400',
-                boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)',
-              }}
-            />
-            <Text mt={2} fontSize='sm' color='gray.500' textAlign='right'>
-              {(currentAnswer as string)?.length || 0} characters
-            </Text>
-          </Box>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  const getQuestionTypeBadge = (type: QuestionType) => {
-    const badges = {
-      MULTIPLE_CHOICE: { color: 'blue', text: 'Multiple Choice' },
-      MULTIPLE_ANSWER: { color: 'purple', text: 'Multiple Answer' },
-      TRUE_FALSE: { color: 'green', text: 'True/False' },
-      SHORT_ANSWER: { color: 'orange', text: 'Short Answer' },
-      ESSAY: { color: 'red', text: 'Essay' },
-    };
-    return badges[type] || { color: 'gray', text: type };
-  };
-
-  // Prevent cheating - track if user leaves tab
-  useEffect(() => {
-    let tabSwitchCount = 0;
-
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        tabSwitchCount++;
-        toast({
-          title: 'Warning',
-          description: `Tab switch detected (${tabSwitchCount})`,
-          status: 'warning',
-          position: 'top',
-        });
-
-        // Optional: Auto-submit after X switches
-        if (tabSwitchCount >= 3) {
-          handleSubmit();
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () =>
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [handleSubmit, toast]);
-
-  // Restore answers from localStorage on mount (if connection drops)
-  useEffect(() => {
-    const savedAnswers = localStorage.getItem(`exam-${attemptId}`);
-    if (savedAnswers) {
-      setAnswers(JSON.parse(savedAnswers));
-    }
-  }, [attemptId]);
-
-  // Save answers to localStorage
-  useEffect(() => {
-    if (Object.keys(answers).length > 0) {
-      localStorage.setItem(`exam-${attemptId}`, JSON.stringify(answers));
-    }
-  }, [answers, attemptId]);
-
+  // Loading state
   if (isLoading) {
     return (
       <Flex minH='100vh' align='center' justify='center' bg='gray.50'>
@@ -501,7 +163,8 @@ const ExamPage: React.FC = () => {
     );
   }
 
-  if (!testData) {
+  // Error state
+  if (!testData || questions.length === 0) {
     return (
       <Flex minH='100vh' align='center' justify='center' bg='gray.50'>
         <Card>
@@ -511,27 +174,8 @@ const ExamPage: React.FC = () => {
                 Exam Not Found
               </Text>
               <Text color='gray.600'>
-                The exam you're looking for doesn't exist!.
-              </Text>
-              <Button colorScheme='blue' onClick={() => window.history.back()}>
-                Go Back
-              </Button>
-            </VStack>
-          </CardBody>
-        </Card>
-      </Flex>
-    );
-  }
-
-  if (questions.length === 0) {
-    return (
-      <Flex minH='100vh' align='center' justify='center' bg='gray.50'>
-        <Card>
-          <CardBody>
-            <VStack spacing={4} p={8}>
-              <Text fontSize='xl' fontWeight='bold' color='red.500'>
-                No question yet for this exam please wait or contact admin for
-                support.
+                The exam you're looking for doesn't exist or has no questions
+                yet!
               </Text>
               <Button colorScheme='blue' onClick={() => window.history.back()}>
                 Go Back
@@ -545,271 +189,109 @@ const ExamPage: React.FC = () => {
 
   const currentQ = questions[currentQuestion];
   const typeBadge = getQuestionTypeBadge(currentQ.questionType);
+  const totalQuestions = testData._count?.questions || questions.length;
 
   return (
-    <ChakraProvider>
-      <Flex
-        minH='100vh'
-        bg='gray.50'
-        p={{ base: 4, md: 6 }}
-        direction={{ base: 'column', lg: 'row' }}
-        gap={6}
-      >
-        {/* Left Section - Student Info & Exam Details */}
-        <Box w={{ base: '100%', lg: '280px' }} flexShrink={0}>
-          <Card>
-            <CardBody>
-              <VStack spacing={4} align='stretch'>
-                <VStack spacing={3}>
-                  <Avatar
-                    size='xl'
-                    name={studentInfo.name}
-                    src={studentInfo.avatar || ''}
-                    bg='blue.500'
-                  />
-                  <Text fontWeight='bold' fontSize='lg' textAlign='center'>
-                    {studentInfo.name}
-                  </Text>
-                </VStack>
+    <Flex
+      minH='100vh'
+      bg='gray.50'
+      p={{ base: 4, md: 6 }}
+      direction={{ base: 'column', lg: 'row' }}
+      gap={6}
+    >
+      {/* Left Sidebar - Student Info & Exam Details */}
+      <ExamSidebar
+        studentName={userInfo?.name || 'Student'}
+        studentAvatar={userInfo?.avatar || ''}
+        examTitle={testData.title}
+        examDescription={testData.description}
+        totalQuestions={totalQuestions}
+        timeRemaining={timeRemaining}
+        timePercentage={getTimePercentage(timeRemaining, testData.duration)}
+        isConnected={isConnected}
+      />
 
-                <Divider />
-
-                <VStack spacing={2} align='stretch'>
-                  <Text fontWeight='semibold' color='gray.600' fontSize='sm'>
-                    EXAM DETAILS
-                  </Text>
-                  <Box>
-                    <Text fontSize='sm' color='gray.500'>
-                      Title
-                    </Text>
-                    <Text fontWeight='medium'>{examDetails.title}</Text>
-                  </Box>
-                  <Box>
-                    <Text fontSize='sm' color='gray.500'>
-                      Description
-                    </Text>
-                    <Text fontWeight='medium'>{examDetails.description}</Text>
-                  </Box>
-                  <Box>
-                    <Text fontSize='sm' color='gray.500'>
-                      Total Questions
-                    </Text>
-                    <Text fontWeight='medium'>
-                      {examDetails._count?.questions || questions.length}
-                    </Text>
-                  </Box>
-                </VStack>
-
-                <Divider />
-
-                <VStack spacing={3}>
-                  <Text fontWeight='semibold' color='gray.600' fontSize='sm'>
-                    TIME REMAINING
-                  </Text>
-                  <CircularProgress
-                    value={getTimePercentage()}
-                    size='120px'
-                    thickness='8px'
-                    color={timeRemaining < 300 ? 'red.400' : 'blue.400'}
-                  >
-                    <CircularProgressLabel fontSize='lg' fontWeight='bold'>
-                      {formatTime(timeRemaining)}
-                    </CircularProgressLabel>
-                  </CircularProgress>
-                  <Badge
-                    colorScheme={wsStatus === 'connected' ? 'green' : 'red'}
-                    fontSize='xs'
-                  >
-                    {wsStatus === 'connected' ? '● Live' : '● Offline'}
+      {/* Middle Section - Current Question */}
+      <Box flex='1'>
+        <Card h='full'>
+          <CardBody>
+            <VStack spacing={6} align='stretch' h='full'>
+              <Flex justify='space-between' align='center' wrap='wrap' gap={3}>
+                <HStack spacing={2}>
+                  <Badge colorScheme='blue' fontSize='md' px={3} py={1}>
+                    Question {currentQuestion + 1} of {totalQuestions}
                   </Badge>
-                </VStack>
-              </VStack>
-            </CardBody>
-          </Card>
-        </Box>
-
-        {/* Middle Section - Questions */}
-        <Box flex='1'>
-          <Card h='full'>
-            <CardBody>
-              <VStack spacing={6} align='stretch' h='full'>
-                <Flex
-                  justify='space-between'
-                  align='center'
-                  wrap='wrap'
-                  gap={3}
-                >
-                  <HStack spacing={2}>
-                    <Badge colorScheme='blue' fontSize='md' px={3} py={1}>
-                      Question {currentQuestion + 1} of{' '}
-                      {examDetails._count?.questions || questions.length}
-                    </Badge>
-                    <Badge
-                      colorScheme={typeBadge.color}
-                      fontSize='sm'
-                      px={2}
-                      py={1}
-                    >
-                      {typeBadge.text}
-                    </Badge>
-                    {currentQ.points && (
-                      <Badge colorScheme='gray' fontSize='sm' px={2} py={1}>
-                        {currentQ.points} pts
-                      </Badge>
-                    )}
-                  </HStack>
-                  <Progress
-                    value={
-                      ((currentQuestion + 1) /
-                        (examDetails._count?.questions || questions.length)) *
-                      100
-                    }
-                    size='sm'
-                    colorScheme='blue'
-                    w={{ base: '100%', md: '200px' }}
-                    borderRadius='full'
-                  />
-                </Flex>
-
-                <Box flex='1'>
-                  <Text fontSize='xl' fontWeight='semibold' mb={6}>
-                    {currentQ.text}
-                  </Text>
-
-                  {renderQuestion(currentQ)}
-                </Box>
-
-                <HStack justify='space-between'>
-                  <Button
-                    onClick={handlePrevious}
-                    isDisabled={currentQuestion === 0}
-                    colorScheme='gray'
-                    size='lg'
+                  <Badge
+                    colorScheme={typeBadge.color}
+                    fontSize='sm'
+                    px={2}
+                    py={1}
                   >
-                    Previous
-                  </Button>
-                  <Button
-                    onClick={handleNext}
-                    isDisabled={currentQuestion === questions.length - 1}
-                    colorScheme='blue'
-                    size='lg'
-                  >
-                    Next
-                  </Button>
+                    {typeBadge.text}
+                  </Badge>
+                  {currentQ.points && (
+                    <Badge colorScheme='gray' fontSize='sm' px={2} py={1}>
+                      {currentQ.points} pts
+                    </Badge>
+                  )}
                 </HStack>
-              </VStack>
-            </CardBody>
-          </Card>
-        </Box>
+                <Progress
+                  value={((currentQuestion + 1) / totalQuestions) * 100}
+                  size='sm'
+                  colorScheme='blue'
+                  w={{ base: '100%', md: '200px' }}
+                  borderRadius='full'
+                />
+              </Flex>
 
-        {/* Right Section - Question Navigator */}
-        <Box w={{ base: '100%', lg: '300px' }} flexShrink={0}>
-          <Card>
-            <CardBody>
-              <Stack spacing={4} align='stretch'>
-                <Text fontWeight='bold' fontSize='lg'>
-                  Question Navigator
+              <Box flex='1'>
+                <Text fontSize='xl' fontWeight='semibold' mb={6}>
+                  {currentQ.text}
                 </Text>
 
-                <HStack spacing={4}>
-                  <HStack>
-                    <Box w={4} h={4} bg='green.400' borderRadius='sm' />
-                    <Text fontSize='sm'>Answered</Text>
-                  </HStack>
-                  <HStack>
-                    <Box w={4} h={4} bg='gray.200' borderRadius='sm' />
-                    <Text fontSize='sm'>Unanswered</Text>
-                  </HStack>
-                </HStack>
+                <QuestionRenderer
+                  question={currentQ}
+                  currentAnswer={answers[currentQ.id]}
+                  onAnswerChange={(value) =>
+                    handleAnswerChange(currentQ.id, value)
+                  }
+                />
+              </Box>
 
-                <Divider />
-
-                <Grid templateColumns='repeat(4, 1fr)' gap={2}>
-                  {questions.map((q, index) => (
-                    <Button
-                      key={q.id}
-                      onClick={() => handleQuestionJump(index)}
-                      size='lg'
-                      variant={currentQuestion === index ? 'solid' : 'outline'}
-                      colorScheme={
-                        currentQuestion === index
-                          ? 'blue'
-                          : isQuestionAnswered(q.id)
-                          ? 'green'
-                          : 'gray'
-                      }
-                      bg={
-                        currentQuestion === index
-                          ? 'blue.500'
-                          : isQuestionAnswered(q.id)
-                          ? 'green.400'
-                          : 'white'
-                      }
-                      color={
-                        currentQuestion === index || isQuestionAnswered(q.id)
-                          ? 'white'
-                          : 'gray.700'
-                      }
-                      borderColor={
-                        isQuestionAnswered(q.id) && currentQuestion !== index
-                          ? 'green.400'
-                          : 'gray.300'
-                      }
-                      _hover={{
-                        bg:
-                          currentQuestion === index
-                            ? 'blue.600'
-                            : isQuestionAnswered(q.id)
-                            ? 'green.500'
-                            : 'gray.100',
-                      }}
-                      h='45px'
-                      w='45px'
-                      borderRadius='full'
-                      fontSize='md'
-                      fontWeight='semibold'
-                    >
-                      {index + 1}
-                    </Button>
-                  ))}
-                </Grid>
-
-                <Divider />
-
-                <VStack spacing={2} align='stretch'>
-                  <HStack justify='space-between'>
-                    <Text fontSize='sm' color='gray.600'>
-                      Answered:
-                    </Text>
-                    <Badge colorScheme='green' fontSize='md'>
-                      {answeredCount}
-                    </Badge>
-                  </HStack>
-                  <HStack justify='space-between'>
-                    <Text fontSize='sm' color='gray.600'>
-                      Remaining:
-                    </Text>
-                    <Badge colorScheme='orange' fontSize='md'>
-                      {remainingCount}
-                    </Badge>
-                  </HStack>
-                </VStack>
-
+              <HStack justify='space-between'>
                 <Button
-                  colorScheme='green'
+                  onClick={handlePrevious}
+                  isDisabled={currentQuestion === 0}
+                  colorScheme='gray'
                   size='lg'
-                  onClick={handleSubmit}
-                  w='full'
-                  mt={4}
                 >
-                  Submit Exam
+                  Previous
                 </Button>
-              </Stack>
-            </CardBody>
-          </Card>
-        </Box>
-      </Flex>
-    </ChakraProvider>
+                <Button
+                  onClick={handleNext}
+                  isDisabled={currentQuestion === questions.length - 1}
+                  colorScheme='blue'
+                  size='lg'
+                >
+                  Next
+                </Button>
+              </HStack>
+            </VStack>
+          </CardBody>
+        </Card>
+      </Box>
+
+      {/* Right Section - Question Navigator */}
+      <QuestionNavigator
+        questions={questions}
+        currentQuestion={currentQuestion}
+        isQuestionAnswered={isQuestionAnswered}
+        onQuestionJump={handleQuestionJump}
+        onSubmit={handleSubmit}
+        answeredCount={answeredCount}
+        isSubmitting={completeAttempt.isPending}
+      />
+    </Flex>
   );
 };
 

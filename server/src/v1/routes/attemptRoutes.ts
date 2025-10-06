@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../../middleware/authenticate';
 import { attemptRateLimit } from '../../middleware/attemptRateLimit';
-import AttemptController from '../controllers/attemtController';
+import AttemptController from '../controllers/attemptController';
 import { authorize } from '../../middleware/authorization';
 
 export const attemptRoutes = Router();
@@ -52,6 +52,6 @@ attemptRoutes.get(
   authorize('ADMIN', 'INSTRUCTOR'),
   AttemptController.getScoreDistribution
 );
-attemptRoutes.get('/:id', authenticate, AttemptController.getById);
 attemptRoutes.post('/:id/answer', authenticate, AttemptController.submitAnswer);
 attemptRoutes.patch('/:id/complete', authenticate, AttemptController.complete);
+attemptRoutes.get('/:id', authenticate, AttemptController.getById);

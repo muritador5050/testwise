@@ -12,7 +12,6 @@ export const useWebSocket = (attemptId?: number) => {
     const token = getAuthToken();
     if (!token) return;
 
-    // Connect to WebSocket server
     socketRef.current = io(
       import.meta.env.VITE_WS_URL || 'http://localhost:5000',
       {
