@@ -4,7 +4,6 @@ import type {
   Attempt,
   Answer,
   AttemptAnalytics,
-  AttemptTrends,
   TestPerformance,
   QuestionPerformance,
   UserPerformanceHistory,
@@ -118,31 +117,11 @@ export const useCompleteAttempt = () => {
 };
 
 // Get attempt analytics (Admin/Instructor only)
-export const useGetAttemptAnalytics = (testId?: number) => {
+export const useGetAttemptAnalytics = () => {
   return useQuery<AttemptAnalytics>({
-    queryKey: ['attempt-analytics', testId],
+    queryKey: ['attempt-analytics'],
     queryFn: async () => {
-      const params = testId ? `?testId=${testId}` : '';
-      return apiClient(`attempts/analytics${params}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${getAuthToken()}`,
-        },
-      });
-    },
-  });
-};
-
-// Get attempt trends (Admin/Instructor only)
-export const useGetAttemptTrends = (testId?: number, days: number = 30) => {
-  return useQuery<AttemptTrends>({
-    queryKey: ['attempt-trends', testId, days],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      if (testId) params.append('testId', testId.toString());
-      params.append('days', days.toString());
-
-      return apiClient(`attempts/trends?${params.toString()}`, {
+      return apiClient(`attempts/analytics`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getAuthToken()}`,

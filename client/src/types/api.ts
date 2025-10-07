@@ -168,17 +168,6 @@ export interface AttemptAnalytics {
   passRate: number;
 }
 
-export interface AttemptTrends {
-  statusBreakdown: Array<{
-    status: string;
-    _count: { id: number };
-  }>;
-  dailyAttempts: Array<{
-    date: string;
-    count: number;
-  }>;
-}
-
 export interface TestStatistics {
   testId: number;
   title: string;

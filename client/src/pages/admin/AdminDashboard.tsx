@@ -3,6 +3,7 @@ import { SimpleGrid, Heading, VStack } from '@chakra-ui/react';
 import StatCard from '../../components/admin/StatCard';
 import { BookCheck, BookOpen, CircleQuestionMark, Users } from 'lucide-react';
 import { useUserAnalytics } from '../../api/services/authService';
+import ResultsAnalyticsCharts from './components/ResultsAnalyticsChart';
 
 const AdminDashboard: React.FC = () => {
   const { data } = useUserAnalytics();
@@ -39,7 +40,7 @@ const AdminDashboard: React.FC = () => {
         />
       </SimpleGrid>
 
-      {/* Add more dashboard content here */}
+      <ResultsAnalyticsCharts />
     </VStack>
   );
 };

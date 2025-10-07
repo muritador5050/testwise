@@ -13,12 +13,7 @@ attemptRoutes.get(
   authorize('ADMIN', 'INSTRUCTOR'),
   AttemptController.getAnalytics
 );
-attemptRoutes.get(
-  '/trends',
-  authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
-  AttemptController.getTrends
-);
+
 attemptRoutes.post(
   '/test/:testId/start',
   authenticate,
@@ -41,8 +36,9 @@ attemptRoutes.get(
 );
 
 attemptRoutes.get(
-  '/user/:userId/performance',
+  '/user/performance',
   authenticate,
+  authorize('STUDENT'),
   AttemptController.getUserPerformance
 );
 

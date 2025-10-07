@@ -9,7 +9,7 @@ userRoutes.post('/signup', UserController.create);
 userRoutes.post('/login', UserController.login);
 userRoutes.get('/', authenticate, authorize('ADMIN'), UserController.getAll);
 userRoutes.get(
-  '/analytics/counts',
+  '/analytics/count',
   authenticate,
   authorize('ADMIN'),
   UserController.getCounts

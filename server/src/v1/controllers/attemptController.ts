@@ -33,7 +33,7 @@ class AttemptController {
   static async getById(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;
-      const attempt = await AttemptService.getAttempt(parseInt(id));
+      const attempt = await AttemptService.getAttemptById(parseInt(id));
 
       if (!attempt) {
         return res.status(404).json({ error: 'Attempt not found' });
@@ -117,11 +117,7 @@ class AttemptController {
 
   static async getAnalytics(req: AuthenticatedRequest, res: Response) {
     try {
-      const testId = req.query.testId
-        ? parseInt(req.query.testId as string)
-        : undefined;
-
-      const analytics = await AttemptService.getAttemptAnalytics(testId);
+      const analytics = await AttemptService.getAttemptAnalytics();
       res.json(analytics);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -135,20 +131,6 @@ class AttemptController {
         parseInt(testId)
       );
       res.json(performance);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  }
-
-  static async getTrends(req: AuthenticatedRequest, res: Response) {
-    try {
-      const testId = req.query.testId
-        ? parseInt(req.query.testId as string)
-        : undefined;
-      const days = req.query.days ? parseInt(req.query.days as string) : 30;
-
-      const trends = await AttemptService.getAttemptTrends(testId, days);
-      res.json(trends);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -168,19 +150,9 @@ class AttemptController {
 
   static async getUserPerformance(req: AuthenticatedRequest, res: Response) {
     try {
-      const { userId } = req.params;
-      const requestingUserId = req.user!.id;
-
-      // Only allow users to view their own performance or admins/instructors
-      if (
-        parseInt(userId) !== requestingUserId &&
-        !['ADMIN', 'INSTRUCTOR'].includes(req.user!.role)
-      ) {
-        return res.status(403).json({ error: 'Access denied' });
-      }
-
+      const userId = req.user!.id;
       const performance = await AttemptService.getUserPerformanceHistory(
-        parseInt(userId)
+        userId
       );
       res.json(performance);
     } catch (error: any) {

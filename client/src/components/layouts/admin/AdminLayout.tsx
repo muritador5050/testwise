@@ -8,13 +8,15 @@ import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
 import { Route, Routes } from 'react-router-dom';
 import AdminDashboard from '../../../pages/admin/AdminDashboard';
-import QuestionPage from '../../../pages/QuestionsPage';
 import UsersPage from '../../../pages/admin/UsersPage';
 import Students from '../../../pages/admin/Students';
 import Instructors from '../../../pages/admin/Instructors';
-import ResultsPage from '../../../pages/ResultsPage';
 import SettingsPage from '../../../pages/SettingsPage';
 import ExamsStats from '../../../pages/admin/ExamsStats';
+import ResultsStatistics from '../../../pages/admin/ResultsStatistics';
+import ExamCreation from '../../../pages/admin/ExamCreation';
+import QuestionCreation from '../../../pages/admin/QuestionCreation';
+import QuestionBank from '../../../pages/admin/QuestionBank';
 
 // Navigation items configuration
 const navItems = [
@@ -60,11 +62,6 @@ const navItems = [
         path: '/admin/questions/create',
         icon: '➕',
       },
-      {
-        name: 'Import Questions',
-        path: '/admin/questions/import',
-        icon: '📤',
-      },
     ],
   },
   {
@@ -81,11 +78,6 @@ const navItems = [
         name: 'Students',
         path: '/admin/users/students',
         icon: '🎓',
-      },
-      {
-        name: 'Instructors',
-        path: '/admin/users/instructors',
-        icon: '👨‍🏫',
       },
     ],
   },
@@ -153,11 +145,13 @@ const AdminLayout: React.FC = () => {
         <Routes>
           <Route index element={<AdminDashboard />} />
           <Route path='exams' element={<ExamsStats />} />
-          <Route path='questions' element={<QuestionPage />} />
+          <Route path='questions' element={<QuestionBank />} />
+          <Route path='questions/create' element={<QuestionCreation />} />
+          <Route path='exams/create' element={<ExamCreation />} />
           <Route path='users' element={<UsersPage />} />
           <Route path='users/students' element={<Students />} />
           <Route path='users/instructors' element={<Instructors />} />
-          <Route path='results' element={<ResultsPage />} />
+          <Route path='results' element={<ResultsStatistics />} />
           <Route path='results/analytics' element={<div>Analytics</div>} />
           <Route path='settings' element={<SettingsPage />} />
         </Routes>

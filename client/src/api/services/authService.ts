@@ -190,7 +190,7 @@ export const useUserAnalytics = () => {
   return useQuery<UserAnalytics>({
     queryKey: ['count'],
     queryFn: async () => {
-      return apiClient(`users/analytics/counts`, {
+      return apiClient(`users/analytics/count`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getAuthToken()}`,
