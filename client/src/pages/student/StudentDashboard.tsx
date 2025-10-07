@@ -1,9 +1,5 @@
 import { Container, Grid, GridItem } from '@chakra-ui/react';
-import WelcomeSection from '../../components/student/WelcomeSection';
-import StatsOverview from '../../components/student/StatOverview';
-import UpcomingExams from '../../components/student/UpcomingExams';
-import RecentResults from '../../components/student/RecentResults';
-import PerformanceOverview from '../../components/student/PerformanceOverview';
+
 import {
   useUserActivityStats,
   useCurrentUser,
@@ -11,6 +7,11 @@ import {
 } from '../../api/services/authService';
 import { useGetAllTests } from '../../api/services/testServices';
 import { useNavigate } from 'react-router-dom';
+import WelcomeSection from './components/WelcomeSection';
+import RecentResults from './components/RecentResults';
+import PerformanceOverview from './components/PerformanceOverview';
+import StudentStatsOverview from './components/StudentStatsOverview';
+import UpcomingExams from './components/UpcomingExams';
 
 const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -32,10 +33,11 @@ const StudentDashboard: React.FC = () => {
   return (
     <Container maxW='container.xl' py={8}>
       <WelcomeSection
+        avatar={student_data?.avatar ?? ''}
         studentName={student_data?.name || 'Student'}
         handleLogout={() => logout.mutate()}
       />
-      <StatsOverview stats={studentStats} />
+      <StudentStatsOverview stats={studentStats} />
 
       <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={6}>
         <GridItem>

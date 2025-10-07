@@ -8,13 +8,13 @@ import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
 import { Route, Routes } from 'react-router-dom';
 import AdminDashboard from '../../../pages/admin/AdminDashboard';
-import ExamsPage from '../../../pages/student/ExamPage';
 import QuestionPage from '../../../pages/QuestionsPage';
 import UsersPage from '../../../pages/admin/UsersPage';
 import Students from '../../../pages/admin/Students';
 import Instructors from '../../../pages/admin/Instructors';
 import ResultsPage from '../../../pages/ResultsPage';
 import SettingsPage from '../../../pages/SettingsPage';
+import ExamsStats from '../../../pages/admin/ExamsStats';
 
 // Navigation items configuration
 const navItems = [
@@ -152,7 +152,7 @@ const AdminLayout: React.FC = () => {
       >
         <Routes>
           <Route index element={<AdminDashboard />} />
-          <Route path='exams' element={<ExamsPage />} />
+          <Route path='exams' element={<ExamsStats />} />
           <Route path='questions' element={<QuestionPage />} />
           <Route path='users' element={<UsersPage />} />
           <Route path='users/students' element={<Students />} />

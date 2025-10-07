@@ -70,9 +70,8 @@ class TestController {
   static async publish(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;
-      const { isPublished } = req.body;
 
-      const test = await TestService.publishTest(parseInt(id), isPublished);
+      const test = await TestService.publishTest(parseInt(id));
       res.json(test);
     } catch (error: any) {
       if (error.code === 'P2025') {
@@ -110,19 +109,8 @@ class TestController {
 
   static async getStatistics(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const stats = await TestService.getTestStatistics(parseInt(id));
+      const stats = await TestService.getAllTestsStatistics();
       res.json(stats);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  }
-
-  static async getPopular(req: Request, res: Response) {
-    try {
-      const limit = parseInt(req.query.limit as string) || 10;
-      const popular = await TestService.getPopularTests(limit);
-      res.json(popular);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

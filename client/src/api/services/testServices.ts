@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient, getAuthToken } from '../apiClient';
-import type { CreateTest, Test, TestResponse } from '../../types/api';
+import type {
+  CreateTest,
+  Test,
+  TestResponse,
+  TestStatistics,
+} from '../../types/api';
 
 export const useCreateTest = () => {
   const queryClient = useQueryClient();
@@ -121,6 +126,19 @@ export const useDeleteTest = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tests'] });
+    },
+  });
+};
+
+export const useTestsStats = () => {
+  return useQuery<TestStatistics[]>({
+    queryKey: ['testsAnalytics'],
+    queryFn: async () => {
+      return apiClient(`tests/statistics`, {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
     },
   });
 };

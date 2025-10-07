@@ -11,7 +11,7 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { Calendar, Clock, BookOpen, AlertCircle } from 'lucide-react';
-import type { Test } from '../../types/api';
+import type { Test } from '../../../types/api';
 
 interface Props {
   exams: Test[];
@@ -84,7 +84,7 @@ const UpcomingExams = ({ exams, onClick }: Props) => {
         <CardHeader>
           <HStack>
             <Calendar size={16} />
-            <Heading size='md'>Upcoming Exams</Heading>
+            <Heading size='md'> Exams</Heading>
           </HStack>
         </CardHeader>
         <CardBody>
@@ -103,11 +103,8 @@ const UpcomingExams = ({ exams, onClick }: Props) => {
         <HStack justify='space-between'>
           <HStack>
             <Calendar size={16} />
-            <Heading size='md'>Upcoming Exams</Heading>
+            <Heading size='md'>Exams</Heading>
           </HStack>
-          <Button size='sm' variant='ghost'>
-            View All
-          </Button>
         </HStack>
       </CardHeader>
       <CardBody>
@@ -123,7 +120,7 @@ const UpcomingExams = ({ exams, onClick }: Props) => {
                 <HStack justify='space-between' mb={2}>
                   <VStack align='start' spacing={1}>
                     <Heading size='sm'>{exam.title}</Heading>
-                    <Text fontSize='sm' color='gray.600' noOfLines={1}>
+                    <Text fontSize='sm' color='gray.500' noOfLines={1}>
                       {exam.description}
                     </Text>
                   </VStack>

@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import { TrendingUp } from 'lucide-react';
-import type { AttemptStatus, UserActivityStats } from '../../types/api';
+import type { AttemptStatus, UserActivityStats } from '../../../types/api';
 
 interface Props {
   results: UserActivityStats;

@@ -85,10 +85,18 @@ class TestService {
     });
   }
 
-  static async publishTest(id: number, isPublished: boolean) {
+  static async publishTest(id: number) {
+    const currentTest = await prisma.test.findUnique({
+      where: { id },
+    });
+
+    if (!currentTest) {
+      throw new Error('Test not found');
+    }
+
     return await prisma.test.update({
       where: { id },
-      data: { isPublished: !isPublished },
+      data: { isPublished: !currentTest.isPublished },
     });
   }
 
@@ -126,52 +134,54 @@ class TestService {
     return { available: true };
   }
 
-  static async getTestStatistics(testId: number) {
-    const [test, attemptStats, questionCount] = await Promise.all([
-      prisma.test.findUnique({
-        where: { id: testId },
-        include: { _count: { select: { attempts: true, questions: true } } },
-      }),
-      prisma.attempt.aggregate({
-        where: { testId, status: 'COMPLETED' },
-        _avg: { percentScore: true, timeSpent: true },
-        _max: { percentScore: true },
-        _min: { percentScore: true },
-      }),
-      prisma.question.aggregate({
-        where: { testId },
-        _sum: { points: true },
-      }),
-    ]);
-
-    return {
-      testId,
-      title: test?.title,
-      totalAttempts: test?._count.attempts || 0,
-      totalQuestions: test?._count.questions || 0,
-      totalPoints: questionCount._sum.points || 0,
-      averageScore: attemptStats._avg.percentScore || 0,
-      averageTimeSpent: attemptStats._avg.timeSpent || 0,
-      highestScore: attemptStats._max.percentScore || 0,
-      lowestScore: attemptStats._min.percentScore || 0,
-    };
-  }
-
-  static async getPopularTests(limit: number = 10) {
+  static async getAllTestsStatistics() {
     const tests = await prisma.test.findMany({
       where: { isPublished: true },
       include: {
-        _count: { select: { attempts: true } },
+        _count: { select: { attempts: true, questions: true } },
       },
-      orderBy: { attempts: { _count: 'desc' } },
-      take: limit,
     });
 
-    return tests.map((test) => ({
-      id: test.id,
-      title: test.title,
-      attemptCount: test._count.attempts,
-    }));
+    // Get attempt stats grouped by testId
+    const attemptStats = await prisma.attempt.groupBy({
+      by: ['testId'],
+      where: { status: 'COMPLETED' },
+      _avg: { percentScore: true, timeSpent: true },
+      _max: { percentScore: true },
+      _min: { percentScore: true },
+    });
+
+    // Get question points grouped by testId
+    const questionStats = await prisma.question.groupBy({
+      by: ['testId'],
+      _sum: { points: true },
+    });
+
+    // Create lookup maps for faster access
+    const attemptStatsMap = new Map(
+      attemptStats.map((stat) => [stat.testId, stat])
+    );
+    const questionStatsMap = new Map(
+      questionStats.map((stat) => [stat.testId, stat])
+    );
+
+    // Combine all data
+    return tests.map((test) => {
+      const attempts = attemptStatsMap.get(test.id);
+      const questions = questionStatsMap.get(test.id);
+
+      return {
+        testId: test.id,
+        title: test.title,
+        totalAttempts: test._count.attempts || 0,
+        totalQuestions: test._count.questions || 0,
+        totalPoints: questions?._sum.points || 0,
+        averageScore: attempts?._avg.percentScore || 0,
+        averageTimeSpent: attempts?._avg.timeSpent || 0,
+        highestScore: attempts?._max.percentScore || 0,
+        lowestScore: attempts?._min.percentScore || 0,
+      };
+    });
   }
 }
 

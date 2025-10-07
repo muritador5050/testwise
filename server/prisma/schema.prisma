@@ -115,7 +115,7 @@ model Attempt {
   user   User @relation(fields: [userId], references: [id])
   
   testId Int
-  test   Test @relation(fields: [testId], references: [id])
+  test   Test @relation(fields: [testId], references: [id],  onDelete:Cascade )
   
   answers Answer[]
   

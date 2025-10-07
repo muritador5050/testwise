@@ -19,7 +19,7 @@ interface Props {
   stats: StudentStats;
 }
 
-const StatsOverview: React.FC<Props> = ({ stats }) => (
+const StudentStatsOverview: React.FC<Props> = ({ stats }) => (
   <Grid templateColumns='repeat(auto-fit, minmax(200px, 1fr))' gap={4} mb={8}>
     <Card>
       <CardBody>
@@ -43,4 +43,4 @@ const StatsOverview: React.FC<Props> = ({ stats }) => (
   </Grid>
 );
 
-export default StatsOverview;
+export default StudentStatsOverview;

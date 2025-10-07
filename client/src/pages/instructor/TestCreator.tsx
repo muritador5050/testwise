@@ -33,12 +33,13 @@ import {
   usePublishTest,
 } from '../../api/services/testServices';
 import type { CreateTest, Test } from '../../types/api';
+import { ArrowBackIcon } from '@chakra-ui/icons';
 
 const TestCreator: React.FC = () => {
   const [formData, setFormData] = useState<CreateTest>({
     title: '',
     description: '',
-    duration: 60,
+    duration: 20,
     maxAttempts: 1,
     isPublished: false,
     availableFrom: null,
@@ -111,27 +112,29 @@ const TestCreator: React.FC = () => {
 
   if (!tests) return;
   return (
-    <Box p={6} bg='gray.50' minH='100vh'>
+    <Box p={6} minH='100vh'>
+      <IconButton
+        aria-label='back'
+        icon={<ArrowBackIcon />}
+        onClick={() => navigate('/instructor')}
+      />
       <HStack align='flex-start' spacing={8}>
         {/* Left: Form */}
-        <Box flex='1' bg='white' p={8} borderRadius='lg' shadow='lg'>
+        <Box flex='1' p={8} borderRadius='lg' shadow='lg'>
           <VStack spacing={6} align='stretch' as='form' onSubmit={handleSubmit}>
-            <Heading size='lg' color='gray.800'>
+            <Heading size='lg'>
               {editingId ? 'Update Test' : 'Create New Test'}
             </Heading>
 
             {/* Title */}
             <FormControl isRequired>
-              <FormLabel fontWeight='semibold' color='gray.700'>
-                Test Title
-              </FormLabel>
+              <FormLabel fontWeight='semibold'>Test Title</FormLabel>
               <Input
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
                 placeholder='Enter test title'
-                color='gray.800'
                 borderColor='gray.300'
                 _placeholder={{ color: 'gray.400' }}
               />
@@ -139,9 +142,7 @@ const TestCreator: React.FC = () => {
 
             {/* Description */}
             <FormControl>
-              <FormLabel fontWeight='semibold' color='gray.700'>
-                Description
-              </FormLabel>
+              <FormLabel fontWeight='semibold'>Description</FormLabel>
               <Textarea
                 value={formData.description}
                 onChange={(e) =>
@@ -149,7 +150,6 @@ const TestCreator: React.FC = () => {
                 }
                 placeholder='Enter test description (optional)'
                 rows={4}
-                color='gray.800'
                 borderColor='gray.300'
                 _placeholder={{ color: 'gray.400' }}
               />
@@ -158,9 +158,7 @@ const TestCreator: React.FC = () => {
             {/* Duration & Max Attempts */}
             <HStack spacing={4} align='flex-start'>
               <FormControl isRequired flex={1}>
-                <FormLabel fontWeight='semibold' color='gray.700'>
-                  Duration (minutes)
-                </FormLabel>
+                <FormLabel fontWeight='semibold'>Duration (minutes)</FormLabel>
                 <NumberInput
                   value={formData.duration}
                   onChange={(_valueString, valueNumber) =>
@@ -168,7 +166,7 @@ const TestCreator: React.FC = () => {
                   }
                   min={1}
                 >
-                  <NumberInputField color='gray.800' borderColor='gray.300' />
+                  <NumberInputField borderColor='gray.300' />
                   <NumberInputStepper>
                     <NumberIncrementStepper />
                     <NumberDecrementStepper />
@@ -177,9 +175,7 @@ const TestCreator: React.FC = () => {
               </FormControl>
 
               <FormControl isRequired flex={1}>
-                <FormLabel fontWeight='semibold' color='gray.700'>
-                  Max Attempts
-                </FormLabel>
+                <FormLabel fontWeight='semibold'>Max Attempts</FormLabel>
                 <NumberInput
                   value={formData.maxAttempts}
                   onChange={(_valueString, valueNumber) =>
@@ -187,7 +183,7 @@ const TestCreator: React.FC = () => {
                   }
                   min={1}
                 >
-                  <NumberInputField color='gray.800' borderColor='gray.300' />
+                  <NumberInputField borderColor='gray.300' />
                   <NumberInputStepper>
                     <NumberIncrementStepper />
                     <NumberDecrementStepper />
@@ -199,9 +195,7 @@ const TestCreator: React.FC = () => {
             {/* Available From & Until */}
             <HStack spacing={4} align='flex-start'>
               <FormControl flex={1}>
-                <FormLabel fontWeight='semibold' color='gray.700'>
-                  Available From
-                </FormLabel>
+                <FormLabel fontWeight='semibold'>Available From</FormLabel>
                 <Input
                   type='datetime-local'
                   value={formData.availableFrom ?? ''}
@@ -211,15 +205,12 @@ const TestCreator: React.FC = () => {
                       availableFrom: e.target.value || null,
                     })
                   }
-                  color='gray.800'
                   borderColor='gray.300'
                 />
               </FormControl>
 
               <FormControl flex={1}>
-                <FormLabel fontWeight='semibold' color='gray.700'>
-                  Available Until
-                </FormLabel>
+                <FormLabel fontWeight='semibold'>Available Until</FormLabel>
                 <Input
                   type='datetime-local'
                   value={formData.availableUntil ?? ''}
@@ -229,7 +220,6 @@ const TestCreator: React.FC = () => {
                       availableUntil: e.target.value || null,
                     })
                   }
-                  color='gray.800'
                   borderColor='gray.300'
                 />
               </FormControl>
@@ -237,7 +227,7 @@ const TestCreator: React.FC = () => {
 
             {/* Is Published */}
             <FormControl display='flex' alignItems='center'>
-              <FormLabel mb='0' fontWeight='semibold' color='gray.700'>
+              <FormLabel mb='0' fontWeight='semibold'>
                 Publish Test
               </FormLabel>
               <Switch
@@ -287,7 +277,7 @@ const TestCreator: React.FC = () => {
                     {test.description || 'No description'}
                   </Text>
                   <Text fontSize='xs' color='gray.500' mt={2}>
-                    Duration: {Math.floor(test.duration / 60)} mins | Attempts:{' '}
+                    Duration: {test.duration} mins | Attempts:{' '}
                     {test.maxAttempts}
                   </Text>
                   <Text fontSize='xs' color='gray.500'>
@@ -340,7 +330,10 @@ const TestCreator: React.FC = () => {
                       })
                     }
                   >
-                    Start Creating Questions
+                    {' '}
+                    {test.questions?.length !== 0
+                      ? 'Add More Questions'
+                      : 'Start Creating Questions'}
                   </Button>
                 </CardFooter>
               </Card>

@@ -179,6 +179,18 @@ export interface AttemptTrends {
   }>;
 }
 
+export interface TestStatistics {
+  testId: number;
+  title: string;
+  totalAttempts: number;
+  totalQuestions: number;
+  totalPoints: number;
+  averageScore: number;
+  averageTimeSpent: number;
+  highestScore: number;
+  lowestScore: number;
+}
+
 export interface TestPerformance {
   userId: number;
   userName: string;
