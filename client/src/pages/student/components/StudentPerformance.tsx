@@ -16,6 +16,7 @@ import {
   Badge,
   Divider,
   useColorModeValue,
+  Button,
 } from '@chakra-ui/react';
 import {
   TrendingUp,
@@ -26,26 +27,8 @@ import {
   XCircle,
   Calendar,
 } from 'lucide-react';
-
-// Types
-interface Attempt {
-  testTitle: string;
-  score: number;
-  percentScore: number;
-  timeSpent: number;
-  completedAt: string;
-}
-
-interface UserPerformance {
-  totalAttempts: number;
-  averageScore: number;
-  passRate: number;
-  attempts: Attempt[];
-}
-
-interface PerformanceCardProps {
-  data: UserPerformance;
-}
+import { useGetUserPerformance } from '../../../api/services/attemptService';
+import { Link } from 'react-router-dom';
 
 // Helper functions
 const formatTime = (seconds: number): string => {
@@ -90,12 +73,12 @@ const getPassStatus = (
 };
 
 // Main Component
-export const UserPerformanceDashboard: React.FC<PerformanceCardProps> = ({
-  data,
-}) => {
+export const StudentPerformance: React.FC = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const headerColor = useColorModeValue('gray.800', 'white');
+
+  const { data } = useGetUserPerformance();
 
   return (
     <VStack spacing={6} align='stretch' w='full'>
@@ -108,7 +91,7 @@ export const UserPerformanceDashboard: React.FC<PerformanceCardProps> = ({
                 <BarChart3 size={24} color='#3182CE' />
                 <StatLabel>Total Attempts</StatLabel>
               </HStack>
-              <StatNumber fontSize='2xl'>{data.totalAttempts}</StatNumber>
+              <StatNumber fontSize='2xl'>{data?.totalAttempts}</StatNumber>
               <StatHelpText>All time test attempts</StatHelpText>
             </Stat>
           </CardBody>
@@ -122,7 +105,7 @@ export const UserPerformanceDashboard: React.FC<PerformanceCardProps> = ({
                 <StatLabel>Average Score</StatLabel>
               </HStack>
               <StatNumber fontSize='2xl'>
-                {data.averageScore.toFixed(1)}%
+                {data?.averageScore.toFixed(1)}%
               </StatNumber>
               <StatHelpText>Across all attempts</StatHelpText>
             </Stat>
@@ -136,7 +119,7 @@ export const UserPerformanceDashboard: React.FC<PerformanceCardProps> = ({
                 <Target size={24} color='#DD6B20' />
                 <StatLabel>Pass Rate</StatLabel>
               </HStack>
-              <StatNumber fontSize='2xl'>{data.passRate}%</StatNumber>
+              <StatNumber fontSize='2xl'>{data?.passRate}%</StatNumber>
               <StatHelpText>Tests passed (≥50%)</StatHelpText>
             </Stat>
           </CardBody>
@@ -146,17 +129,28 @@ export const UserPerformanceDashboard: React.FC<PerformanceCardProps> = ({
       {/* Attempts History */}
       <Card bg={cardBg} border='1px' borderColor={borderColor}>
         <CardHeader>
-          <HStack>
-            <Calendar size={20} />
-            <Text fontSize='xl' fontWeight='bold' color={headerColor}>
-              Recent Attempts
-            </Text>
+          <HStack justify='space-between'>
+            <HStack>
+              <Calendar size={20} />
+              <Text fontSize='xl' fontWeight='bold' color={headerColor}>
+                Recent Attempts
+              </Text>
+            </HStack>
+            <Button
+              as={Link}
+              to='/student/results'
+              size='sm'
+              color={'white'}
+              variant='ghost'
+            >
+              View All
+            </Button>
           </HStack>
         </CardHeader>
         <CardBody>
           <VStack spacing={4} align='stretch' divider={<Divider />}>
-            {data.attempts.map((attempt, index) => {
-              const passStatus = getPassStatus(attempt.percentScore);
+            {data?.attempts.map((attempt, index) => {
+              const passStatus = getPassStatus(attempt.percentScore ?? 0);
               return (
                 <Box
                   key={index}
@@ -170,10 +164,10 @@ export const UserPerformanceDashboard: React.FC<PerformanceCardProps> = ({
                         {attempt.testTitle}
                       </Text>
                       <Badge
-                        colorScheme={getScoreColor(attempt.percentScore)}
+                        colorScheme={getScoreColor(attempt?.percentScore ?? 0)}
                         fontSize='sm'
                       >
-                        {attempt.percentScore.toFixed(1)}%
+                        {(attempt?.percentScore ?? 0).toFixed(1)}%
                       </Badge>
                     </HStack>
 
@@ -188,7 +182,7 @@ export const UserPerformanceDashboard: React.FC<PerformanceCardProps> = ({
                       </HStack>
                       <HStack>
                         <Clock size={16} />
-                        <Text>Time: {formatTime(attempt.timeSpent)}</Text>
+                        <Text>Time: {formatTime(attempt.timeSpent ?? 0)}</Text>
                       </HStack>
                     </HStack>
 
@@ -200,13 +194,17 @@ export const UserPerformanceDashboard: React.FC<PerformanceCardProps> = ({
                         <HStack spacing={1}>
                           {passStatus.icon}
                           <Text fontSize='sm' color={passStatus.color}>
-                            {attempt.percentScore >= 50 ? 'Passed' : 'Failed'}
+                            {(attempt.percentScore ?? 0) >= 50
+                              ? 'Passed'
+                              : 'Failed'}
                           </Text>
                         </HStack>
                       </HStack>
                       <Progress
-                        value={attempt.percentScore}
-                        colorScheme={getScoreColor(attempt.percentScore)}
+                        value={attempt.percentScore as number}
+                        colorScheme={getScoreColor(
+                          attempt.percentScore as number
+                        )}
                         size='sm'
                         borderRadius='full'
                       />
@@ -218,7 +216,7 @@ export const UserPerformanceDashboard: React.FC<PerformanceCardProps> = ({
                       color='gray.500'
                     >
                       <Text>Completed:</Text>
-                      <Text>{formatDate(attempt.completedAt)}</Text>
+                      <Text>{formatDate(attempt.completedAt ?? '')}</Text>
                     </HStack>
                   </VStack>
                 </Box>

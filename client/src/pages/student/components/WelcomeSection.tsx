@@ -7,8 +7,10 @@ import {
   Text,
   IconButton,
   Spacer,
+  Button,
 } from '@chakra-ui/react';
 import { LogOut } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Props {
   studentName: string;
@@ -37,14 +39,18 @@ const WelcomeSection: React.FC<Props> = ({
       </VStack>
 
       <Spacer />
-
-      <IconButton
-        aria-label='Logout'
-        icon={<LogOut />}
-        colorScheme='red'
-        variant='ghost'
-        onClick={handleLogout}
-      />
+      <HStack>
+        <Button variant='ghost' size='sm' as={Link} to={'/student/exams'}>
+          Explore Tests
+        </Button>
+        <IconButton
+          aria-label='Logout'
+          icon={<LogOut />}
+          colorScheme='red'
+          variant='ghost'
+          onClick={handleLogout}
+        />
+      </HStack>
     </HStack>
   );
 };

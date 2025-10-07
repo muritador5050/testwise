@@ -164,18 +164,17 @@ export const useGetQuestionAnalytics = (testId: number) => {
 };
 
 // Get user performance history
-export const useGetUserPerformance = (userId: number) => {
+export const useGetUserPerformance = () => {
   return useQuery<UserPerformanceHistory>({
-    queryKey: ['user-performance', userId],
+    queryKey: ['user-performance'],
     queryFn: async () => {
-      return apiClient(`attempts/user/${userId}/performance`, {
+      return apiClient(`attempts/user/performance`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getAuthToken()}`,
         },
       });
     },
-    enabled: !!userId,
   });
 };
 
