@@ -3,12 +3,9 @@ import {
   Box,
   Text,
   Button,
-  Stack,
   HStack,
-  VStack,
   Grid,
   Badge,
-  Divider,
   Card,
   CardBody,
 } from '@chakra-ui/react';
@@ -36,28 +33,116 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
   const remainingCount = questions.length - answeredCount;
 
   return (
-    <Box w={{ base: '100%', lg: '300px' }} flexShrink={0}>
-      <Card>
-        <CardBody>
-          <Stack spacing={4} align='stretch'>
-            <Text fontWeight='bold' fontSize='lg'>
-              Question Navigator
-            </Text>
-
-            <HStack spacing={4}>
-              <HStack>
-                <Box w={4} h={4} bg='green.400' borderRadius='sm' />
-                <Text fontSize='sm'>Answered</Text>
+    <Box w='full'>
+      <Card
+        boxShadow={{ base: 'none', lg: 'md' }}
+        borderRadius={{ base: 0, lg: 'md' }}
+      >
+        <CardBody p={{ base: 3, lg: 4 }}>
+          {/* Mobile Compact Layout */}
+          <Box display={{ base: 'block', lg: 'none' }}>
+            <HStack spacing={2} mb={3} justify='space-between'>
+              <HStack spacing={2} fontSize='xs'>
+                <Box w={2} h={2} bg='green.400' borderRadius='sm' />
+                <Text>Answered</Text>
+                <Badge colorScheme='green' fontSize='xs'>
+                  {answeredCount}
+                </Badge>
               </HStack>
-              <HStack>
-                <Box w={4} h={4} bg='gray.200' borderRadius='sm' />
-                <Text fontSize='sm'>Unanswered</Text>
+              <HStack spacing={2} fontSize='xs'>
+                <Box w={2} h={2} bg='gray.200' borderRadius='sm' />
+                <Text>Left</Text>
+                <Badge colorScheme='orange' fontSize='xs'>
+                  {remainingCount}
+                </Badge>
               </HStack>
             </HStack>
 
-            <Divider />
+            {/* Compact Question Grid */}
+            <Grid templateColumns='repeat(8, 1fr)' gap={1.5} mb={3}>
+              {questions.map((q, index) => (
+                <Button
+                  key={q.id}
+                  onClick={() => onQuestionJump(index)}
+                  size='sm'
+                  variant={currentQuestion === index ? 'solid' : 'outline'}
+                  colorScheme={
+                    currentQuestion === index
+                      ? 'blue'
+                      : isQuestionAnswered(q.id)
+                      ? 'green'
+                      : 'gray'
+                  }
+                  bg={
+                    currentQuestion === index
+                      ? 'blue.500'
+                      : isQuestionAnswered(q.id)
+                      ? 'green.400'
+                      : 'white'
+                  }
+                  color={
+                    currentQuestion === index || isQuestionAnswered(q.id)
+                      ? 'white'
+                      : 'gray.700'
+                  }
+                  borderColor={
+                    isQuestionAnswered(q.id) && currentQuestion !== index
+                      ? 'green.400'
+                      : 'gray.300'
+                  }
+                  _hover={{
+                    bg:
+                      currentQuestion === index
+                        ? 'blue.600'
+                        : isQuestionAnswered(q.id)
+                        ? 'green.500'
+                        : 'gray.100',
+                  }}
+                  h='36px'
+                  w='36px'
+                  minW='36px'
+                  p={0}
+                  borderRadius='md'
+                  fontSize='xs'
+                  fontWeight='semibold'
+                >
+                  {index + 1}
+                </Button>
+              ))}
+            </Grid>
 
-            <Grid templateColumns='repeat(4, 1fr)' gap={2}>
+            {/* Submit Button */}
+            <Button
+              colorScheme='green'
+              size='md'
+              onClick={onSubmit}
+              isLoading={isSubmitting}
+              w='full'
+            >
+              Submit Exam
+            </Button>
+          </Box>
+
+          {/* Desktop Full Layout */}
+          <Box display={{ base: 'none', lg: 'block' }}>
+            <Text fontWeight='bold' fontSize='lg' mb={4}>
+              Question Navigator
+            </Text>
+
+            {/* Legend */}
+            <HStack spacing={4} fontSize='sm' mb={4}>
+              <HStack>
+                <Box w={3} h={3} bg='green.400' borderRadius='sm' />
+                <Text>Answered</Text>
+              </HStack>
+              <HStack>
+                <Box w={3} h={3} bg='gray.200' borderRadius='sm' />
+                <Text>Unanswered</Text>
+              </HStack>
+            </HStack>
+
+            {/* Question Grid */}
+            <Grid templateColumns='repeat(4, 1fr)' gap={2} mb={4}>
               {questions.map((q, index) => (
                 <Button
                   key={q.id}
@@ -107,10 +192,9 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
               ))}
             </Grid>
 
-            <Divider />
-
-            <VStack spacing={2} align='stretch'>
-              <HStack justify='space-between'>
+            {/* Stats */}
+            <HStack justify='space-between' mb={4}>
+              <HStack>
                 <Text fontSize='sm' color='gray.600'>
                   Answered:
                 </Text>
@@ -118,7 +202,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                   {answeredCount}
                 </Badge>
               </HStack>
-              <HStack justify='space-between'>
+              <HStack>
                 <Text fontSize='sm' color='gray.600'>
                   Remaining:
                 </Text>
@@ -126,19 +210,19 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                   {remainingCount}
                 </Badge>
               </HStack>
-            </VStack>
+            </HStack>
 
+            {/* Submit Button */}
             <Button
               colorScheme='green'
               size='lg'
               onClick={onSubmit}
               isLoading={isSubmitting}
               w='full'
-              mt={4}
             >
               Submit Exam
             </Button>
-          </Stack>
+          </Box>
         </CardBody>
       </Card>
     </Box>

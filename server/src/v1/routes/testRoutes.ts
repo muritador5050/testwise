@@ -6,18 +6,13 @@ import { authorize } from '../../middleware/authorization';
 // Test Routes
 export const testRoutes = Router();
 
-testRoutes.post(
-  '/',
-  authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
-  TestController.create
-);
+testRoutes.post('/', authenticate, authorize('ADMIN'), TestController.create);
 testRoutes.get('/', TestController.getAll);
 
 testRoutes.get(
   '/statistics',
   authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
+  authorize('ADMIN'),
   TestController.getStatistics
 );
 
@@ -30,18 +25,18 @@ testRoutes.get(
 testRoutes.patch(
   '/:id',
   authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
+  authorize('ADMIN'),
   TestController.update
 );
 testRoutes.patch(
   '/:id/publish',
   authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
+  authorize('ADMIN'),
   TestController.publish
 );
 testRoutes.delete(
   '/:id',
   authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
+  authorize('ADMIN'),
   TestController.delete
 );

@@ -183,6 +183,7 @@ export interface TestStatistics {
 export interface TestPerformance {
   userId: number;
   userName: string;
+  email: string;
   attemptNumber: number;
   score: number;
   percentScore: number | null;

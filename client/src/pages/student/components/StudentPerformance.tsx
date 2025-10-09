@@ -119,7 +119,9 @@ export const StudentPerformance: React.FC = () => {
                 <Target size={24} color='#DD6B20' />
                 <StatLabel>Pass Rate</StatLabel>
               </HStack>
-              <StatNumber fontSize='2xl'>{data?.passRate}%</StatNumber>
+              <StatNumber fontSize='2xl'>
+                {data?.passRate.toFixed(1)}%
+              </StatNumber>
               <StatHelpText>Tests passed (≥50%)</StatHelpText>
             </Stat>
           </CardBody>
@@ -136,93 +138,109 @@ export const StudentPerformance: React.FC = () => {
                 Recent Attempts
               </Text>
             </HStack>
-            <Button
-              as={Link}
-              to='/student/results'
-              size='sm'
-              color={'white'}
-              variant='ghost'
-            >
-              View All
-            </Button>
+
+            {(data?.attempts.length ?? 0) > 5 && (
+              <Button
+                as={Link}
+                to='/student/results'
+                size='sm'
+                color={'white'}
+                variant='ghost'
+              >
+                View All
+              </Button>
+            )}
           </HStack>
         </CardHeader>
         <CardBody>
-          <VStack spacing={4} align='stretch' divider={<Divider />}>
-            {data?.attempts.map((attempt, index) => {
-              const passStatus = getPassStatus(attempt.percentScore ?? 0);
-              return (
-                <Box
-                  key={index}
-                  p={3}
-                  borderRadius='md'
-                  _hover={{ bg: 'gray.700' }}
-                >
-                  <VStack align='stretch' spacing={3}>
-                    <HStack justify='space-between'>
-                      <Text fontWeight='semibold' fontSize='lg'>
-                        {attempt.testTitle}
-                      </Text>
-                      <Badge
-                        colorScheme={getScoreColor(attempt?.percentScore ?? 0)}
-                        fontSize='sm'
-                      >
-                        {(attempt?.percentScore ?? 0).toFixed(1)}%
-                      </Badge>
-                    </HStack>
-
-                    <HStack
-                      justify='space-between'
-                      fontSize='sm'
-                      color='gray.600'
-                    >
-                      <HStack>
-                        <Target size={16} />
-                        <Text>Score: {attempt.score}</Text>
-                      </HStack>
-                      <HStack>
-                        <Clock size={16} />
-                        <Text>Time: {formatTime(attempt.timeSpent ?? 0)}</Text>
-                      </HStack>
-                    </HStack>
-
-                    <Box>
-                      <HStack justify='space-between' mb={1}>
-                        <Text fontSize='sm' fontWeight='medium'>
-                          Performance
+          {!data?.attempts || data.attempts.length === 0 ? (
+            <VStack spacing={2} py={8}>
+              <Text color='gray.500'>No attempts yet</Text>
+              <Text fontSize='sm' color='gray.400'>
+                Start taking tests to see your performance
+              </Text>
+            </VStack>
+          ) : (
+            <VStack spacing={4} align='stretch' divider={<Divider />}>
+              {data?.attempts.slice(0, 3).map((attempt, index) => {
+                const passStatus = getPassStatus(attempt.percentScore ?? 0);
+                return (
+                  <Box
+                    key={index}
+                    p={3}
+                    borderRadius='md'
+                    _hover={{ bg: 'gray.700' }}
+                  >
+                    <VStack align='stretch' spacing={3}>
+                      <HStack justify='space-between'>
+                        <Text fontWeight='semibold' fontSize='lg'>
+                          {attempt.testTitle}
                         </Text>
-                        <HStack spacing={1}>
-                          {passStatus.icon}
-                          <Text fontSize='sm' color={passStatus.color}>
-                            {(attempt.percentScore ?? 0) >= 50
-                              ? 'Passed'
-                              : 'Failed'}
+                        <Badge
+                          colorScheme={getScoreColor(
+                            attempt?.percentScore ?? 0
+                          )}
+                          fontSize='sm'
+                        >
+                          {(attempt?.percentScore ?? 0).toFixed(1)}%
+                        </Badge>
+                      </HStack>
+
+                      <HStack
+                        justify='space-between'
+                        fontSize='sm'
+                        color='gray.600'
+                      >
+                        <HStack>
+                          <Target size={16} />
+                          <Text>Score: {attempt.score}</Text>
+                        </HStack>
+                        <HStack>
+                          <Clock size={16} />
+                          <Text>
+                            Time: {formatTime(attempt.timeSpent ?? 0)}
                           </Text>
                         </HStack>
                       </HStack>
-                      <Progress
-                        value={attempt.percentScore as number}
-                        colorScheme={getScoreColor(
-                          attempt.percentScore as number
-                        )}
-                        size='sm'
-                        borderRadius='full'
-                      />
-                    </Box>
 
-                    <HStack
-                      justify='space-between'
-                      fontSize='sm'
-                      color='gray.500'
-                    >
-                      <Text>Completed:</Text>
-                      <Text>{formatDate(attempt.completedAt ?? '')}</Text>
-                    </HStack>
-                  </VStack>
-                </Box>
-              );
-            })}
-          </VStack>
+                      <Box>
+                        <HStack justify='space-between' mb={1}>
+                          <Text fontSize='sm' fontWeight='medium'>
+                            Performance
+                          </Text>
+                          <HStack spacing={1}>
+                            {passStatus.icon}
+                            <Text fontSize='sm' color={passStatus.color}>
+                              {(attempt.percentScore ?? 0) >= 50
+                                ? 'Passed'
+                                : 'Failed'}
+                            </Text>
+                          </HStack>
+                        </HStack>
+                        <Progress
+                          value={attempt.percentScore as number}
+                          colorScheme={getScoreColor(
+                            attempt.percentScore as number
+                          )}
+                          size='sm'
+                          borderRadius='full'
+                        />
+                      </Box>
+
+                      <HStack
+                        justify='space-between'
+                        fontSize='sm'
+                        color='gray.500'
+                      >
+                        <Text>Completed:</Text>
+                        <Text>{formatDate(attempt.completedAt ?? '')}</Text>
+                      </HStack>
+                    </VStack>
+                  </Box>
+                );
+              })}
+            </VStack>
+          )}
         </CardBody>
       </Card>
     </VStack>

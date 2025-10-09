@@ -5,7 +5,7 @@ class UserService {
   static async createUser(data: {
     email: string;
     name?: string;
-    role?: 'STUDENT' | 'ADMIN' | 'INSTRUCTOR';
+    role?: 'STUDENT' | 'ADMIN';
     avatar?: string;
   }) {
     return await prisma.user.create({
@@ -66,7 +66,7 @@ class UserService {
     data: Partial<{
       name: string;
       avatar: string;
-      role: 'STUDENT' | 'ADMIN' | 'INSTRUCTOR';
+      role: 'STUDENT' | 'ADMIN';
     }>
   ) {
     return await prisma.user.update({
@@ -82,16 +82,14 @@ class UserService {
   }
 
   static async getUserCounts() {
-    const [total, instructors, students, admins] = await Promise.all([
+    const [total, students, admins] = await Promise.all([
       prisma.user.count(),
-      prisma.user.count({ where: { role: 'INSTRUCTOR' } }),
       prisma.user.count({ where: { role: 'STUDENT' } }),
       prisma.user.count({ where: { role: 'ADMIN' } }),
     ]);
 
     return {
       total,
-      instructors,
       students,
       admins,
     };

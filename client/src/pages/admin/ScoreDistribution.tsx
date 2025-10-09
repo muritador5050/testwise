@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   VStack,
@@ -11,19 +11,19 @@ import {
   StatLabel,
   StatNumber,
   useColorModeValue,
+  Spinner,
+  Alert,
+  AlertIcon,
+  Flex,
+  Button,
+  Badge,
+  Divider,
+  Container,
+  Heading,
 } from '@chakra-ui/react';
-
-// Types
-interface ScoreDistribution {
-  range: string;
-  count: number;
-}
-
-interface ScoreDistributionChartProps {
-  data: ScoreDistribution[];
-  testId: string;
-  totalStudents?: number;
-}
+import { ViewIcon } from '@chakra-ui/icons';
+import { useGetAllTests } from '../../api/services/testServices';
+import { useGetScoreDistribution } from '../../api/services/attemptService';
 
 // Color scheme for different score ranges
 const getRangeColor = (range: string): string => {
@@ -43,116 +43,296 @@ const calculatePercentage = (count: number, total: number): number => {
   return (count / total) * 100;
 };
 
-const ScoreDistributionChart: React.FC<ScoreDistributionChartProps> = ({
-  data,
-  testId,
-  totalStudents,
-}) => {
-  // Calculate total from data if not provided
-  const calculatedTotal =
-    totalStudents || data.reduce((sum, item) => sum + item.count, 0);
+const ScoreDistributionChart: React.FC = () => {
+  const [selectedTestId, setSelectedTestId] = useState<number | null>(null);
 
-  // Find the range with highest count
-  const highestCount = Math.max(...data.map((item) => item.count));
+  const {
+    data: testsData,
+    isLoading: testsLoading,
+    error: testsError,
+  } = useGetAllTests();
 
-  const bgColor = useColorModeValue('white', 'gray.800');
+  const {
+    data: scoreDistributionData,
+    isLoading: distributionLoading,
+    error: distributionError,
+  } = useGetScoreDistribution(selectedTestId as number);
+
+  React.useEffect(() => {
+    if (testsData?.tests && testsData.tests.length > 0 && !selectedTestId) {
+      setSelectedTestId(testsData.tests[0].id);
+    }
+  }, [testsData, selectedTestId]);
+
+  const sidebarBg = useColorModeValue('gray.50', 'gray.700');
+  const selectedBg = useColorModeValue('blue.50', 'blue.700');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const bgColor = useColorModeValue('white', 'gray.800');
+
+  const data = scoreDistributionData || [];
+  const calculatedTotal = data.reduce((sum, item) => sum + item.count, 0);
+  const highestCount =
+    data.length > 0 ? Math.max(...data.map((item) => item.count)) : 0;
+
+  const selectedTest = testsData?.tests?.find(
+    (test) => test.id === selectedTestId
+  );
+
+  if (testsLoading && !testsData) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <Flex justify='center' align='center' minH='400px'>
+          <Spinner size='xl' color='blue.500' thickness='4px' />
+        </Flex>
+      </Container>
+    );
+  }
+
+  if (testsError) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <Alert status='error' borderRadius='md'>
+          <AlertIcon />
+          <Text>
+            {testsError instanceof Error
+              ? testsError.message
+              : 'Failed to load tests'}
+          </Text>
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
-    <Box
-      p={6}
-      bg={bgColor}
-      borderWidth='1px'
-      borderColor={borderColor}
-      borderRadius='lg'
-      boxShadow='sm'
-    >
-      <VStack spacing={6} align='stretch'>
-        {/* Header */}
-        <Box>
-          <Text fontSize='xl' fontWeight='bold' mb={2}>
-            Score Distribution
-          </Text>
-          <Text color='gray.600' fontSize='sm'>
-            Test ID: {testId}
-          </Text>
-          {calculatedTotal > 0 && (
-            <Text color='gray.600' fontSize='sm'>
-              Total Students: {calculatedTotal}
-            </Text>
+    <Container maxW='container.xl' py={8} px={0}>
+      <Flex direction={{ base: 'column', lg: 'row' }} gap={6}>
+        {/* Left Sidebar - Tests List */}
+        <Box
+          w={{ base: '100%', lg: '350px' }}
+          bg={sidebarBg}
+          borderRadius='lg'
+          p={4}
+          border='1px'
+          borderColor={borderColor}
+        >
+          <Heading size='md' mb={4}>
+            All Tests ({testsData?.tests?.length || 0})
+          </Heading>
+
+          <VStack spacing={2} align='stretch' divider={<Divider />}>
+            {testsData?.tests?.map((test) => (
+              <Box
+                key={test.id}
+                p={3}
+                borderRadius='md'
+                bg={selectedTestId === test.id ? selectedBg : 'transparent'}
+                border='1px'
+                borderColor={
+                  selectedTestId === test.id ? 'blue.200' : 'transparent'
+                }
+                cursor='pointer'
+                _hover={{
+                  bg: selectedTestId === test.id ? selectedBg : 'gray.100',
+                }}
+                onClick={() => setSelectedTestId(test.id)}
+              >
+                <Flex justify='space-between' align='start'>
+                  <Box flex={1}>
+                    <Text fontWeight='medium' fontSize='sm' noOfLines={2}>
+                      {test.title}
+                    </Text>
+                    <HStack spacing={2} mt={1}>
+                      <Badge colorScheme='blue' fontSize='xs'>
+                        {test.duration}m
+                      </Badge>
+                      <Badge colorScheme='green' fontSize='xs'>
+                        {test._count?.questions} Qs
+                      </Badge>
+                      <Badge colorScheme='purple' fontSize='xs'>
+                        {test._count?.attempts} attempts
+                      </Badge>
+                    </HStack>
+                  </Box>
+                  <Button
+                    size='sm'
+                    variant='ghost'
+                    ml={2}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedTestId(test.id);
+                    }}
+                  >
+                    <ViewIcon />
+                  </Button>
+                </Flex>
+              </Box>
+            ))}
+          </VStack>
+
+          {(!testsData?.tests || testsData.tests.length === 0) && (
+            <Alert status='info' borderRadius='md' mt={4}>
+              <AlertIcon />
+              No tests available.
+            </Alert>
           )}
         </Box>
 
-        {/* Distribution Bars */}
-        <VStack spacing={4} align='stretch'>
-          {data.map((item, index) => {
-            const percentage = calculatePercentage(item.count, calculatedTotal);
-            const color = getRangeColor(item.range);
-            const isHighest = item.count === highestCount && item.count > 0;
+        {/* Right Content - Score Distribution */}
+        <Box flex={1}>
+          {distributionError && (
+            <Alert status='error' borderRadius='md' mb={4}>
+              <AlertIcon />
+              <Text>
+                {distributionError instanceof Error
+                  ? distributionError.message
+                  : 'Failed to load score distribution data'}
+              </Text>
+            </Alert>
+          )}
 
-            return (
-              <Box key={index}>
-                <HStack justify='space-between' mb={2}>
-                  <Text fontSize='sm' fontWeight='medium'>
-                    {item.range}
+          {selectedTest ? (
+            <Box
+              p={6}
+              borderWidth='1px'
+              borderColor={borderColor}
+              borderRadius='lg'
+              boxShadow='sm'
+            >
+              <VStack spacing={6} align='stretch'>
+                {/* Header */}
+                <Box>
+                  <Text fontSize='xl' fontWeight='bold' mb={2}>
+                    Score Distribution - {selectedTest.title}
                   </Text>
-                  <HStack spacing={2}>
-                    <Text fontSize='sm' fontWeight='bold'>
-                      {item.count}
+                  <Text color='gray.600' fontSize='sm'>
+                    Test ID: {selectedTestId}
+                  </Text>
+                  {calculatedTotal > 0 && (
+                    <Text color='gray.600' fontSize='sm'>
+                      Total Students: {calculatedTotal}
                     </Text>
-                    {calculatedTotal > 0 && (
-                      <Text fontSize='sm' color='gray.500'>
-                        ({percentage.toFixed(1)}%)
-                      </Text>
+                  )}
+                </Box>
+
+                {distributionLoading ? (
+                  <Flex justify='center' align='center' minH='200px'>
+                    <Spinner size='xl' color='blue.500' thickness='4px' />
+                  </Flex>
+                ) : (
+                  <>
+                    {/* Distribution Bars */}
+                    <VStack spacing={4} align='stretch'>
+                      {data.map((item, index) => {
+                        const percentage = calculatePercentage(
+                          item.count,
+                          calculatedTotal
+                        );
+                        const color = getRangeColor(item.range);
+                        const isHighest =
+                          item.count === highestCount && item.count > 0;
+
+                        return (
+                          <Box key={index}>
+                            <HStack justify='space-between' mb={2}>
+                              <Text fontSize='sm' fontWeight='medium'>
+                                {item.range}
+                              </Text>
+                              <HStack spacing={2}>
+                                <Text fontSize='sm' fontWeight='bold'>
+                                  {item.count}
+                                </Text>
+                                {calculatedTotal > 0 && (
+                                  <Text fontSize='sm' color='gray.500'>
+                                    ({percentage.toFixed(1)}%)
+                                  </Text>
+                                )}
+                              </HStack>
+                            </HStack>
+
+                            <Tooltip
+                              label={`${
+                                item.count
+                              } students (${percentage.toFixed(1)}%)`}
+                              hasArrow
+                            >
+                              <Progress
+                                value={calculatedTotal > 0 ? percentage : 0}
+                                colorScheme={color.split('.')[0]}
+                                size='lg'
+                                borderRadius='md'
+                                height='20px'
+                                bg={'gray.100'}
+                                position='relative'
+                                {...(isHighest && {
+                                  border: '2px solid',
+                                  borderColor: color,
+                                })}
+                              />
+                            </Tooltip>
+                          </Box>
+                        );
+                      })}
+                    </VStack>
+
+                    {/* Summary Statistics */}
+                    {calculatedTotal > 0 && data.length > 0 && (
+                      <SimpleGrid
+                        columns={{ base: 2, md: 3 }}
+                        spacing={4}
+                        mt={4}
+                      >
+                        <Stat>
+                          <StatLabel>Total Students</StatLabel>
+                          <StatNumber>{calculatedTotal}</StatNumber>
+                        </Stat>
+                        <Stat>
+                          <StatLabel>Highest Range</StatLabel>
+                          <StatNumber fontSize='lg'>
+                            {data.find((item) => item.count === highestCount)
+                              ?.range || 'N/A'}
+                          </StatNumber>
+                        </Stat>
+                        <Stat>
+                          <StatLabel>Most Frequent</StatLabel>
+                          <StatNumber>{highestCount}</StatNumber>
+                        </Stat>
+                      </SimpleGrid>
                     )}
-                  </HStack>
-                </HStack>
 
-                <Tooltip
-                  label={`${item.count} students (${percentage.toFixed(1)}%)`}
-                  hasArrow
+                    {data.length === 0 && calculatedTotal === 0 && (
+                      <Alert status='info' borderRadius='md'>
+                        <AlertIcon />
+                        <Text>
+                          No score distribution data available for this test.
+                        </Text>
+                      </Alert>
+                    )}
+                  </>
+                )}
+              </VStack>
+            </Box>
+          ) : (
+            !testsLoading && (
+              <Flex justify='center' align='center' minH='200px'>
+                <Box
+                  p={6}
+                  bg={bgColor}
+                  borderWidth='1px'
+                  borderColor={borderColor}
+                  borderRadius='lg'
+                  boxShadow='sm'
+                  textAlign='center'
                 >
-                  <Progress
-                    value={calculatedTotal > 0 ? percentage : 0}
-                    colorScheme={color.split('.')[0]}
-                    size='lg'
-                    borderRadius='md'
-                    height='20px'
-                    bg={'gray.100'}
-                    position='relative'
-                    {...(isHighest && {
-                      border: '2px solid',
-                      borderColor: color,
-                    })}
-                  />
-                </Tooltip>
-              </Box>
-            );
-          })}
-        </VStack>
-
-        {/* Summary Statistics */}
-        {calculatedTotal > 0 && (
-          <SimpleGrid columns={{ base: 2, md: 3 }} spacing={4} mt={4}>
-            <Stat>
-              <StatLabel>Total Students</StatLabel>
-              <StatNumber>{calculatedTotal}</StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>Highest Range</StatLabel>
-              <StatNumber fontSize='lg'>
-                {data.find((item) => item.count === highestCount)?.range ||
-                  'N/A'}
-              </StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>Most Frequent</StatLabel>
-              <StatNumber>{highestCount}</StatNumber>
-            </Stat>
-          </SimpleGrid>
-        )}
-      </VStack>
-    </Box>
+                  <Text color='gray.500'>
+                    Select a test to view score distribution
+                  </Text>
+                </Box>
+              </Flex>
+            )
+          )}
+        </Box>
+      </Flex>
+    </Container>
   );
 };
 

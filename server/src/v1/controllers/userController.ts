@@ -41,9 +41,6 @@ class UserController {
         case 'STUDENT':
           tokenExpiration = '30m';
           break;
-        case 'INSTRUCTOR':
-          tokenExpiration = '8h';
-          break;
         case 'ADMIN':
           tokenExpiration = '12h';
           break;

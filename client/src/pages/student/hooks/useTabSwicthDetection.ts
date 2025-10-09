@@ -1,34 +1,42 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useToast } from '@chakra-ui/react';
 
 export const useTabSwitchDetection = (
   onMaxSwitches: () => void,
-  maxSwitches: number = 3
+  maxSwitches: number = 1
 ) => {
   const toast = useToast();
+  const tabSwitchCountRef = useRef(0);
+
+  const onMaxSwitchesRef = useRef(onMaxSwitches);
+  onMaxSwitchesRef.current = onMaxSwitches;
+
+  const handleVisibilityChange = useCallback(() => {
+    if (document.hidden) {
+      tabSwitchCountRef.current++;
+      const newCount = tabSwitchCountRef.current;
+      toast({
+        title: 'Security Warning',
+        description: `Tab switch detected. Violation count: ${newCount} of ${maxSwitches}.`,
+        status: 'warning',
+        position: 'top',
+        duration: 5000,
+        isClosable: true,
+      });
+
+      if (newCount >= maxSwitches) {
+        onMaxSwitchesRef.current();
+      }
+    }
+  }, [maxSwitches, toast]);
 
   useEffect(() => {
-    let tabSwitchCount = 0;
-
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        tabSwitchCount++;
-        toast({
-          title: 'Warning',
-          description: `Tab switch detected (${tabSwitchCount})`,
-          status: 'warning',
-          position: 'top',
-          duration: 3000,
-        });
-
-        if (tabSwitchCount >= maxSwitches) {
-          onMaxSwitches();
-        }
-      }
-    };
+    tabSwitchCountRef.current = 0;
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () =>
+
+    return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [onMaxSwitches, maxSwitches, toast]);
+    };
+  }, [handleVisibilityChange]);
 };

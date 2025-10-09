@@ -7,10 +7,11 @@ import { authorize } from '../../middleware/authorization';
 export const attemptRoutes = Router();
 
 attemptRoutes.get('/user', authenticate, AttemptController.getUserAttempts);
+
 attemptRoutes.get(
   '/analytics',
   authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
+  authorize('ADMIN'),
   AttemptController.getAnalytics
 );
 
@@ -24,14 +25,14 @@ attemptRoutes.post(
 attemptRoutes.get(
   '/test/:testId/performance',
   authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
+  authorize('ADMIN'),
   AttemptController.getTestPerformance
 );
 
 attemptRoutes.get(
   '/test/:testId/questions/analytics',
   authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
+  authorize('ADMIN'),
   AttemptController.getQuestionAnalytics
 );
 
@@ -45,7 +46,7 @@ attemptRoutes.get(
 attemptRoutes.get(
   '/test/:testId/score-distribution',
   authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
+  authorize('ADMIN'),
   AttemptController.getScoreDistribution
 );
 attemptRoutes.post('/:id/answer', authenticate, AttemptController.submitAnswer);

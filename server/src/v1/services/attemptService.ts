@@ -204,11 +204,10 @@ class AttemptService {
       0
     );
     const percentScore = maxScore > 0 ? (score / maxScore) * 100 : 0;
-
-    // Calculate time spent
-    const timeSpent = Math.floor(
+    const timeSpentRaw = Math.floor(
       (new Date().getTime() - attempt.startedAt.getTime()) / 1000
     );
+    const timeSpent = Math.min(timeSpentRaw, attempt.test.duration * 60);
 
     const totalQuestions = attempt.test.questions.length;
     const correctAnswers = attempt.answers.filter(

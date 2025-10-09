@@ -9,7 +9,7 @@ export const questionRoutes = Router();
 questionRoutes.post(
   '/:testId/test',
   authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
+  authorize('ADMIN'),
   QuestionController.create
 );
 
@@ -18,13 +18,13 @@ questionRoutes.get('/:testId/test', QuestionController.getByTest);
 questionRoutes.patch(
   '/:id',
   authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
+  authorize('ADMIN'),
   QuestionController.update
 );
 
 questionRoutes.delete(
   '/:id',
   authenticate,
-  authorize('ADMIN', 'INSTRUCTOR'),
+  authorize('ADMIN'),
   QuestionController.delete
 );

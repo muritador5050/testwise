@@ -15,8 +15,7 @@ export const useGetUserAttempts = (testId?: number) => {
   return useQuery<Attempt[]>({
     queryKey: ['user-attempts', testId],
     queryFn: async () => {
-      const params = testId ? `?testId=${testId}` : '';
-      return apiClient(`attempts/user${params}`, {
+      return apiClient(`attempts/user`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getAuthToken()}`,

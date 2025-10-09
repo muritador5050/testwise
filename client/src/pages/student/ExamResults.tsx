@@ -18,6 +18,7 @@ import {
 import { CheckCircleIcon, TimeIcon, StarIcon } from '@chakra-ui/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useLogoutUser } from '../../api/services/authService';
+import { formatTime } from './hooks/useExamHelper';
 
 interface Test {
   title: string;
@@ -58,11 +59,16 @@ const ExamResult: React.FC = () => {
 
   if (!data) {
     return (
-      <Flex minH='100vh' bg='gray.50' align='center' justify='center' p={6}>
-        <Card>
-          <CardBody>
+      <Flex minH='100vh' bg='gray.50' align='center' justify='center' p={4}>
+        <Card maxW='sm' w='full'>
+          <CardBody textAlign='center'>
             <Text>No result data found. Please complete an exam first.</Text>
-            <Button mt={4} onClick={() => navigate('/student')}>
+            <Button
+              mt={4}
+              colorScheme='blue'
+              w='full'
+              onClick={() => navigate('/student')}
+            >
               Go to Dashboard
             </Button>
           </CardBody>
@@ -72,34 +78,26 @@ const ExamResult: React.FC = () => {
   }
 
   const { attempt, summary } = data;
-
   const { percentScore, timeSpent, completedAt, test } = attempt;
-
   const { totalQuestions, correctAnswers, incorrectAnswers } = summary;
 
-  const isPassed = percentScore >= 70;
+  const isPassed = percentScore >= 60;
   const passingScore = 70;
-
-  const formatTime = (seconds: number): string => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hrs}h ${mins}m ${secs}s`;
-  };
 
   const getGrade = (score: number): string => {
     if (score >= 90) return 'A';
     if (score >= 80) return 'B';
     if (score >= 70) return 'C';
     if (score >= 60) return 'D';
+    if (score >= 50) return 'E';
     return 'F';
   };
 
   return (
-    <Flex minH='100vh' bg='gray.50' align='center' justify='center' p={6}>
+    <Flex minH='100vh' align='center' justify='center' p={4}>
       <Box maxW='800px' w='full'>
         <Card>
-          <CardBody p={8}>
+          <CardBody p={{ base: 4, md: 8 }}>
             <VStack spacing={8} align='stretch'>
               {/* Header */}
               <VStack spacing={3}>
@@ -109,10 +107,15 @@ const ExamResult: React.FC = () => {
                   px={4}
                   py={2}
                   borderRadius='full'
+                  textAlign='center'
                 >
                   {isPassed ? '✓ PASSED' : '✗ FAILED'}
                 </Badge>
-                <Text fontSize='2xl' fontWeight='bold' textAlign='center'>
+                <Text
+                  fontSize={{ base: 'xl', md: '2xl' }}
+                  fontWeight='bold'
+                  textAlign='center'
+                >
                   {test.title}
                 </Text>
                 <Text fontSize='md' color='gray.600' textAlign='center'>
@@ -126,17 +129,24 @@ const ExamResult: React.FC = () => {
               <Flex justify='center' py={4}>
                 <CircularProgress
                   value={percentScore}
-                  size='200px'
+                  size={{ base: '150px', md: '200px' }}
                   thickness='12px'
                   color={isPassed ? 'green.400' : 'red.400'}
                 >
                   <CircularProgressLabel>
                     <VStack spacing={0}>
-                      <Text fontSize='4xl' fontWeight='bold'>
+                      <Text
+                        fontSize={{ base: '2xl', md: '4xl' }}
+                        fontWeight='bold'
+                      >
                         {percentScore.toFixed(1)}%
                       </Text>
-                      <Text fontSize='2xl' fontWeight='bold' color='gray.600'>
-                        Grade: {getGrade(percentScore)}
+                      <Text
+                        fontSize={{ base: 'xl', md: '2xl' }}
+                        fontWeight='bold'
+                        color='gray.600'
+                      >
+                        {getGrade(percentScore)}
                       </Text>
                     </VStack>
                   </CircularProgressLabel>
@@ -146,7 +156,10 @@ const ExamResult: React.FC = () => {
               <Divider />
 
               {/* Statistics Grid */}
-              <Grid templateColumns='repeat(2, 1fr)' gap={4}>
+              <Grid
+                templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)' }}
+                gap={4}
+              >
                 <GridItem>
                   <Card borderWidth='1px' borderColor='blue.200'>
                     <CardBody p={4}>
@@ -282,11 +295,15 @@ const ExamResult: React.FC = () => {
               </VStack>
 
               {/* Action Buttons */}
-              <HStack spacing={4} pt={4}>
+              <HStack
+                spacing={4}
+                pt={4}
+                flexDir={{ base: 'column', sm: 'row' }}
+              >
                 <Button
                   colorScheme='blue'
                   size='lg'
-                  flex={1}
+                  w='full'
                   onClick={() => navigate('/student')}
                 >
                   Dashboard
@@ -295,7 +312,7 @@ const ExamResult: React.FC = () => {
                   variant='outline'
                   colorScheme='gray'
                   size='lg'
-                  flex={1}
+                  w='full'
                   onClick={() => logout.mutate()}
                 >
                   Logout

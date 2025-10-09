@@ -5,9 +5,8 @@ import LoginPage from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import UnauthorizedPage from './pages/UnathourizedPage';
 import { ProtectedRoute } from './components/protected/ProtectedRoute';
-import InstructorLayout from './components/layouts/instructor/instructorLayout';
 import AdminLayout from './components/layouts/admin/AdminLayout';
-import StudentLayout from './components/layouts/student/studentLayout';
+import StudentLayout from './components/layouts/student/StudentLayout';
 
 const App: React.FC = () => {
   return (
@@ -18,16 +17,6 @@ const App: React.FC = () => {
         <Route path='/users/login' element={<LoginPage />} />
         <Route path='/users/signup' element={<SignupPage />} />
         <Route path='/unauthorized' element={<UnauthorizedPage />} />
-
-        {/* Instructor Routes */}
-        <Route
-          path='/instructor/*'
-          element={
-            <ProtectedRoute allowedRoles={['INSTRUCTOR', 'ADMIN']}>
-              <InstructorLayout />
-            </ProtectedRoute>
-          }
-        />
 
         {/* Student Routes */}
         <Route

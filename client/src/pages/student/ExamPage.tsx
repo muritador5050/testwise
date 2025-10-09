@@ -12,6 +12,20 @@ import {
   CircularProgress,
   useToast,
   Box,
+  useDisclosure,
+  IconButton,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerHeader,
+  DrawerBody,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -22,16 +36,31 @@ import {
 import { useWebSocket } from '../../hooks/useWebsocket';
 import { QuestionRenderer } from './components/QuestionRenderer';
 import { ExamSidebar } from './components/ExamSidebar';
-import { getQuestionTypeBadge, getTimePercentage } from './hooks/useExamHelper';
+import { getTimePercentage, formatTime } from './hooks/useExamHelper';
 import { QuestionNavigator } from './components/QuestionNavigator';
 import { useExamAnswers } from './hooks/useExamAnswer';
 import { useExamTimer } from './hooks/useExamTimer';
 import { useTabSwitchDetection } from './hooks/useTabSwicthDetection';
+import { Menu } from 'lucide-react';
 
 const ExamPage: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const { attemptId } = useParams();
+  const {
+    isOpen: isAlertOpen,
+    onOpen: onAlertOpen,
+    onClose: onAlertClose,
+  } = useDisclosure();
+
+  const cancelRef = React.useRef<HTMLButtonElement>(null);
+
+  // Drawer controls for mobile
+  const {
+    isOpen: isSidebarOpen,
+    onOpen: onSidebarOpen,
+    onClose: onSidebarClose,
+  } = useDisclosure();
 
   // API Hooks
   const submitAnswer = useSubmitAnswer();
@@ -53,8 +82,8 @@ const ExamPage: React.FC = () => {
 
   // Handle exam submission
   const handleSubmit = useCallback(async (): Promise<void> => {
-    if (!testData || questions.length === 0) {
-      console.error('Cannot submit: No test data available');
+    if (answeredCount < questions.length) {
+      onAlertOpen();
       return;
     }
 
@@ -69,37 +98,49 @@ const ExamPage: React.FC = () => {
         position: 'top-right',
       });
     }
-  }, [testData, questions, attemptId, completeAttempt, toast, navigate]);
+  }, [
+    questions,
+    attemptId,
+    completeAttempt,
+    toast,
+    navigate,
+    answeredCount,
+    onAlertOpen,
+  ]);
+
+  const onTimeUp = useCallback(() => {
+    completeAttempt
+      .mutateAsync(Number(attemptId))
+      .then((data) => {
+        navigate('/student/exam/results', { state: { data }, replace: true });
+      })
+      .catch((error) => {
+        toast({
+          title: 'Submission Failed',
+          description: error instanceof Error ? error.message : String(error),
+          status: 'error',
+          position: 'top-right',
+        });
+      });
+  }, [attemptId, completeAttempt, navigate, toast]);
 
   // Timer hook
   const timeRemaining = useExamTimer(
     testData?.duration || 60,
-    handleSubmit,
+    onTimeUp,
     !!testData
   );
 
   // Tab switch detection
-  useTabSwitchDetection(handleSubmit, 3);
+  useTabSwitchDetection(onTimeUp, 3);
 
   // WebSocket event listeners
   useEffect(() => {
     if (!isConnected) return;
 
-    const handleAnswerSubmitted = (data: {
-      questionId: number;
-      isCorrect: boolean;
-      pointsEarned: number;
-    }) => {
-      console.log('Answer submitted:', data);
-    };
+    const handleAnswerSubmitted = () => {};
 
-    const handleAttemptCompleted = (data: {
-      score: number;
-      percentScore: number;
-      timeSpent: number;
-    }) => {
-      console.log('WebSocket completion:', data);
-    };
+    const handleAttemptCompleted = () => {};
 
     on('answer_submitted', handleAnswerSubmitted);
     on('attempt_completed', handleAttemptCompleted);
@@ -108,7 +149,7 @@ const ExamPage: React.FC = () => {
       off('answer_submitted', handleAnswerSubmitted);
       off('attempt_completed', handleAttemptCompleted);
     };
-  }, [isConnected, on, off]);
+  }, [isConnected]);
 
   // Handle answer change
   const handleAnswerChange = useCallback(
@@ -188,49 +229,138 @@ const ExamPage: React.FC = () => {
   }
 
   const currentQ = questions[currentQuestion];
-  const typeBadge = getQuestionTypeBadge(currentQ.questionType);
   const totalQuestions = testData._count?.questions || questions.length;
 
   return (
     <Flex
       minH='100vh'
-      bg='gray.50'
-      p={{ base: 4, md: 6 }}
+      p={{ base: 2, md: 4, lg: 6 }}
       direction={{ base: 'column', lg: 'row' }}
-      gap={6}
+      gap={{ base: 3, md: 6 }}
+      pb={{ base: '140px', lg: 6 }}
     >
-      {/* Left Sidebar - Student Info & Exam Details */}
-      <ExamSidebar
-        studentName={userInfo?.name || 'Student'}
-        studentAvatar={userInfo?.avatar || ''}
-        examTitle={testData.title}
-        examDescription={testData.description}
-        totalQuestions={totalQuestions}
-        timeRemaining={timeRemaining}
-        timePercentage={getTimePercentage(timeRemaining, testData.duration)}
-        isConnected={isConnected}
-      />
+      {/* Mobile: Fixed Header with Timer and Menu */}
+      <Box
+        display={{ base: 'block', lg: 'none' }}
+        position='fixed'
+        top={0}
+        left={0}
+        right={0}
+        borderBottom='1px'
+        borderColor='gray.200'
+        zIndex={20}
+        px={4}
+        py={3}
+        shadow='sm'
+      >
+        <HStack justify='space-between'>
+          <IconButton
+            aria-label='Exam Info'
+            icon={<Menu />}
+            variant='ghost'
+            size='md'
+            onClick={onSidebarOpen}
+          />
+          <HStack spacing={3}>
+            <Badge colorScheme='blue' fontSize='sm' px={2} py={1}>
+              {answeredCount}/{totalQuestions}
+            </Badge>
+            <HStack
+              spacing={2}
+              bg={timeRemaining < 300 ? 'red.50' : 'blue.50'}
+              px={3}
+              py={2}
+              borderRadius='md'
+            >
+              <Box
+                w={2}
+                h={2}
+                bg={timeRemaining < 300 ? 'red.400' : 'blue.400'}
+                borderRadius='full'
+              />
+              <Text
+                fontWeight='bold'
+                fontSize='lg'
+                color={timeRemaining < 300 ? 'red.600' : 'blue.600'}
+              >
+                {formatTime(timeRemaining)}
+              </Text>
+            </HStack>
+          </HStack>
+        </HStack>
+      </Box>
+
+      {/* Mobile: Add top padding to content */}
+      <Box display={{ base: 'block', lg: 'none' }} h='60px' />
+
+      {/* Left Sidebar - Desktop */}
+      <Box display={{ base: 'none', lg: 'block' }} w='280px' flexShrink={0}>
+        <ExamSidebar
+          studentName={userInfo?.name || 'Student'}
+          studentAvatar={userInfo?.avatar || ''}
+          examTitle={testData.title}
+          examDescription={testData.description}
+          totalQuestions={totalQuestions}
+          timeRemaining={timeRemaining}
+          timePercentage={getTimePercentage(timeRemaining, testData.duration)}
+          isConnected={isConnected}
+        />
+      </Box>
+
+      {/* Left Sidebar - Mobile Drawer */}
+      <Drawer isOpen={isSidebarOpen} placement='left' onClose={onSidebarClose}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerHeader>Exam Information</DrawerHeader>
+          <DrawerBody p={0}>
+            <ExamSidebar
+              studentName={userInfo?.name || 'Student'}
+              studentAvatar={userInfo?.avatar || ''}
+              examTitle={testData.title}
+              examDescription={testData.description}
+              totalQuestions={totalQuestions}
+              timeRemaining={timeRemaining}
+              timePercentage={getTimePercentage(
+                timeRemaining,
+                testData.duration
+              )}
+              isConnected={isConnected}
+            />
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
 
       {/* Middle Section - Current Question */}
-      <Box flex='1'>
+      <Box flex='1' minW={0}>
         <Card h='full'>
-          <CardBody>
-            <VStack spacing={6} align='stretch' h='full'>
-              <Flex justify='space-between' align='center' wrap='wrap' gap={3}>
-                <HStack spacing={2}>
-                  <Badge colorScheme='blue' fontSize='md' px={3} py={1}>
-                    Question {currentQuestion + 1} of {totalQuestions}
-                  </Badge>
+          <CardBody p={{ base: 3, md: 6 }}>
+            <VStack spacing={{ base: 4, md: 6 }} align='stretch' h='full'>
+              {/* Question Header */}
+              <Flex
+                justify='space-between'
+                align='center'
+                wrap='wrap'
+                gap={2}
+                direction={{ base: 'column', sm: 'row' }}
+              >
+                <HStack spacing={2} flexWrap='wrap'>
                   <Badge
-                    colorScheme={typeBadge.color}
-                    fontSize='sm'
-                    px={2}
+                    colorScheme='blue'
+                    fontSize={{ base: 'sm', md: 'md' }}
+                    px={{ base: 2, md: 3 }}
                     py={1}
                   >
-                    {typeBadge.text}
+                    Q {currentQuestion + 1}/{totalQuestions}
                   </Badge>
+
                   {currentQ.points && (
-                    <Badge colorScheme='gray' fontSize='sm' px={2} py={1}>
+                    <Badge
+                      colorScheme='gray'
+                      fontSize={{ base: 'xs', md: 'sm' }}
+                      px={2}
+                      py={1}
+                    >
                       {currentQ.points} pts
                     </Badge>
                   )}
@@ -239,13 +369,18 @@ const ExamPage: React.FC = () => {
                   value={((currentQuestion + 1) / totalQuestions) * 100}
                   size='sm'
                   colorScheme='blue'
-                  w={{ base: '100%', md: '200px' }}
+                  w={{ base: '100%', sm: '200px' }}
                   borderRadius='full'
                 />
               </Flex>
 
-              <Box flex='1'>
-                <Text fontSize='xl' fontWeight='semibold' mb={6}>
+              {/* Question Content */}
+              <Box flex='1' overflow='auto'>
+                <Text
+                  fontSize={{ base: 'lg', md: 'xl' }}
+                  fontWeight='semibold'
+                  mb={{ base: 4, md: 6 }}
+                >
                   {currentQ.text}
                 </Text>
 
@@ -258,12 +393,14 @@ const ExamPage: React.FC = () => {
                 />
               </Box>
 
-              <HStack justify='space-between'>
+              {/* Navigation Buttons */}
+              <HStack justify='space-between' pt={2}>
                 <Button
                   onClick={handlePrevious}
                   isDisabled={currentQuestion === 0}
                   colorScheme='gray'
-                  size='lg'
+                  size={{ base: 'md', md: 'lg' }}
+                  flex={{ base: 1, sm: 'initial' }}
                 >
                   Previous
                 </Button>
@@ -271,7 +408,8 @@ const ExamPage: React.FC = () => {
                   onClick={handleNext}
                   isDisabled={currentQuestion === questions.length - 1}
                   colorScheme='blue'
-                  size='lg'
+                  size={{ base: 'md', md: 'lg' }}
+                  flex={{ base: 1, sm: 'initial' }}
                 >
                   Next
                 </Button>
@@ -281,16 +419,92 @@ const ExamPage: React.FC = () => {
         </Card>
       </Box>
 
-      {/* Right Section - Question Navigator */}
-      <QuestionNavigator
-        questions={questions}
-        currentQuestion={currentQuestion}
-        isQuestionAnswered={isQuestionAnswered}
-        onQuestionJump={handleQuestionJump}
-        onSubmit={handleSubmit}
-        answeredCount={answeredCount}
-        isSubmitting={completeAttempt.isPending}
-      />
+      {/* Right Section - Desktop */}
+      <Box display={{ base: 'none', lg: 'block' }} w='300px' flexShrink={0}>
+        <QuestionNavigator
+          questions={questions}
+          currentQuestion={currentQuestion}
+          isQuestionAnswered={isQuestionAnswered}
+          onQuestionJump={handleQuestionJump}
+          onSubmit={handleSubmit}
+          answeredCount={answeredCount}
+          isSubmitting={completeAttempt.isPending}
+        />
+      </Box>
+
+      {/* Mobile: Fixed Bottom Question Navigator */}
+      <Box
+        display={{ base: 'block', lg: 'none' }}
+        position='fixed'
+        bottom={0}
+        left={0}
+        right={0}
+        borderTop='1px'
+        borderColor='gray.200'
+        zIndex={20}
+        shadow='lg'
+      >
+        <QuestionNavigator
+          questions={questions}
+          currentQuestion={currentQuestion}
+          isQuestionAnswered={isQuestionAnswered}
+          onQuestionJump={handleQuestionJump}
+          onSubmit={handleSubmit}
+          answeredCount={answeredCount}
+          isSubmitting={completeAttempt.isPending}
+        />
+      </Box>
+
+      <AlertDialog
+        isOpen={isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onAlertClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Unanswered Questions
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              You still have {questions.length - answeredCount} unanswered
+              question(s). Are you sure you want to submit?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onAlertClose}>
+                Return to Test
+              </Button>
+              <Button
+                colorScheme='green'
+                ml={3}
+                onClick={async () => {
+                  onAlertClose();
+                  try {
+                    const data = await completeAttempt.mutateAsync(
+                      Number(attemptId)
+                    );
+                    navigate('/student/exam/results', {
+                      state: { data },
+                      replace: true,
+                    });
+                  } catch (error) {
+                    toast({
+                      title: 'Submission Failed',
+                      description:
+                        error instanceof Error ? error.message : String(error),
+                      status: 'error',
+                      position: 'top-right',
+                    });
+                  }
+                }}
+              >
+                Proceed to Submit
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Flex>
   );
 };

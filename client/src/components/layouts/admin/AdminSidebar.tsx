@@ -15,9 +15,14 @@ import type { NavItem } from '../../../types/navigation';
 interface SidebarProps {
   isOpen: boolean;
   navItems: NavItem[];
+  onNavigate?: () => void;
 }
 
-const AdminSidebar: React.FC<SidebarProps> = ({ isOpen, navItems }) => {
+const AdminSidebar: React.FC<SidebarProps> = ({
+  isOpen,
+  navItems,
+  onNavigate,
+}) => {
   const location = useLocation();
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
@@ -84,6 +89,7 @@ const AdminSidebar: React.FC<SidebarProps> = ({ isOpen, navItems }) => {
             to={item.path}
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
+              onNavigate?.();
             }}
             {...sharedProps}
           >
@@ -135,6 +141,7 @@ const AdminSidebar: React.FC<SidebarProps> = ({ isOpen, navItems }) => {
               key={item.path}
               as={Link}
               to={item.path}
+              onClick={() => onNavigate?.()}
               p={3}
               borderRadius='md'
               bg={location.pathname === item.path ? 'blue.50' : 'transparent'}

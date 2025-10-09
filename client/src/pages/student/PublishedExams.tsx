@@ -10,6 +10,10 @@ import {
   Text,
   Button,
   Container,
+  Center,
+  Spinner,
+  Stack,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { Calendar, Clock, BookOpen, AlertCircle } from 'lucide-react';
 import type { Test } from '../../types/api';
@@ -18,8 +22,9 @@ import { useNavigate } from 'react-router-dom';
 
 const PublishedExams = () => {
   const navigate = useNavigate();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const { data: test } = useGetAllTests();
+  const { data: test, isLoading } = useGetAllTests();
   const exams = test?.tests || [];
 
   const getExamStatus = (exam: Test) => {
@@ -81,23 +86,42 @@ const PublishedExams = () => {
     })
     .slice(0, 5);
 
+  if (isLoading) {
+    return (
+      <Center h='50vh'>
+        <VStack spacing={4}>
+          <Text fontSize='lg'>Loading exams...</Text>
+          <Spinner size='xl' color='blue.500' />
+        </VStack>
+      </Center>
+    );
+  }
+
   if (filteredExams.length === 0) {
     return (
-      <Container maxW='container.xl' py={6}>
+      <Container
+        maxW='container.xl'
+        py={{ base: 4, md: 6 }}
+        px={{ base: 3, md: 6 }}
+      >
         <Card>
           <CardHeader>
             <HStack>
-              <Calendar size={20} />
-              <Heading size='md'>Available Exams</Heading>
+              <Calendar size={isMobile ? 18 : 20} />
+              <Heading size={{ base: 'sm', md: 'md' }}>Available Exams</Heading>
             </HStack>
           </CardHeader>
           <CardBody>
-            <VStack spacing={4} py={12}>
-              <AlertCircle size={48} color='gray' />
-              <Text color='gray.500' fontSize='lg'>
+            <VStack spacing={4} py={{ base: 8, md: 12 }}>
+              <AlertCircle size={isMobile ? 36 : 48} color='gray' />
+              <Text
+                color='gray.500'
+                fontSize={{ base: 'md', md: 'lg' }}
+                textAlign='center'
+              >
                 No exams available at the moment
               </Text>
-              <Text color='gray.400' fontSize='sm'>
+              <Text color='gray.400' fontSize='sm' textAlign='center'>
                 Check back later for new assessments
               </Text>
             </VStack>
@@ -108,26 +132,56 @@ const PublishedExams = () => {
   }
 
   return (
-    <Container maxW='container.xl' py={6}>
-      <VStack spacing={6} align='stretch'>
-        <Box px={2}>
-          <Heading size='lg' mb={2}>
-            Your Exams
-          </Heading>
-          <Text color='gray.600' fontSize='md'>
-            Select an exam below to view instructions and begin your assessment
-          </Text>
+    <Container
+      maxW='container.xl'
+      py={{ base: 4, md: 6 }}
+      px={{ base: 3, md: 6 }}
+    >
+      <VStack spacing={{ base: 4, md: 6 }} align='stretch'>
+        {/* Header Section */}
+        <Box px={{ base: 0, md: 2 }}>
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            justify='space-between'
+            align={{ base: 'stretch', md: 'start' }}
+            mb={2}
+            spacing={{ base: 3, md: 0 }}
+          >
+            <Box>
+              <Heading size={{ base: 'md', md: 'lg' }} mb={2}>
+                Exams
+              </Heading>
+              <Text
+                color='gray.600'
+                fontSize={{ base: 'sm', md: 'md' }}
+                display={{ base: 'none', sm: 'block' }}
+              >
+                Select an exam below to view instructions and begin your
+                assessment
+              </Text>
+            </Box>
+            <Button
+              variant='outline'
+              colorScheme='gray'
+              size={{ base: 'sm', md: 'sm' }}
+              onClick={() => navigate('/student')}
+              w={{ base: 'full', sm: 'auto' }}
+            >
+              Back to Dashboard
+            </Button>
+          </Stack>
         </Box>
 
+        {/* Exams Card */}
         <Card>
           <CardHeader pb={4}>
             <HStack>
-              <Calendar size={20} />
-              <Heading size='md'>Available Exams</Heading>
+              <Calendar size={isMobile ? 18 : 20} />
+              <Heading size={{ base: 'sm', md: 'md' }}>Available Exams</Heading>
             </HStack>
           </CardHeader>
           <CardBody pt={0}>
-            <VStack spacing={4} align='stretch'>
+            <VStack spacing={{ base: 3, md: 4 }} align='stretch'>
               {filteredExams.map((exam) => {
                 const status = getExamStatus(exam);
                 const statusColor = getStatusColor(status);
@@ -137,16 +191,28 @@ const PublishedExams = () => {
                 return (
                   <Box
                     key={exam.id}
-                    p={5}
+                    p={{ base: 4, md: 5 }}
                     borderWidth='1px'
                     borderRadius='lg'
                     _hover={{ shadow: 'md' }}
                     transition='all 0.2s'
                   >
-                    <HStack justify='space-between' mb={3}>
+                    {/* Title and Status */}
+                    <Stack
+                      direction={{ base: 'column', sm: 'row' }}
+                      justify='space-between'
+                      mb={3}
+                      spacing={{ base: 2, sm: 0 }}
+                    >
                       <VStack align='start' spacing={1} flex={1}>
-                        <Heading size='sm'>{exam.title}</Heading>
-                        <Text fontSize='sm' color='gray.500' noOfLines={2}>
+                        <Heading size={{ base: 'xs', md: 'sm' }}>
+                          {exam.title}
+                        </Heading>
+                        <Text
+                          fontSize={{ base: 'xs', md: 'sm' }}
+                          color='gray.500'
+                          noOfLines={2}
+                        >
                           {exam.description}
                         </Text>
                       </VStack>
@@ -155,41 +221,49 @@ const PublishedExams = () => {
                         fontSize='xs'
                         px={3}
                         py={1}
+                        alignSelf={{ base: 'flex-start', sm: 'flex-start' }}
                       >
                         {status}
                       </Badge>
-                    </HStack>
+                    </Stack>
 
-                    <HStack
-                      fontSize='sm'
+                    {/* Exam Details */}
+                    <Stack
+                      direction={{ base: 'column', sm: 'row' }}
+                      fontSize={{ base: 'xs', md: 'sm' }}
                       color='gray.600'
-                      spacing={6}
-                      flexWrap='wrap'
+                      spacing={{ base: 2, sm: 4, md: 6 }}
                       mb={3}
                     >
                       <HStack>
-                        <Calendar size={16} />
+                        <Calendar size={14} />
                         <Text>{getDisplayDate(exam)}</Text>
                       </HStack>
                       <HStack>
-                        <Clock size={16} />
+                        <Clock size={14} />
                         <Text>{exam.duration} min</Text>
                       </HStack>
                       <HStack>
-                        <BookOpen size={16} />
+                        <BookOpen size={14} />
                         <Text>{exam._count?.questions || 0} questions</Text>
                       </HStack>
-                    </HStack>
+                    </Stack>
 
+                    {/* Attempts Info */}
                     {exam.maxAttempts > 0 && (
-                      <Text fontSize='sm' color='gray.500' mb={3}>
+                      <Text
+                        fontSize={{ base: 'xs', md: 'sm' }}
+                        color='gray.500'
+                        mb={3}
+                      >
                         Attempts remaining: {attemptsLeft} / {exam.maxAttempts}
                       </Text>
                     )}
 
+                    {/* Action Button */}
                     <Button
                       colorScheme='blue'
-                      size='md'
+                      size={{ base: 'sm', md: 'md' }}
                       width='full'
                       isDisabled={!canStartExam(exam) || attemptsLeft <= 0}
                       onClick={() =>
@@ -202,6 +276,8 @@ const PublishedExams = () => {
                         ? 'Not Available'
                         : attemptsLeft <= 0
                         ? 'No Attempts Left'
+                        : isMobile
+                        ? 'Start Exam'
                         : 'View Instructions & Start Exam'}
                     </Button>
                   </Box>

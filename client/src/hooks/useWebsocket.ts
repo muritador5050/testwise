@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { getAuthToken } from '../api/apiClient';
 
@@ -42,13 +42,21 @@ export const useWebSocket = (attemptId?: number) => {
     };
   }, [attemptId]);
 
-  const on = (event: string, callback: (data: any) => void) => {
-    socketRef.current?.on(event, callback);
-  };
+  const socket = socketRef.current;
 
-  const off = (event: string, callback: (data: any) => void) => {
-    socketRef.current?.off(event, callback);
-  };
+  const on = useCallback(
+    (event: string, callback: (data: unknown) => void) => {
+      socket?.on(event, callback);
+    },
+    [socket]
+  );
 
-  return { socket: socketRef.current, isConnected, on, off };
+  const off = useCallback(
+    (event: string, callback: (data: unknown) => void) => {
+      socket?.off(event, callback);
+    },
+    [socket]
+  );
+
+  return { socket, isConnected, on, off };
 };
