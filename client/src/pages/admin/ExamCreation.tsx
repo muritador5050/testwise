@@ -22,6 +22,7 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
+  Stack,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { Pencil, Trash2, PlusCircle } from 'lucide-react';
@@ -109,233 +110,308 @@ const ExamCreation: React.FC = () => {
     setEditingId(test.id);
   };
 
-  if (!tests) return;
+  if (!tests) return null;
+
   return (
-    <Box p={6} minH='100vh'>
-      <HStack align='flex-start' spacing={8}>
-        {/* Left: Form */}
-        <Box flex='1' p={8} borderRadius='lg' shadow='lg'>
-          <VStack spacing={6} align='stretch' as='form' onSubmit={handleSubmit}>
-            <Heading size='lg'>
-              {editingId ? 'Update Test' : 'Create New Test'}
-            </Heading>
-
-            {/* Title */}
-            <FormControl isRequired>
-              <FormLabel fontWeight='semibold'>Test Title</FormLabel>
-              <Input
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                placeholder='Enter test title'
-                borderColor='gray.300'
-                _placeholder={{ color: 'gray.400' }}
-              />
-            </FormControl>
-
-            {/* Description */}
-            <FormControl>
-              <FormLabel fontWeight='semibold'>Description</FormLabel>
-              <Textarea
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                placeholder='Enter test description (optional)'
-                rows={4}
-                borderColor='gray.300'
-                _placeholder={{ color: 'gray.400' }}
-              />
-            </FormControl>
-
-            {/* Duration & Max Attempts */}
-            <HStack spacing={4} align='flex-start'>
-              <FormControl isRequired flex={1}>
-                <FormLabel fontWeight='semibold'>Duration (minutes)</FormLabel>
-                <NumberInput
-                  value={formData.duration}
-                  onChange={(_valueString, valueNumber) =>
-                    setFormData({ ...formData, duration: valueNumber })
-                  }
-                  min={1}
-                >
-                  <NumberInputField borderColor='gray.300' />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-              </FormControl>
-
-              <FormControl isRequired flex={1}>
-                <FormLabel fontWeight='semibold'>Max Attempts</FormLabel>
-                <NumberInput
-                  value={formData.maxAttempts}
-                  onChange={(_valueString, valueNumber) =>
-                    setFormData({ ...formData, maxAttempts: valueNumber })
-                  }
-                  min={1}
-                >
-                  <NumberInputField borderColor='gray.300' />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-              </FormControl>
-            </HStack>
-
-            {/* Available From & Until */}
-            <HStack spacing={4} align='flex-start'>
-              <FormControl flex={1}>
-                <FormLabel fontWeight='semibold'>Available From</FormLabel>
-                <Input
-                  type='datetime-local'
-                  value={formData.availableFrom ?? ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      availableFrom: e.target.value || null,
-                    })
-                  }
-                  borderColor='gray.300'
-                />
-              </FormControl>
-
-              <FormControl flex={1}>
-                <FormLabel fontWeight='semibold'>Available Until</FormLabel>
-                <Input
-                  type='datetime-local'
-                  value={formData.availableUntil ?? ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      availableUntil: e.target.value || null,
-                    })
-                  }
-                  borderColor='gray.300'
-                />
-              </FormControl>
-            </HStack>
-
-            {/* Is Published */}
-            <FormControl display='flex' alignItems='center'>
-              <FormLabel mb='0' fontWeight='semibold'>
-                Publish Test
-              </FormLabel>
-              <Switch
-                isChecked={formData.isPublished}
-                onChange={(e) =>
-                  setFormData({ ...formData, isPublished: e.target.checked })
-                }
-                colorScheme='blue'
-              />
-              <Text ml={3} fontSize='sm' color='gray.600'>
-                {formData.isPublished ? 'Published' : 'Draft'}
-              </Text>
-            </FormControl>
-
-            {/* Buttons */}
-            <HStack justify='flex-end' pt={4}>
-              <Button variant='outline' colorScheme='blue' onClick={resetForm}>
-                Reset
-              </Button>
-              <Button
-                type='submit'
-                isLoading={
-                  editingId ? updateTest.isPending : createTest.isPending
-                }
-                loadingText={editingId ? 'Updating...' : 'Creating...'}
-                colorScheme='blue'
-              >
-                {editingId ? 'Update Test' : 'Create Test'}
-              </Button>
-            </HStack>
-          </VStack>
-        </Box>
-
-        {/* Right: Test List */}
-        <Box flex='1'>
-          <Heading size='md' mb={4}>
-            All Tests
+    <Stack
+      direction={{ base: 'column', lg: 'row' }}
+      align='flex-start'
+      spacing={{ base: 6, md: 8 }}
+      p={{ base: 4, md: 6, lg: 8 }}
+    >
+      {/* Left: Form */}
+      <Box
+        flex='1'
+        w={{ base: '100%', lg: 'auto' }}
+        p={{ base: 4, md: 6, lg: 8 }}
+        borderRadius='lg'
+        shadow='lg'
+      >
+        <VStack
+          spacing={{ base: 4, md: 6 }}
+          align='stretch'
+          as='form'
+          onSubmit={handleSubmit}
+        >
+          <Heading size={{ base: 'md', md: 'lg' }}>
+            {editingId ? 'Update Test' : 'Create New Test'}
           </Heading>
-          <SimpleGrid columns={1} spacing={4}>
-            {tests.tests.map((test) => (
-              <Card key={test.id} shadow='md' borderRadius='lg'>
-                <CardHeader>
-                  <Heading size='sm'>{test.title}</Heading>
-                </CardHeader>
-                <CardBody>
-                  <Text fontSize='sm' color='gray.600'>
-                    {test.description || 'No description'}
+
+          <FormControl isRequired>
+            <FormLabel
+              fontWeight='semibold'
+              fontSize={{ base: 'sm', md: 'md' }}
+            >
+              Test Title
+            </FormLabel>
+            <Input
+              value={formData.title}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              placeholder='Enter test title'
+              borderColor='gray.300'
+              _placeholder={{ color: 'gray.400' }}
+              fontSize={{ base: 'sm', md: 'md' }}
+            />
+          </FormControl>
+
+          <FormControl>
+            <FormLabel
+              fontWeight='semibold'
+              fontSize={{ base: 'sm', md: 'md' }}
+            >
+              Description
+            </FormLabel>
+            <Textarea
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              placeholder='Enter test description (optional)'
+              rows={4}
+              borderColor='gray.300'
+              _placeholder={{ color: 'gray.400' }}
+              fontSize={{ base: 'sm', md: 'md' }}
+            />
+          </FormControl>
+
+          <Stack direction={{ base: 'column', sm: 'row' }} spacing={4}>
+            <FormControl isRequired flex={1}>
+              <FormLabel
+                fontWeight='semibold'
+                fontSize={{ base: 'sm', md: 'md' }}
+              >
+                Duration (minutes)
+              </FormLabel>
+              <NumberInput
+                value={formData.duration}
+                onChange={(_valueString, valueNumber) =>
+                  setFormData({ ...formData, duration: valueNumber })
+                }
+                min={1}
+              >
+                <NumberInputField
+                  borderColor='gray.300'
+                  fontSize={{ base: 'sm', md: 'md' }}
+                />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </FormControl>
+
+            <FormControl isRequired flex={1}>
+              <FormLabel
+                fontWeight='semibold'
+                fontSize={{ base: 'sm', md: 'md' }}
+              >
+                Max Attempts
+              </FormLabel>
+              <NumberInput
+                value={formData.maxAttempts}
+                onChange={(_valueString, valueNumber) =>
+                  setFormData({ ...formData, maxAttempts: valueNumber })
+                }
+                min={1}
+              >
+                <NumberInputField
+                  borderColor='gray.300'
+                  fontSize={{ base: 'sm', md: 'md' }}
+                />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </FormControl>
+          </Stack>
+
+          <Stack direction={{ base: 'column', sm: 'row' }} spacing={4}>
+            <FormControl flex={1}>
+              <FormLabel
+                fontWeight='semibold'
+                fontSize={{ base: 'sm', md: 'md' }}
+              >
+                Available From
+              </FormLabel>
+              <Input
+                type='datetime-local'
+                value={formData.availableFrom ?? ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    availableFrom: e.target.value || null,
+                  })
+                }
+                borderColor='gray.300'
+                fontSize={{ base: 'sm', md: 'md' }}
+              />
+            </FormControl>
+
+            <FormControl flex={1}>
+              <FormLabel
+                fontWeight='semibold'
+                fontSize={{ base: 'sm', md: 'md' }}
+              >
+                Available Until
+              </FormLabel>
+              <Input
+                type='datetime-local'
+                value={formData.availableUntil ?? ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    availableUntil: e.target.value || null,
+                  })
+                }
+                borderColor='gray.300'
+                fontSize={{ base: 'sm', md: 'md' }}
+              />
+            </FormControl>
+          </Stack>
+
+          <FormControl display='flex' alignItems='center' flexWrap='wrap'>
+            <FormLabel
+              mb='0'
+              fontWeight='semibold'
+              fontSize={{ base: 'sm', md: 'md' }}
+            >
+              Publish Test
+            </FormLabel>
+            <Switch
+              isChecked={formData.isPublished}
+              onChange={(e) =>
+                setFormData({ ...formData, isPublished: e.target.checked })
+              }
+              colorScheme='blue'
+            />
+            <Text ml={3} fontSize='sm' color='gray.600'>
+              {formData.isPublished ? 'Published' : 'Draft'}
+            </Text>
+          </FormControl>
+
+          <Stack
+            direction={{ base: 'column', sm: 'row' }}
+            justify='flex-end'
+            pt={4}
+            spacing={3}
+          >
+            <Button
+              variant='outline'
+              colorScheme='blue'
+              onClick={resetForm}
+              w={{ base: 'full', sm: 'auto' }}
+              size={{ base: 'md', md: 'md' }}
+            >
+              Reset
+            </Button>
+            <Button
+              type='submit'
+              isLoading={
+                editingId ? updateTest.isPending : createTest.isPending
+              }
+              loadingText={editingId ? 'Updating...' : 'Creating...'}
+              colorScheme='blue'
+              w={{ base: 'full', sm: 'auto' }}
+              size={{ base: 'md', md: 'md' }}
+            >
+              {editingId ? 'Update Test' : 'Create Test'}
+            </Button>
+          </Stack>
+        </VStack>
+      </Box>
+
+      {/* Right: Test List */}
+      <Box flex='1' w={{ base: '100%', lg: 'auto' }}>
+        <Heading size={{ base: 'sm', md: 'md' }} mb={4}>
+          All Tests
+        </Heading>
+        <SimpleGrid columns={{ base: 1 }} spacing={4}>
+          {tests.tests.map((test) => (
+            <Card key={test.id} shadow='md' borderRadius='lg'>
+              <CardHeader pb={2}>
+                <Heading size={{ base: 'xs', md: 'sm' }}>{test.title}</Heading>
+              </CardHeader>
+              <CardBody py={3}>
+                <Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.600'>
+                  {test.description || 'No description'}
+                </Text>
+                <Text fontSize='xs' color='gray.500' mt={2}>
+                  Duration: {test.duration} mins | Attempts: {test.maxAttempts}
+                </Text>
+                <Text fontSize='xs' color='gray.500'>
+                  Questions: {test._count?.questions ?? 0} | Attempts Made:{' '}
+                  {test._count?.attempts ?? 0}
+                </Text>
+                <Text
+                  fontSize='xs'
+                  color={test.isPublished ? 'green.500' : 'orange.500'}
+                  fontWeight='semibold'
+                >
+                  {test.isPublished ? 'Published' : 'Draft'}
+                </Text>
+                {test.availableFrom && test.availableUntil && (
+                  <Text fontSize='xs' color='gray.500' mt={1}>
+                    Available:{' '}
+                    {new Date(test.availableFrom).toLocaleDateString()} -{' '}
+                    {new Date(test.availableUntil).toLocaleDateString()}
                   </Text>
-                  <Text fontSize='xs' color='gray.500' mt={2}>
-                    Duration: {test.duration} mins | Attempts:{' '}
-                    {test.maxAttempts}
-                  </Text>
-                  <Text fontSize='xs' color='gray.500'>
-                    Questions: {test._count?.questions ?? 0} | Attempts Made:{' '}
-                    {test._count?.attempts ?? 0}
-                  </Text>
-                  <Text
-                    fontSize='xs'
-                    color={test.isPublished ? 'green.500' : 'orange.500'}
-                  >
-                    {test.isPublished ? 'Published' : 'Draft'}
-                  </Text>
-                  {test.availableFrom && test.availableUntil && (
-                    <Text fontSize='xs' color='gray.500' mt={1}>
-                      Available:{' '}
-                      {new Date(test.availableFrom).toLocaleDateString()} -{' '}
-                      {new Date(test.availableUntil).toLocaleDateString()}
-                    </Text>
-                  )}
-                </CardBody>
-                <CardFooter justifyContent='space-between'>
-                  <HStack spacing={2}>
-                    <IconButton
-                      aria-label='edit'
-                      icon={<Pencil size={16} />}
-                      variant='ghost'
-                      onClick={() => handleEdit(test)}
-                    />
-                    <IconButton
-                      aria-label='delete'
-                      icon={<Trash2 size={16} />}
-                      variant='ghost'
-                      onClick={() => handleDelete(test.id)}
-                    />
-                    <Button
-                      size='sm'
-                      onClick={() => publish.mutate(test.id)}
-                      colorScheme={test.isPublished ? 'red' : 'green'}
-                    >
-                      {test.isPublished ? 'Unpublish' : 'Publish'}
-                    </Button>
-                  </HStack>
-                  <Button
-                    leftIcon={<PlusCircle size={16} />}
+                )}
+              </CardBody>
+              <CardFooter
+                flexDirection={{ base: 'column', sm: 'row' }}
+                justifyContent='space-between'
+                gap={3}
+                pt={3}
+              >
+                <HStack spacing={2} w={{ base: 'full', sm: 'auto' }}>
+                  <IconButton
+                    aria-label='edit'
+                    icon={<Pencil size={16} />}
+                    variant='ghost'
                     size='sm'
-                    colorScheme='blue'
-                    onClick={() =>
-                      navigate(`/admin/questions/create`, {
-                        state: { testId: test.id, title: test.title },
-                      })
-                    }
+                    onClick={() => handleEdit(test)}
+                  />
+                  <IconButton
+                    aria-label='delete'
+                    icon={<Trash2 size={16} />}
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => handleDelete(test.id)}
+                  />
+                  <Button
+                    size='sm'
+                    onClick={() => publish.mutate(test.id)}
+                    colorScheme={test.isPublished ? 'red' : 'green'}
+                    fontSize='xs'
                   >
-                    {' '}
-                    {test.questions?.length !== 0
-                      ? 'Add More Questions'
-                      : 'Start Creating Questions'}
+                    {test.isPublished ? 'Unpublish' : 'Publish'}
                   </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </SimpleGrid>
-        </Box>
-      </HStack>
-    </Box>
+                </HStack>
+                <Button
+                  leftIcon={<PlusCircle size={16} />}
+                  size='sm'
+                  colorScheme='blue'
+                  onClick={() =>
+                    navigate(`/admin/questions/create`, {
+                      state: { testId: test.id, title: test.title },
+                    })
+                  }
+                  w={{ base: 'full', sm: 'auto' }}
+                  fontSize='xs'
+                >
+                  {test.questions?.length !== 0
+                    ? 'Add More Questions'
+                    : 'Start Creating Questions'}
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </SimpleGrid>
+      </Box>
+    </Stack>
   );
 };
 

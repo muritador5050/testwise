@@ -18,8 +18,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -64,18 +62,6 @@ const ResultsStatistics: React.FC = () => {
         : 0,
       fill: '#10B981',
     },
-  ];
-
-  // Data for line chart - Performance Trends (mock data for demonstration)
-  const performanceTrendData = [
-    { attempt: 1, score: 35, time: 15000 },
-    { attempt: 2, score: 42, time: 18000 },
-    { attempt: 3, score: 38, time: 17000 },
-    { attempt: 4, score: 55, time: 22000 },
-    { attempt: 5, score: 47, time: 19000 },
-    { attempt: 6, score: 60, time: 21000 },
-    { attempt: 7, score: 52, time: 19500 },
-    { attempt: 8, score: 48, time: 20500 },
   ];
 
   const formatTime = (seconds: number): string => {
@@ -231,81 +217,6 @@ const ResultsStatistics: React.FC = () => {
           </CardBody>
         </Card>
       </SimpleGrid>
-
-      {/* Performance Trends - Line Chart */}
-      <Card bg={cardBg} borderWidth='1px' borderColor={borderColor}>
-        <CardBody>
-          <VStack align='stretch' spacing={4}>
-            <Text fontSize='lg' fontWeight='semibold'>
-              Performance Trends (Example)
-            </Text>
-            <Box height='300px'>
-              <ResponsiveContainer width='100%' height='100%'>
-                <LineChart data={performanceTrendData}>
-                  <CartesianGrid strokeDasharray='3 3' stroke={borderColor} />
-                  <XAxis
-                    dataKey='attempt'
-                    stroke={chartTextColor}
-                    label={{
-                      value: 'Attempt Number',
-                      position: 'insideBottom',
-                      offset: -5,
-                      style: { fill: chartTextColor },
-                    }}
-                  />
-                  <YAxis
-                    yAxisId='left'
-                    stroke={chartTextColor}
-                    label={{
-                      value: 'Score (%)',
-                      angle: -90,
-                      position: 'insideLeft',
-                      style: { fill: chartTextColor },
-                    }}
-                  />
-                  <YAxis
-                    yAxisId='right'
-                    orientation='right'
-                    stroke={chartTextColor}
-                    label={{
-                      value: 'Time (seconds)',
-                      angle: -90,
-                      position: 'insideRight',
-                      style: { fill: chartTextColor },
-                    }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: cardBg,
-                      borderColor: borderColor,
-                      color: chartTextColor,
-                    }}
-                  />
-                  <Legend />
-                  <Line
-                    yAxisId='left'
-                    type='monotone'
-                    dataKey='score'
-                    stroke='#3B82F6'
-                    strokeWidth={2}
-                    name='Score (%)'
-                    dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                  />
-                  <Line
-                    yAxisId='right'
-                    type='monotone'
-                    dataKey='time'
-                    stroke='#10B981'
-                    strokeWidth={2}
-                    name='Time Spent (s)'
-                    dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </Box>
-          </VStack>
-        </CardBody>
-      </Card>
     </VStack>
   );
 };

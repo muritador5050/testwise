@@ -12,6 +12,11 @@ class UserController {
         return res.status(400).json({ error: 'Email is required' });
       }
 
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+
       const user = await UserService.createUser({ email, name, role, avatar });
       res.status(201).json(user);
     } catch (error: any) {
@@ -28,10 +33,16 @@ class UserController {
       if (!email) {
         return res.status(400).json({ error: 'Email is required' });
       }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+
       const user = await UserService.loginUser(email);
 
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(401).json({ error: 'Invalid email address' });
       }
 
       // Role-based token expiration

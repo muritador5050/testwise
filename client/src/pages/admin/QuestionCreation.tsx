@@ -33,6 +33,8 @@ import {
   AlertDialogOverlay,
   useDisclosure,
   useToast,
+  Stack,
+  Flex,
 } from '@chakra-ui/react';
 import {
   DeleteIcon,
@@ -76,16 +78,9 @@ const QuestionCreation: React.FC = () => {
 
   useEffect(() => {
     if (!testId) {
-      toast({
-        title: 'Error',
-        description: 'No test selected. Redirecting to tests page.',
-        status: 'error',
-        position: 'top',
-        duration: 5000,
-      });
       navigate('/admin/exams/create');
     }
-  }, [testId, navigate, toast]);
+  }, [testId, navigate]);
 
   const { data: questionsData, isLoading } = useGetQuestionsByTest(testId);
   const createQuestion = useCreateQuestion();
@@ -439,11 +434,20 @@ const QuestionCreation: React.FC = () => {
 
   const handleCorrectOptionChange = useCallback(
     (formIndex: number, optionIndex: number) => {
-      const newOptions = questionForms[formIndex].options.map((opt, i) => ({
-        ...opt,
-        isCorrect: i === optionIndex,
-      }));
-      updateQuestionForm(formIndex, { options: newOptions });
+      const form = questionForms[formIndex];
+
+      if (form.questionType === 'MULTIPLE_ANSWER') {
+        const newOptions = form.options.map((opt, i) =>
+          i === optionIndex ? { ...opt, isCorrect: !opt.isCorrect } : opt
+        );
+        updateQuestionForm(formIndex, { options: newOptions });
+      } else {
+        const newOptions = form.options.map((opt, i) => ({
+          ...opt,
+          isCorrect: i === optionIndex,
+        }));
+        updateQuestionForm(formIndex, { options: newOptions });
+      }
     },
     [questionForms, updateQuestionForm]
   );
@@ -509,19 +513,24 @@ const QuestionCreation: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box p={6} textAlign='center'>
+      <Box p={{ base: 4, md: 6 }} textAlign='center'>
         <Text>Loading questions...</Text>
       </Box>
     );
   }
 
   return (
-    <Box p={6} minH='100vh'>
-      <VStack spacing={6} align='stretch'>
-        <HStack justify='space-between' align='center' flexWrap='wrap'>
+    <Box p={{ base: 4, md: 6 }} minH='100vh'>
+      <VStack spacing={{ base: 4, md: 6 }} align='stretch'>
+        {/* Header */}
+        <Flex justify='space-between' align='center' flexWrap='wrap' gap={4}>
           <VStack align='flex-start' spacing={1}>
-            <Heading size='lg'>Manage Questions</Heading>
-            <Text fontSize='md' color='blue.200' fontWeight='semibold'>
+            <Heading size={{ base: 'md', md: 'lg' }}>Manage Questions</Heading>
+            <Text
+              fontSize={{ base: 'sm', md: 'md' }}
+              color='blue.200'
+              fontWeight='semibold'
+            >
               Test: {title}
             </Text>
           </VStack>
@@ -530,12 +539,14 @@ const QuestionCreation: React.FC = () => {
             colorScheme='purple'
             onClick={onBulkUploadOpen}
             shadow='md'
+            size={{ base: 'sm', md: 'md' }}
           >
             Bulk Upload
           </Button>
-        </HStack>
+        </Flex>
 
-        <SimpleGrid columns={3} spacing={4}>
+        {/* Stats Grid */}
+        <SimpleGrid columns={{ base: 1, sm: 3 }} spacing={4}>
           <Box
             p={4}
             bgGradient='linear(to-br, blue.500, blue.600)'
@@ -546,7 +557,7 @@ const QuestionCreation: React.FC = () => {
             <Text fontWeight='bold' fontSize='sm' opacity={0.9}>
               Total Questions
             </Text>
-            <Text fontSize='3xl' fontWeight='bold'>
+            <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight='bold'>
               {questions.length}
             </Text>
           </Box>
@@ -560,7 +571,7 @@ const QuestionCreation: React.FC = () => {
             <Text fontWeight='bold' fontSize='sm' opacity={0.9}>
               Total Points
             </Text>
-            <Text fontSize='3xl' fontWeight='bold'>
+            <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight='bold'>
               {totalPoints}
             </Text>
           </Box>
@@ -580,17 +591,27 @@ const QuestionCreation: React.FC = () => {
           </Box>
         </SimpleGrid>
 
-        <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap={6}>
+        {/* Main Content Grid */}
+        <Grid
+          templateColumns={{ base: '1fr', lg: '1fr 1fr' }}
+          gap={{ base: 4, md: 6 }}
+        >
+          {/* Question Form */}
           <Box
-            p={6}
+            p={{ base: 4, md: 6 }}
             borderRadius='lg'
             shadow='lg'
             border='2px'
             borderColor='blue.200'
           >
             <VStack spacing={4} align='stretch'>
-              <HStack justify='space-between' align='center'>
-                <Heading size='md'>
+              <Stack
+                direction={{ base: 'column', sm: 'row' }}
+                justify='space-between'
+                align={{ base: 'stretch', sm: 'center' }}
+                spacing={2}
+              >
+                <Heading size={{ base: 'sm', md: 'md' }}>
                   {editingQuestion ? '✏️ Edit Question' : '➕ Create Questions'}
                 </Heading>
 
@@ -600,11 +621,12 @@ const QuestionCreation: React.FC = () => {
                     colorScheme='green'
                     size='sm'
                     onClick={addQuestionForm}
+                    width={{ base: 'full', sm: 'auto' }}
                   >
                     Add Another Question
                   </Button>
                 )}
-              </HStack>
+              </Stack>
 
               {!editingQuestion && questionForms.length > 1 && (
                 <Alert status='info' borderRadius='md' fontSize='sm'>
@@ -626,28 +648,27 @@ const QuestionCreation: React.FC = () => {
                   position='relative'
                 >
                   {!editingQuestion && questionForms.length > 1 && (
-                    <IconButton
-                      aria-label='Remove question'
-                      icon={<DeleteIcon />}
-                      size='sm'
-                      colorScheme='red'
-                      variant='ghost'
-                      position='absolute'
-                      top={2}
-                      right={2}
-                      onClick={() => removeQuestionForm(formIndex)}
-                    />
-                  )}
-
-                  {!editingQuestion && questionForms.length > 1 && (
-                    <Badge
-                      colorScheme='blue'
-                      position='absolute'
-                      top={2}
-                      left={2}
-                    >
-                      Question {formIndex + 1}
-                    </Badge>
+                    <>
+                      <IconButton
+                        aria-label='Remove question'
+                        icon={<DeleteIcon />}
+                        size='sm'
+                        colorScheme='red'
+                        variant='ghost'
+                        position='absolute'
+                        top={2}
+                        right={2}
+                        onClick={() => removeQuestionForm(formIndex)}
+                      />
+                      <Badge
+                        colorScheme='blue'
+                        position='absolute'
+                        top={2}
+                        left={2}
+                      >
+                        Question {formIndex + 1}
+                      </Badge>
+                    </>
                   )}
 
                   <VStack
@@ -656,7 +677,12 @@ const QuestionCreation: React.FC = () => {
                     mt={questionForms.length > 1 ? 6 : 0}
                   >
                     <FormControl isRequired>
-                      <FormLabel fontWeight='semibold'>Question Text</FormLabel>
+                      <FormLabel
+                        fontWeight='semibold'
+                        fontSize={{ base: 'sm', md: 'md' }}
+                      >
+                        Question Text
+                      </FormLabel>
                       <Textarea
                         value={form.text}
                         onChange={(e) =>
@@ -672,13 +698,19 @@ const QuestionCreation: React.FC = () => {
                           borderColor: 'blue.500',
                           boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
                         }}
-                        _placeholder={{ color: 'gray.400' }}
+                        fontSize={{ base: 'sm', md: 'md' }}
                       />
                     </FormControl>
 
-                    <HStack width='100%' align='flex-start' spacing={3}>
-                      <FormControl flex={2}>
-                        <FormLabel fontWeight='semibold'>
+                    <Stack
+                      direction={{ base: 'column', md: 'row' }}
+                      spacing={3}
+                    >
+                      <FormControl flex={{ base: 1, md: 2 }}>
+                        <FormLabel
+                          fontWeight='semibold'
+                          fontSize={{ base: 'sm', md: 'md' }}
+                        >
                           Question Type
                         </FormLabel>
                         <Select
@@ -690,9 +722,13 @@ const QuestionCreation: React.FC = () => {
                           }
                           borderColor='gray.300'
                           _hover={{ borderColor: 'blue.400' }}
+                          fontSize={{ base: 'sm', md: 'md' }}
                         >
                           <option value='MULTIPLE_CHOICE'>
                             Multiple Choice
+                          </option>
+                          <option value='MULTIPLE_ANSWER'>
+                            Multiple Answer
                           </option>
                           <option value='TRUE_FALSE'>True/False</option>
                           <option value='SHORT_ANSWER'>Short Answer</option>
@@ -701,7 +737,12 @@ const QuestionCreation: React.FC = () => {
                       </FormControl>
 
                       <FormControl flex={1} isRequired>
-                        <FormLabel fontWeight='semibold'>Points</FormLabel>
+                        <FormLabel
+                          fontWeight='semibold'
+                          fontSize={{ base: 'sm', md: 'md' }}
+                        >
+                          Points
+                        </FormLabel>
                         <NumberInput
                           value={form.points}
                           onChange={(_valueString, valueNumber) =>
@@ -712,6 +753,7 @@ const QuestionCreation: React.FC = () => {
                           min={0.5}
                           step={0.5}
                           precision={1}
+                          size={{ base: 'sm', md: 'md' }}
                         >
                           <NumberInputField borderColor='gray.300' />
                           <NumberInputStepper>
@@ -722,7 +764,12 @@ const QuestionCreation: React.FC = () => {
                       </FormControl>
 
                       <FormControl flex={1}>
-                        <FormLabel fontWeight='semibold'>Order</FormLabel>
+                        <FormLabel
+                          fontWeight='semibold'
+                          fontSize={{ base: 'sm', md: 'md' }}
+                        >
+                          Order
+                        </FormLabel>
                         <NumberInput
                           value={form.order}
                           onChange={(_valueString, valueNumber) =>
@@ -731,18 +778,25 @@ const QuestionCreation: React.FC = () => {
                             })
                           }
                           min={1}
+                          size={{ base: 'sm', md: 'md' }}
                         >
                           <NumberInputField borderColor='gray.300' />
                         </NumberInput>
                       </FormControl>
-                    </HStack>
+                    </Stack>
 
-                    {['MULTIPLE_CHOICE', 'TRUE_FALSE'].includes(
-                      form.questionType
-                    ) && (
+                    {[
+                      'MULTIPLE_CHOICE',
+                      'TRUE_FALSE',
+                      'MULTIPLE_ANSWER',
+                    ].includes(form.questionType) && (
                       <FormControl>
-                        <FormLabel fontWeight='semibold'>
-                          Options (Check the correct answer)
+                        <FormLabel
+                          fontWeight='semibold'
+                          fontSize={{ base: 'sm', md: 'md' }}
+                        >
+                          Options (Check the correct answer
+                          {form.questionType === 'MULTIPLE_ANSWER' ? 's' : ''})
                         </FormLabel>
                         <VStack spacing={2} align='stretch'>
                           {form.options.map((option, optionIndex) => (
@@ -754,6 +808,7 @@ const QuestionCreation: React.FC = () => {
                                 option.isCorrect ? 'green.400' : 'gray.200'
                               }
                               borderRadius='md'
+                              spacing={2}
                             >
                               <Checkbox
                                 isChecked={option.isCorrect}
@@ -764,7 +819,7 @@ const QuestionCreation: React.FC = () => {
                                   )
                                 }
                                 colorScheme='green'
-                                size='lg'
+                                size={{ base: 'md', md: 'lg' }}
                               />
                               <Input
                                 value={option.text}
@@ -779,7 +834,7 @@ const QuestionCreation: React.FC = () => {
                                 placeholder={`Option ${optionIndex + 1}`}
                                 borderColor='gray.300'
                                 _hover={{ borderColor: 'blue.400' }}
-                                _placeholder={{ color: 'gray.400' }}
+                                size={{ base: 'sm', md: 'md' }}
                               />
                               {form.options.length > 2 && (
                                 <IconButton
@@ -791,11 +846,14 @@ const QuestionCreation: React.FC = () => {
                                   size='sm'
                                   colorScheme='red'
                                   variant='ghost'
+                                  flexShrink={0}
                                 />
                               )}
                             </HStack>
                           ))}
-                          {form.questionType === 'MULTIPLE_CHOICE' && (
+                          {['MULTIPLE_CHOICE', 'MULTIPLE_ANSWER'].includes(
+                            form.questionType
+                          ) && (
                             <Button
                               leftIcon={<AddIcon />}
                               onClick={() => addOption(formIndex)}
@@ -813,11 +871,24 @@ const QuestionCreation: React.FC = () => {
 
                     {['SHORT_ANSWER', 'ESSAY'].includes(form.questionType) && (
                       <FormControl>
-                        <HStack justify='space-between' align='center' mb={2}>
-                          <FormLabel fontWeight='semibold' mb={0}>
+                        <Stack
+                          direction={{ base: 'column', sm: 'row' }}
+                          justify='space-between'
+                          align={{ base: 'stretch', sm: 'center' }}
+                          mb={2}
+                          spacing={2}
+                        >
+                          <FormLabel
+                            fontWeight='semibold'
+                            mb={0}
+                            fontSize={{ base: 'sm', md: 'md' }}
+                          >
                             Expected Answer (Optional)
                           </FormLabel>
-                          <HStack spacing={2}>
+                          <HStack
+                            spacing={2}
+                            justify={{ base: 'flex-start', sm: 'flex-end' }}
+                          >
                             <Text fontSize='sm'>Mark as correct</Text>
                             <Checkbox
                               isChecked={form.isAnswerCorrect}
@@ -829,7 +900,7 @@ const QuestionCreation: React.FC = () => {
                               colorScheme='green'
                             />
                           </HStack>
-                        </HStack>
+                        </Stack>
                         <Textarea
                           value={form.correctAnswer}
                           onChange={(e) =>
@@ -856,7 +927,7 @@ const QuestionCreation: React.FC = () => {
                               form.isAnswerCorrect ? 'green' : 'blue'
                             }-500)`,
                           }}
-                          _placeholder={{ color: 'gray.400' }}
+                          fontSize={{ base: 'sm', md: 'md' }}
                         />
                         <Alert
                           status='info'
@@ -875,8 +946,17 @@ const QuestionCreation: React.FC = () => {
                 </Box>
               ))}
 
-              <HStack justify='flex-end' pt={4}>
-                <Button variant='outline' onClick={resetForms}>
+              <Stack
+                direction={{ base: 'column', sm: 'row' }}
+                justify='flex-end'
+                pt={4}
+                spacing={2}
+              >
+                <Button
+                  variant='outline'
+                  onClick={resetForms}
+                  width={{ base: 'full', sm: 'auto' }}
+                >
                   Cancel
                 </Button>
                 <Button
@@ -887,6 +967,7 @@ const QuestionCreation: React.FC = () => {
                   isLoading={
                     createQuestion.isPending || updateQuestion.isPending
                   }
+                  width={{ base: 'full', sm: 'auto' }}
                 >
                   {editingQuestion
                     ? 'Update'
@@ -896,28 +977,32 @@ const QuestionCreation: React.FC = () => {
                           : 'Question'
                       }`}
                 </Button>
-              </HStack>
+              </Stack>
             </VStack>
           </Box>
 
-          {/* The Questions List section remains the same */}
+          {/* Questions List */}
           <Box
-            p={6}
+            p={{ base: 4, md: 6 }}
             borderRadius='lg'
             shadow='lg'
             border='2px'
             borderColor='purple.200'
           >
             <VStack spacing={4} align='stretch'>
-              <Heading size='md'>📝 Questions List</Heading>
+              <Heading size={{ base: 'sm', md: 'md' }}>
+                📝 Questions List
+              </Heading>
 
               {questions.length === 0 ? (
                 <Box textAlign='center' py={12}>
                   <Text fontSize='6xl' mb={4}>
                     📋
                   </Text>
-                  <Text>No questions added yet.</Text>
-                  <Text fontSize='sm' mt={2}>
+                  <Text fontSize={{ base: 'sm', md: 'md' }}>
+                    No questions added yet.
+                  </Text>
+                  <Text fontSize='sm' mt={2} color='gray.500'>
                     Create your first question using the form.
                   </Text>
                 </Box>
@@ -925,7 +1010,7 @@ const QuestionCreation: React.FC = () => {
                 <VStack
                   spacing={4}
                   align='stretch'
-                  maxH='600px'
+                  maxH={{ base: '400px', md: '600px' }}
                   overflowY='auto'
                   pr={2}
                 >
@@ -937,12 +1022,14 @@ const QuestionCreation: React.FC = () => {
                       borderColor='gray.200'
                       _hover={{ borderColor: 'blue.300' }}
                     >
-                      <CardBody>
-                        <HStack align='start' spacing={3}>
-                          <DragHandleIcon cursor='grab' mt={1} />
+                      <CardBody p={{ base: 3, md: 4 }}>
+                        <Flex direction={{ base: 'column', sm: 'row' }} gap={3}>
+                          <Box display={{ base: 'none', sm: 'block' }}>
+                            <DragHandleIcon cursor='grab' mt={1} />
+                          </Box>
 
                           <VStack flex={1} align='stretch' spacing={2}>
-                            <HStack flexWrap='wrap' spacing={2}>
+                            <Flex flexWrap='wrap' gap={2}>
                               <Badge variant='outline' colorScheme='gray'>
                                 #{question.order}
                               </Badge>
@@ -957,9 +1044,14 @@ const QuestionCreation: React.FC = () => {
                                 {question.points} pt
                                 {question.points !== 1 ? 's' : ''}
                               </Badge>
-                            </HStack>
+                            </Flex>
 
-                            <Text fontWeight='medium'>{question.text}</Text>
+                            <Text
+                              fontWeight='medium'
+                              fontSize={{ base: 'sm', md: 'md' }}
+                            >
+                              {question.text}
+                            </Text>
 
                             {['MULTIPLE_CHOICE', 'TRUE_FALSE'].includes(
                               question.questionType
@@ -979,6 +1071,7 @@ const QuestionCreation: React.FC = () => {
                                               ? 'green.500'
                                               : 'gray.300'
                                           }
+                                          flexShrink={0}
                                         />
                                         <Text
                                           fontSize='sm'
@@ -1030,7 +1123,11 @@ const QuestionCreation: React.FC = () => {
                             {question.questionType === 'SHORT_ANSWER' &&
                               (!question.options ||
                                 question.options.length === 0) && (
-                                <Text fontSize='sm' fontStyle='italic'>
+                                <Text
+                                  fontSize='sm'
+                                  fontStyle='italic'
+                                  color='gray.500'
+                                >
                                   Manual grading required
                                 </Text>
                               )}
@@ -1048,7 +1145,10 @@ const QuestionCreation: React.FC = () => {
                               )}
                           </VStack>
 
-                          <HStack flexShrink={0}>
+                          <HStack
+                            flexShrink={0}
+                            alignSelf={{ base: 'flex-end', sm: 'flex-start' }}
+                          >
                             <IconButton
                               aria-label='Edit question'
                               icon={<EditIcon />}
@@ -1066,7 +1166,7 @@ const QuestionCreation: React.FC = () => {
                               onClick={() => handleDeleteClick(question)}
                             />
                           </HStack>
-                        </HStack>
+                        </Flex>
                       </CardBody>
                     </Card>
                   ))}
@@ -1076,13 +1176,14 @@ const QuestionCreation: React.FC = () => {
           </Box>
         </Grid>
 
+        {/* Delete Confirmation Dialog */}
         <AlertDialog
           isOpen={isOpen}
           leastDestructiveRef={cancelRef}
           onClose={onClose}
         >
           <AlertDialogOverlay>
-            <AlertDialogContent>
+            <AlertDialogContent mx={4}>
               <AlertDialogHeader fontSize='lg' fontWeight='bold'>
                 Delete Question
               </AlertDialogHeader>
@@ -1093,7 +1194,11 @@ const QuestionCreation: React.FC = () => {
               </AlertDialogBody>
 
               <AlertDialogFooter>
-                <Button ref={cancelRef} onClick={onClose}>
+                <Button
+                  ref={cancelRef}
+                  onClick={onClose}
+                  size={{ base: 'sm', md: 'md' }}
+                >
                   Cancel
                 </Button>
                 <Button
@@ -1101,6 +1206,7 @@ const QuestionCreation: React.FC = () => {
                   onClick={handleDeleteConfirm}
                   ml={3}
                   isLoading={deleteQuestion.isPending}
+                  size={{ base: 'sm', md: 'md' }}
                 >
                   Delete
                 </Button>
@@ -1109,6 +1215,7 @@ const QuestionCreation: React.FC = () => {
           </AlertDialogOverlay>
         </AlertDialog>
 
+        {/* Bulk Upload Modal */}
         <BulkUploadModal
           isOpen={isBulkUploadOpen}
           onClose={onBulkUploadClose}

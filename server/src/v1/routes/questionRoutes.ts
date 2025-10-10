@@ -6,6 +6,13 @@ import QuestionController from '../controllers/questionController';
 // Question Routes
 export const questionRoutes = Router();
 
+questionRoutes.get(
+  '/all',
+  authenticate,
+  authorize('ADMIN'),
+  QuestionController.getAll
+);
+
 questionRoutes.post(
   '/:testId/test',
   authenticate,

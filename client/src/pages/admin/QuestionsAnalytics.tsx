@@ -30,7 +30,6 @@ import {
   HStack,
   Button,
   Divider,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { CheckCircleIcon, ViewIcon } from '@chakra-ui/icons';
 import { useGetQuestionAnalytics } from '../../api/services/attemptService';
@@ -59,9 +58,9 @@ const QuestionAnalytics: React.FC = () => {
 
   const loading = testsLoading || analyticsLoading;
 
-  const sidebarBg = useColorModeValue('gray.50', 'gray.700');
-  const selectedBg = useColorModeValue('blue.50', 'blue.700');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const sidebarBg = 'gray.700';
+  const selectedBg = 'blue.700';
+  const borderColor = 'gray.600';
 
   const getQuestionTypeBadge = (type: string) => {
     const colorSchemes: { [key: string]: string } = {
@@ -291,14 +290,13 @@ const QuestionAnalytics: React.FC = () => {
 
               <Box
                 overflowX='auto'
-                bg='white'
                 borderRadius='lg'
                 shadow='sm'
                 border='1px'
                 borderColor='gray.200'
               >
                 <Table variant='simple'>
-                  <Thead bg='gray.50'>
+                  <Thead>
                     <Tr>
                       <Th>Question</Th>
                       <Th>Type</Th>
@@ -311,7 +309,7 @@ const QuestionAnalytics: React.FC = () => {
                   </Thead>
                   <Tbody>
                     {analytics?.map((question) => (
-                      <Tr key={question.questionId} _hover={{ bg: 'gray.50' }}>
+                      <Tr key={question.questionId}>
                         <Td maxW='300px'>
                           <Tooltip label={question.text} placement='top'>
                             <Text noOfLines={2} fontSize='sm'>

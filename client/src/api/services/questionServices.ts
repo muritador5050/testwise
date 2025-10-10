@@ -27,6 +27,15 @@ export const useCreateQuestion = () => {
   });
 };
 
+export const useGetQuestions = () => {
+  return useQuery<number>({
+    queryKey: ['questions'],
+    queryFn: async () => {
+      return apiClient(`questions/all`);
+    },
+  });
+};
+
 // Get all questions for a specific test
 export const useGetQuestionsByTest = (testId: number) => {
   return useQuery<Question[]>({

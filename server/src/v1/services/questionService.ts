@@ -75,6 +75,10 @@ class QuestionService {
     });
   }
 
+  static async getAllQuestions() {
+    return await prisma.question.count();
+  }
+
   static async deleteQuestion(id: number) {
     return await prisma.question.delete({ where: { id } });
   }

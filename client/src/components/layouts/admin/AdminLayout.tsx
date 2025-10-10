@@ -18,7 +18,6 @@ import { Route, Routes } from 'react-router-dom';
 import AdminDashboard from '../../../pages/admin/AdminDashboard';
 import UsersPage from '../../../pages/admin/UsersPage';
 import Students from '../../../pages/admin/Students';
-import SettingsPage from '../../../pages/SettingsPage';
 import ExamsStats from '../../../pages/admin/ExamsStats';
 import ResultsStatistics from '../../../pages/admin/ResultsStatistics';
 import ExamCreation from '../../../pages/admin/ExamCreation';
@@ -111,11 +110,6 @@ const navItems = [
         path: '/admin/results/score-distribution',
         icon: '📉',
       },
-      {
-        name: 'Analytics',
-        path: '/admin/results/analytics',
-        icon: '📉',
-      },
     ],
   },
 ];
@@ -182,7 +176,7 @@ const AdminLayout: React.FC = () => {
       <Box
         ml={contentMarginLeft}
         mt='16'
-        // p={6}
+        p={{ base: 2, lg: 6 }}
         transition='margin-left 0.2s'
         minH='calc(100vh - 4rem)'
       >
@@ -204,7 +198,6 @@ const AdminLayout: React.FC = () => {
             path='exams/performances'
             element={<UserPerformanceByTest />}
           />
-          <Route path='settings' element={<SettingsPage />} />
         </Routes>
       </Box>
     </Box>

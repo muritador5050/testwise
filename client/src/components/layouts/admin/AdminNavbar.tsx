@@ -123,12 +123,6 @@ const AdminNavbar: React.FC<NavbarProps> = ({
               />
             </MenuButton>
             <MenuList>
-              <MenuItem as={Link} to='/admin/profile'>
-                Profile
-              </MenuItem>
-              <MenuItem as={Link} to='/admin/settings'>
-                Settings
-              </MenuItem>
               <MenuDivider />
               <MenuItem onClick={onLogout} color='red.600'>
                 Logout

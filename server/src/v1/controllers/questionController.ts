@@ -57,6 +57,15 @@ class QuestionController {
     }
   }
 
+  static async getAll(req: Request, res: Response) {
+    try {
+      const questions = await QuestionService.getAllQuestions();
+      res.json(questions);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   static async delete(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;

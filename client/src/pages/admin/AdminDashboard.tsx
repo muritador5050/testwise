@@ -1,14 +1,28 @@
 import React from 'react';
-import { SimpleGrid, Heading, VStack } from '@chakra-ui/react';
+import { SimpleGrid, Heading, VStack, Stack } from '@chakra-ui/react';
 import StatCard from '../../components/admin/StatCard';
-import { BookCheck, BookOpen, CircleQuestionMark, Users } from 'lucide-react';
+import {
+  BookCheck,
+  CircleCheck,
+  CircleQuestionMark,
+  Loader,
+  Repeat,
+  TimerOff,
+  Users,
+} from 'lucide-react';
 import { useUserAnalytics } from '../../api/services/authService';
 import ResultsAnalyticsCharts from './components/ResultsAnalyticsChart';
+import { useTestsStats } from '../../api/services/testServices';
+import { useGetQuestions } from '../../api/services/questionServices';
+import { useGetAttemptAnalytics } from '../../api/services/attemptService';
 
 const AdminDashboard: React.FC = () => {
-  const { data } = useUserAnalytics();
+  const { data: users } = useUserAnalytics();
+  const { data: tests } = useTestsStats();
+  const { data: questions } = useGetQuestions();
+  const { data: attempts } = useGetAttemptAnalytics();
 
-  if (!data) {
+  if (!users || !tests) {
     return;
   }
 
@@ -17,28 +31,54 @@ const AdminDashboard: React.FC = () => {
       <Heading size='lg'>Dashboard</Heading>
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-        <StatCard title='Exams' count={5} iconBg='red' icon={<BookOpen />} />
+        <StatCard
+          title='Attempts'
+          count={attempts?.totalAttempts ?? 0}
+          iconBg='red'
+          icon={<Repeat />}
+        />
         <StatCard
           title='Questions'
-          count={5}
+          count={questions ?? 0}
           iconBg='green'
           icon={<CircleQuestionMark />}
         />
 
         <StatCard
           title='Total Users'
-          count={data?.total}
+          count={users?.total}
           iconBg='blue'
           icon={<Users />}
         />
 
         <StatCard
           title='Tests'
-          count={5}
+          count={tests?.length ?? 0}
           iconBg='yellow'
           icon={<BookCheck />}
         />
       </SimpleGrid>
+
+      <Stack spacing={3} maxW={'300px'}>
+        <StatCard
+          title='completed Attempts'
+          count={attempts?.completedAttempts ?? 0}
+          iconBg='green.500'
+          icon={<CircleCheck />}
+        />
+        <StatCard
+          title='inProgress Attempts'
+          count={attempts?.inProgressAttempts ?? 0}
+          iconBg='blue.50'
+          icon={<Loader />}
+        />
+        <StatCard
+          title='timedOut Attempts'
+          count={attempts?.timedOutAttempts ?? 0}
+          iconBg='red.700'
+          icon={<TimerOff />}
+        />
+      </Stack>
 
       <ResultsAnalyticsCharts />
     </VStack>
