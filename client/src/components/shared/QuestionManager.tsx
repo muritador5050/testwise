@@ -39,11 +39,10 @@ import {
   AddIcon,
   EditIcon,
   DragHandleIcon,
-  DownloadIcon,
   ArrowBackIcon,
 } from '@chakra-ui/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
-import BulkUploadModal from './BulkUploadModal';
+
 import {
   useCreateQuestion,
   useGetQuestionsByTest,
@@ -109,30 +108,13 @@ const QuestionManager: React.FC = () => {
   ]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const {
-    isOpen: isBulkUploadOpen,
-    onOpen: onBulkUploadOpen,
-    onClose: onBulkUploadClose,
-  } = useDisclosure();
+
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
     null
   );
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   const questions = questionsData || [];
-
-  const handleBulkUpload = useCallback(
-    (uploadedQuestions: Question[]) => {
-      onBulkUploadClose();
-      toast({
-        title: 'Success',
-        description: `${uploadedQuestions.length} questions uploaded successfully.`,
-        status: 'success',
-        duration: 3000,
-      });
-    },
-    [onBulkUploadClose, toast]
-  );
 
   const resetForms = useCallback(() => {
     setQuestionForms([
@@ -530,14 +512,6 @@ const QuestionManager: React.FC = () => {
               Test: {title}
             </Text>
           </VStack>
-          <Button
-            leftIcon={<DownloadIcon />}
-            colorScheme='purple'
-            onClick={onBulkUploadOpen}
-            shadow='md'
-          >
-            Bulk Upload
-          </Button>
         </HStack>
 
         <SimpleGrid columns={3} spacing={4}>
@@ -1113,12 +1087,6 @@ const QuestionManager: React.FC = () => {
             </AlertDialogContent>
           </AlertDialogOverlay>
         </AlertDialog>
-
-        <BulkUploadModal
-          isOpen={isBulkUploadOpen}
-          onClose={onBulkUploadClose}
-          onUpload={handleBulkUpload}
-        />
       </VStack>
     </Box>
   );
