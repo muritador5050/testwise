@@ -12,10 +12,11 @@ import {
   Container,
   Card,
   CardBody,
+  Link,
 } from '@chakra-ui/react';
 import { AvatarUpload } from '../utils/avatarUpload';
 import { useRegisterUser } from '../api/services/authService';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 export const SignupPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -39,48 +40,51 @@ export const SignupPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.avatar) {
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
       toast({
-        title: 'Avatar required',
-        description: 'Please select an avatar image',
-        status: 'warning',
-        duration: 3000,
+        title: 'Invalid email',
+        description: 'Please enter a valid email address',
+        status: 'error',
+        duration: 5000,
         position: 'top-right',
         isClosable: true,
       });
       return;
     }
 
-    try {
-      await registerMutation.mutateAsync({
-        ...formData,
-        avatar: formData.avatar,
-        role: '',
-      });
-
+    if (!formData.avatar) {
       toast({
-        title: 'Registration successful!',
-        description: 'Your account has been created',
-        status: 'success',
-        duration: 3000,
-        position: 'top-right',
-        isClosable: true,
-      });
-
-      // Reset form
-      setFormData({ email: '', name: '', avatar: null });
-      navigate('/users/login');
-    } catch (error) {
-      toast({
-        title: 'Registration failed',
-        description:
-          error instanceof Error ? error.message : 'Something went wrong',
-        status: 'error',
+        title: 'Avatar required',
+        description: 'Please select an avatar image',
+        status: 'warning',
         duration: 5000,
         position: 'top-right',
         isClosable: true,
       });
+      return;
     }
+
+    await registerMutation.mutateAsync({
+      email: formData.email.trim().toLowerCase(),
+      name: formData.name,
+      avatar: formData.avatar,
+      role: '',
+    });
+
+    toast({
+      title: 'Registration successful!',
+      description: 'Your account has been created',
+      status: 'success',
+      duration: 3000,
+      position: 'top-right',
+      isClosable: true,
+    });
+
+    // Reset form
+    setFormData({ email: '', name: '', avatar: null });
+    navigate('/users/login');
   };
 
   return (
@@ -138,13 +142,29 @@ export const SignupPage: React.FC = () => {
             >
               Sign Up
             </Button>
-            <Text onClick={() => navigate('/users/login')} cursor='pointer'>
+            <Link
+              as={RouterLink}
+              to='/users/login'
+              color='blue.500'
+              fontWeight='medium'
+              _hover={{ textDecoration: 'underline' }}
+              cursor='pointer'
+            >
               Already have an account
-            </Text>
+            </Link>
+
             {registerMutation.isError && (
-              <Text color='red.500' fontSize='sm'>
-                {registerMutation.error.message}
-              </Text>
+              <Box
+                p={3}
+                bg='blue.50'
+                borderRadius='md'
+                w='full'
+                textAlign='center'
+              >
+                <Text color='red.500' fontSize='sm'>
+                  {registerMutation.error.message}
+                </Text>
+              </Box>
             )}
           </VStack>
         </CardBody>

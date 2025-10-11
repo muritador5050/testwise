@@ -48,9 +48,10 @@ const AdminSidebar: React.FC<SidebarProps> = ({
       borderRight: isActive ? '3px solid' : 'none',
       borderRightColor: 'blue.500',
       _hover: {
-        bg: 'blue.50',
+        bg: 'whiteAlpha.200',
         color: 'blue.600',
       },
+
       transition: 'all 0.2s',
       fontSize: 'sm' as const,
       fontWeight: (isActive ? 'semibold' : 'normal') as 'semibold' | 'normal',
@@ -121,18 +122,15 @@ const AdminSidebar: React.FC<SidebarProps> = ({
     );
   };
 
+  // Collapsed sidebar (icon only)
   if (!isOpen) {
     return (
       <Box
-        w='16'
+        w={{ base: '14', md: '16' }}
         bg={bgColor}
         borderRight='1px'
         borderColor={borderColor}
-        h='100vh'
-        position='fixed'
-        left='0'
-        top='0'
-        pt='16'
+        h='full'
         overflowY='auto'
       >
         <VStack spacing={1} py={4}>
@@ -142,14 +140,14 @@ const AdminSidebar: React.FC<SidebarProps> = ({
               as={Link}
               to={item.path}
               onClick={() => onNavigate?.()}
-              p={3}
+              p={{ base: 2, md: 3 }}
               borderRadius='md'
               bg={location.pathname === item.path ? 'blue.50' : 'transparent'}
               color={location.pathname === item.path ? 'blue.600' : 'gray.600'}
               _hover={{ bg: 'blue.50', color: 'blue.600' }}
               title={item.name}
             >
-              <Text fontSize='lg'>{item.icon}</Text>
+              <Text fontSize={{ base: 'md', md: 'lg' }}>{item.icon}</Text>
             </Box>
           ))}
         </VStack>
@@ -157,17 +155,14 @@ const AdminSidebar: React.FC<SidebarProps> = ({
     );
   }
 
+  // Expanded sidebar
   return (
     <Box
-      w='64'
+      w={{ base: '56', sm: '60', md: '64' }}
       bg={bgColor}
       borderRight='1px'
       borderColor={borderColor}
-      h='100vh'
-      position='fixed'
-      left='0'
-      top='0'
-      pt='16'
+      h='full'
       overflowY='auto'
       transition='width 0.2s'
     >

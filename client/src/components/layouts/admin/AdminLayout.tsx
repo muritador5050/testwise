@@ -27,7 +27,6 @@ import QuestionAnalytics from '../../../pages/admin/QuestionsAnalytics';
 import ScoreDistributionChart from '../../../pages/admin/ScoreDistribution';
 import UserPerformanceByTest from '../../../pages/admin/UserPerformanceByTest';
 
-// Navigation items configuration
 const navItems = [
   {
     name: 'Dashboard',
@@ -120,7 +119,6 @@ const AdminLayout: React.FC = () => {
   const logoutMutation = useLogoutUser();
   const { data: user } = useCurrentUser();
 
-  // Determine if we're on mobile view
   const isMobile = useBreakpointValue({ base: true, lg: false });
 
   const handleToggleSidebar = useCallback(() => {
@@ -141,7 +139,6 @@ const AdminLayout: React.FC = () => {
 
   return (
     <Box minH='100vh' bg={bgColor}>
-      {/* Navbar */}
       <AdminNavbar
         onToggle={handleToggleSidebar}
         isSidebarOpen={isSidebarOpen}
@@ -150,7 +147,11 @@ const AdminLayout: React.FC = () => {
       />
 
       {/* Desktop Sidebar */}
-      {!isMobile && <AdminSidebar isOpen={isSidebarOpen} navItems={navItems} />}
+      {!isMobile && (
+        <Box position='fixed' left='0' top='16' bottom='0' zIndex='sticky'>
+          <AdminSidebar isOpen={isSidebarOpen} navItems={navItems} />
+        </Box>
+      )}
 
       {/* Mobile Drawer */}
       {isMobile && (
@@ -158,11 +159,10 @@ const AdminLayout: React.FC = () => {
           isOpen={isSidebarOpen}
           placement='left'
           onClose={handleCloseSidebar}
-          size='xs'
         >
           <DrawerOverlay />
-          <DrawerContent>
-            <DrawerCloseButton />
+          <DrawerContent maxW={{ base: '56', sm: '60' }} pt='16'>
+            <DrawerCloseButton top='4' />
             <AdminSidebar
               isOpen={true}
               navItems={navItems}

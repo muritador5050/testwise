@@ -44,10 +44,10 @@ export const useRegisterUser = () => {
 // Login user
 export const useLoginUser = () => {
   return useMutation<AuthResponse, Error, { email: string }>({
-    mutationFn: async (credentials) => {
+    mutationFn: async (email) => {
       return apiClient('users/login', {
         method: 'POST',
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(email),
       });
     },
   });
@@ -63,9 +63,7 @@ export const useLogoutUser = () => {
       clearToken();
     },
     onSuccess: () => {
-      // Clear all cached data
       queryClient.clear();
-      // Navigate to home
       navigate('/', { replace: true });
     },
   });

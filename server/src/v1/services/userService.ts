@@ -8,9 +8,19 @@ class UserService {
     role?: 'STUDENT' | 'ADMIN';
     avatar?: string;
   }) {
+    const normalizedEmail = data.email.trim().toLowerCase();
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (existingUser) {
+      const error: any = new Error('Email already exists');
+      error.code = 'P2002';
+      throw error;
+    }
     return await prisma.user.create({
       data: {
-        email: data.email,
+        email: normalizedEmail,
         name: data.name,
         role: data.role || 'STUDENT',
         avatar: data.avatar || null,

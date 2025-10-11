@@ -43,10 +43,10 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      let errorMessage = `API error: ${response.status} ${response.statusText}`;
+      let errorMessage;
       try {
         const errorBody = await response.json();
-        errorMessage = errorBody.message || errorMessage;
+        errorMessage = errorBody.error || errorBody.message || errorMessage;
       } catch {
         // Ignore JSON parse errors
       }
@@ -61,20 +61,19 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
     }
 
     return response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     clearTimeout(timeoutId);
 
-    if (error.name === 'AbortError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       throw new Error('Request timeout - please try again');
     }
 
     // Handle authentication errors
     if (
-      error.message.includes('401') ||
-      error.message.includes('Unauthorized')
+      error instanceof Error &&
+      (error.message.includes('401') || error.message.includes('Unauthorized'))
     ) {
       clearToken();
-      window.location.href = '/users/login';
     }
 
     throw error;

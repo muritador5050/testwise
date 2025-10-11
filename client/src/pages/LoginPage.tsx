@@ -29,51 +29,35 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Simple email validation
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
       toast({
         title: 'Invalid email',
         description: 'Please enter a valid email address',
         status: 'error',
-        duration: 3000,
+        duration: 5000,
         position: 'top-right',
         isClosable: true,
       });
-
       return;
     }
 
-    try {
-      // Simulate login process
-      const response = await loginMutation.mutateAsync({ email: email });
-      setToken(response.token);
-      const user = getCurrentUser();
+    const normalizedEmail = email.trim().toLowerCase();
 
-      if (!user) {
-        throw new Error('Failed to get user data');
-      }
+    const response = await loginMutation.mutateAsync({
+      email: normalizedEmail,
+    });
 
-      navigate(navigateByRole(user.role), { replace: true });
-      toast({
-        title: 'Login successful!',
-        description: `Welcome back!`,
-        status: 'success',
-        duration: 3000,
-        position: 'top-right',
-        isClosable: true,
-      });
-    } catch {
-      toast({
-        title: 'Login failed',
-        description: 'Please try again',
-        status: 'error',
-        position: 'top-right',
-        duration: 3000,
-        isClosable: true,
-      });
+    setToken(response.token);
+    const user = getCurrentUser();
+
+    if (!user) {
+      throw new Error('Failed to get user data');
     }
+
+    navigate(navigateByRole(user.role), { replace: true });
   };
 
+  //bgGradient
   const bgGradient = useColorModeValue(
     'linear(to-br, blue.50, purple.50)',
     'linear(to-br, gray.800, gray.900)'
@@ -137,34 +121,25 @@ export default function LoginPage() {
                 </Button>
 
                 {/* Demo Info */}
-                <Box
-                  p={3}
-                  bg='blue.50'
-                  borderRadius='md'
-                  w='full'
-                  textAlign='center'
-                >
-                  <Text fontSize='sm' color='blue.700'>
-                    💡 Demo: Enter any valid email format to login
-                  </Text>
-                </Box>
+                {loginMutation.isError && (
+                  <Box
+                    p={3}
+                    bg='blue.50'
+                    borderRadius='md'
+                    w='full'
+                    textAlign='center'
+                  >
+                    <Text color='red.500' fontSize='sm'>
+                      {loginMutation.error.message}
+                    </Text>
+                  </Box>
+                )}
               </VStack>
             </CardBody>
           </Card>
 
           {/* Footer Links */}
           <VStack spacing={4} textAlign='center'>
-            <Text fontSize='sm' color='gray.600'>
-              Need help?{' '}
-              <Link
-                color='blue.500'
-                fontWeight='medium'
-                _hover={{ textDecoration: 'underline' }}
-              >
-                Contact support
-              </Link>
-            </Text>
-
             <Text fontSize='sm' color='gray.500'>
               ←{' '}
               <Link

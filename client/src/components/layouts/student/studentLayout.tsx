@@ -6,6 +6,7 @@ import ExamInstructions from '../../../pages/student/ExamInstructions';
 import ExamResult from '../../../pages/student/ExamResults';
 import PublishedExams from '../../../pages/student/PublishedExams';
 import StudentResults from '../../../pages/student/StudentResults';
+
 export default function StudentLayout() {
   return (
     <Box>

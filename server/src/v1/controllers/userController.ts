@@ -71,8 +71,17 @@ class UserController {
       );
 
       res.json({ user, token, expiresIn: tokenExpiration });
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error !== null && 'code' in error) {
+        const prismaError = error as { code: string; message: string };
+        if (prismaError.code === 'P2002') {
+          return res.status(409).json({ error: 'Email already exists' });
+        }
+      }
+
+      const errorMessage =
+        error instanceof Error ? error.message : 'An error occurred';
+      res.status(500).json({ error: errorMessage });
     }
   }
 
