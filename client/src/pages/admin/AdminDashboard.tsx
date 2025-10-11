@@ -27,7 +27,7 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <VStack spacing={6} align='stretch'>
+    <VStack spacing={6} align={'stretch'}>
       <Heading size='lg'>Dashboard</Heading>
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
@@ -58,8 +58,7 @@ const AdminDashboard: React.FC = () => {
           icon={<BookCheck />}
         />
       </SimpleGrid>
-
-      <Stack spacing={3} maxW={'300px'}>
+      <Stack spacing={3} maxW={{ base: '100%', lg: '300px' }}>
         <StatCard
           title='completed Attempts'
           count={attempts?.completedAttempts ?? 0}
@@ -79,7 +78,6 @@ const AdminDashboard: React.FC = () => {
           icon={<TimerOff />}
         />
       </Stack>
-
       <ResultsAnalyticsCharts />
     </VStack>
   );

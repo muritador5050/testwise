@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { ArrowRight, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useCurrentUser } from '../../../api/services/authService';
 
 interface Props {
   studentName: string;
@@ -25,6 +26,7 @@ const WelcomeSection: React.FC<Props> = ({
 }) => {
   // Control layout based on screen size
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const currentUser = useCurrentUser();
 
   return (
     <VStack spacing={3} mb={8} w='full' align='stretch'>
@@ -46,6 +48,11 @@ const WelcomeSection: React.FC<Props> = ({
           >
             Ready to continue your learning journey?
           </Text>
+          {currentUser.data?.role === 'ADMIN' && (
+            <Text as={Link} to='/admin' color='green' size='sm'>
+              Back to ADMIN
+            </Text>
+          )}
         </VStack>
 
         <IconButton

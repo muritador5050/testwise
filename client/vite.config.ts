@@ -13,10 +13,10 @@ export default defineConfig({
         short_name: 'TestWise',
         description:
           'Take tests, practice quizzes, and track your progress offline',
-        theme_color: '#ffffff',
+        theme_color: '#2563eb',
         start_url: '/',
         display: 'standalone',
-        background_color: '#ffffff',
+        background_color: '#f0f4f8',
         scope: '/',
         categories: ['education', 'productivity'],
         icons: [
@@ -34,8 +34,8 @@ export default defineConfig({
         ],
       },
       registerType: 'autoUpdate',
-      devOptions: {
-        enabled: true,
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
       },
     }),
   ],

@@ -14,6 +14,7 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Button,
 } from '@chakra-ui/react';
 import { HamburgerIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Link, useLocation } from 'react-router-dom';
@@ -124,6 +125,19 @@ const AdminNavbar: React.FC<NavbarProps> = ({
             </MenuButton>
             <MenuList>
               <MenuDivider />
+              <MenuItem>
+                <Button
+                  as={Link}
+                  to='/student'
+                  colorScheme='blue'
+                  variant='solid'
+                  size='md'
+                  rounded='md'
+                  _hover={{ bg: 'blue.600' }}
+                >
+                  Preview Student Test Experience
+                </Button>
+              </MenuItem>
               <MenuItem onClick={onLogout} color='red.600'>
                 Logout
               </MenuItem>

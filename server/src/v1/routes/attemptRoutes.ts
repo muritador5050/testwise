@@ -39,7 +39,6 @@ attemptRoutes.get(
 attemptRoutes.get(
   '/user/performance',
   authenticate,
-  // authorize('STUDENT'),
   AttemptController.getUserPerformance
 );
 
