@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, lazy, Suspense } from 'react';
 import {
   Box,
   useColorModeValue,
@@ -15,18 +15,33 @@ import {
 import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
 import { Route, Routes } from 'react-router-dom';
-import AdminDashboard from '../../../pages/admin/AdminDashboard';
-import UsersPage from '../../../pages/admin/UsersPage';
-import Students from '../../../pages/admin/Students';
-import ExamsStats from '../../../pages/admin/ExamsStats';
-import ResultsStatistics from '../../../pages/admin/ResultsStatistics';
-import ExamCreation from '../../../pages/admin/ExamCreation';
-import QuestionCreation from '../../../pages/admin/QuestionCreation';
-import QuestionBank from '../../../pages/admin/QuestionBank';
-import QuestionAnalytics from '../../../pages/admin/QuestionsAnalytics';
-import ScoreDistributionChart from '../../../pages/admin/ScoreDistribution';
-import UserPerformanceByTest from '../../../pages/admin/UserPerformanceByTest';
+import { PageLoader } from '../../../utils/PageLoader';
 
+const AdminDashboard = lazy(
+  () => import('../../../pages/admin/AdminDashboard')
+);
+const UsersPage = lazy(() => import('../../../pages/admin/UsersPage'));
+const Students = lazy(() => import('../../../pages/admin/Students'));
+const ExamsStats = lazy(() => import('../../../pages/admin/ExamsStats'));
+const ResultsStatistics = lazy(
+  () => import('../../../pages/admin/ResultsStatistics')
+);
+const ExamCreation = lazy(() => import('../../../pages/admin/ExamCreation'));
+const QuestionCreation = lazy(
+  () => import('../../../pages/admin/QuestionCreation')
+);
+const QuestionBank = lazy(() => import('../../../pages/admin/QuestionBank'));
+const QuestionAnalytics = lazy(
+  () => import('../../../pages/admin/QuestionsAnalytics')
+);
+const ScoreDistributionChart = lazy(
+  () => import('../../../pages/admin/ScoreDistribution')
+);
+const UserPerformanceByTest = lazy(
+  () => import('../../../pages/admin/UserPerformanceByTest')
+);
+
+//Navigation links
 const navItems = [
   {
     name: 'Dashboard',
@@ -180,25 +195,27 @@ const AdminLayout: React.FC = () => {
         transition='margin-left 0.2s'
         minH='calc(100vh - 4rem)'
       >
-        <Routes>
-          <Route index element={<AdminDashboard />} />
-          <Route path='exams' element={<ExamsStats />} />
-          <Route path='questions' element={<QuestionBank />} />
-          <Route path='questions/create' element={<QuestionCreation />} />
-          <Route path='questions/analytics' element={<QuestionAnalytics />} />
-          <Route
-            path='results/score-distribution'
-            element={<ScoreDistributionChart />}
-          />
-          <Route path='exams/create' element={<ExamCreation />} />
-          <Route path='users' element={<UsersPage />} />
-          <Route path='users/students' element={<Students />} />
-          <Route path='results' element={<ResultsStatistics />} />
-          <Route
-            path='exams/performances'
-            element={<UserPerformanceByTest />}
-          />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route index element={<AdminDashboard />} />
+            <Route path='exams' element={<ExamsStats />} />
+            <Route path='questions' element={<QuestionBank />} />
+            <Route path='questions/create' element={<QuestionCreation />} />
+            <Route path='questions/analytics' element={<QuestionAnalytics />} />
+            <Route
+              path='results/score-distribution'
+              element={<ScoreDistributionChart />}
+            />
+            <Route path='exams/create' element={<ExamCreation />} />
+            <Route path='users' element={<UsersPage />} />
+            <Route path='users/students' element={<Students />} />
+            <Route path='results' element={<ResultsStatistics />} />
+            <Route
+              path='exams/performances'
+              element={<UserPerformanceByTest />}
+            />
+          </Routes>
+        </Suspense>
       </Box>
     </Box>
   );
