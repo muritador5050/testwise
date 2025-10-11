@@ -41,7 +41,6 @@ import {
   AddIcon,
   EditIcon,
   DragHandleIcon,
-  DownloadIcon,
 } from '@chakra-ui/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -56,7 +55,6 @@ import type {
   QuestionType,
   CreateQuestion,
 } from '../../types/api';
-import BulkUploadModal from '../../components/shared/BulkUploadModal';
 
 interface QuestionFormData {
   text: string;
@@ -104,11 +102,7 @@ const QuestionCreation: React.FC = () => {
   ]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const {
-    isOpen: isBulkUploadOpen,
-    onOpen: onBulkUploadOpen,
-    onClose: onBulkUploadClose,
-  } = useDisclosure();
+
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
     null
   );
@@ -116,18 +110,7 @@ const QuestionCreation: React.FC = () => {
 
   const questions = questionsData || [];
 
-  const handleBulkUpload = useCallback(
-    (uploadedQuestions: Question[]) => {
-      onBulkUploadClose();
-      toast({
-        title: 'Success',
-        description: `${uploadedQuestions.length} questions uploaded successfully.`,
-        status: 'success',
-        duration: 3000,
-      });
-    },
-    [onBulkUploadClose, toast]
-  );
+
 
   const resetForms = useCallback(() => {
     setQuestionForms([
@@ -534,15 +517,7 @@ const QuestionCreation: React.FC = () => {
               Test: {title}
             </Text>
           </VStack>
-          <Button
-            leftIcon={<DownloadIcon />}
-            colorScheme='purple'
-            onClick={onBulkUploadOpen}
-            shadow='md'
-            size={{ base: 'sm', md: 'md' }}
-          >
-            Bulk Upload
-          </Button>
+        
         </Flex>
 
         {/* Stats Grid */}
@@ -1215,12 +1190,7 @@ const QuestionCreation: React.FC = () => {
           </AlertDialogOverlay>
         </AlertDialog>
 
-        {/* Bulk Upload Modal */}
-        <BulkUploadModal
-          isOpen={isBulkUploadOpen}
-          onClose={onBulkUploadClose}
-          onUpload={handleBulkUpload}
-        />
+        
       </VStack>
     </Box>
   );
