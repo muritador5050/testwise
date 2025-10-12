@@ -1,4 +1,4 @@
-import React, { useState, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useCallback, lazy } from 'react';
 import {
   Box,
   useColorModeValue,
@@ -15,7 +15,6 @@ import {
 import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
 import { Route, Routes } from 'react-router-dom';
-import { PageLoader } from '../../../utils/PageLoader';
 
 const AdminDashboard = lazy(
   () => import('../../../pages/admin/AdminDashboard')
@@ -195,27 +194,25 @@ const AdminLayout: React.FC = () => {
         transition='margin-left 0.2s'
         minH='calc(100vh - 4rem)'
       >
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route index element={<AdminDashboard />} />
-            <Route path='exams' element={<ExamsStats />} />
-            <Route path='questions' element={<QuestionBank />} />
-            <Route path='questions/create' element={<QuestionCreation />} />
-            <Route path='questions/analytics' element={<QuestionAnalytics />} />
-            <Route
-              path='results/score-distribution'
-              element={<ScoreDistributionChart />}
-            />
-            <Route path='exams/create' element={<ExamCreation />} />
-            <Route path='users' element={<UsersPage />} />
-            <Route path='users/students' element={<Students />} />
-            <Route path='results' element={<ResultsStatistics />} />
-            <Route
-              path='exams/performances'
-              element={<UserPerformanceByTest />}
-            />
-          </Routes>
-        </Suspense>
+        <Routes>
+          <Route index element={<AdminDashboard />} />
+          <Route path='exams' element={<ExamsStats />} />
+          <Route path='questions' element={<QuestionBank />} />
+          <Route path='questions/create' element={<QuestionCreation />} />
+          <Route path='questions/analytics' element={<QuestionAnalytics />} />
+          <Route
+            path='results/score-distribution'
+            element={<ScoreDistributionChart />}
+          />
+          <Route path='exams/create' element={<ExamCreation />} />
+          <Route path='users' element={<UsersPage />} />
+          <Route path='users/students' element={<Students />} />
+          <Route path='results' element={<ResultsStatistics />} />
+          <Route
+            path='exams/performances'
+            element={<UserPerformanceByTest />}
+          />
+        </Routes>
       </Box>
     </Box>
   );
