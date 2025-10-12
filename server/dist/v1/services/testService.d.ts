@@ -1,11 +1,11 @@
 import { CreateTestData } from '../../types/types';
 declare class TestService {
     static createTest(data: CreateTestData): Promise<{
+        description: string | null;
         id: number;
         createdAt: Date;
         updatedAt: Date;
         title: string;
-        description: string | null;
         duration: number;
         maxAttempts: number;
         isPublished: boolean;
@@ -33,11 +33,11 @@ declare class TestService {
             points: number;
         })[];
     } & {
+        description: string | null;
         id: number;
         createdAt: Date;
         updatedAt: Date;
         title: string;
-        description: string | null;
         duration: number;
         maxAttempts: number;
         isPublished: boolean;
@@ -51,11 +51,11 @@ declare class TestService {
                 questions: number;
             };
         } & {
+            description: string | null;
             id: number;
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            description: string | null;
             duration: number;
             maxAttempts: number;
             isPublished: boolean;
@@ -70,11 +70,11 @@ declare class TestService {
         };
     }>;
     static updateTest(id: number, data: Partial<CreateTestData>): Promise<{
+        description: string | null;
         id: number;
         createdAt: Date;
         updatedAt: Date;
         title: string;
-        description: string | null;
         duration: number;
         maxAttempts: number;
         isPublished: boolean;
@@ -82,11 +82,11 @@ declare class TestService {
         availableUntil: Date | null;
     }>;
     static publishTest(id: number): Promise<{
+        description: string | null;
         id: number;
         createdAt: Date;
         updatedAt: Date;
         title: string;
-        description: string | null;
         duration: number;
         maxAttempts: number;
         isPublished: boolean;
@@ -94,11 +94,11 @@ declare class TestService {
         availableUntil: Date | null;
     }>;
     static deleteTest(id: number): Promise<{
+        description: string | null;
         id: number;
         createdAt: Date;
         updatedAt: Date;
         title: string;
-        description: string | null;
         duration: number;
         maxAttempts: number;
         isPublished: boolean;

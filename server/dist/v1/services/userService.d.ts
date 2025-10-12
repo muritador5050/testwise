@@ -25,11 +25,11 @@ declare class UserService {
     static getUserById(id: number): Promise<({
         attempts: ({
             test: {
+                description: string | null;
                 id: number;
                 createdAt: Date;
                 updatedAt: Date;
                 title: string;
-                description: string | null;
                 duration: number;
                 maxAttempts: number;
                 isPublished: boolean;

@@ -42,11 +42,11 @@ declare class AttemptService {
                 points: number;
             })[];
         } & {
+            description: string | null;
             id: number;
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            description: string | null;
             duration: number;
             maxAttempts: number;
             isPublished: boolean;
