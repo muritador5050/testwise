@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { AuthenticatedRequest } from '../../middleware/authenticate';
-import QuestionService from '../services/questionService';
+import { AuthenticatedRequest } from '../../middleware/authenticate.js';
+import QuestionService from '../services/questionService.js';
 
 class QuestionController {
   static async create(req: AuthenticatedRequest, res: Response) {

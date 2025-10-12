@@ -1,7 +1,7 @@
 import { PrismaClient } from '../../generated/prisma';
-import { SubmitAnswerData } from '../../types/types';
-import TestService from './testService';
-import webSocketService from './webSocketService';
+import { SubmitAnswerData } from '../../types/types.js';
+import TestService from './testService.js';
+import webSocketService from './webSocketService.js';
 
 // Initialize Prisma Client
 const prisma = new PrismaClient();

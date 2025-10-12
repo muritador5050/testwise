@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { AuthenticatedRequest } from '../../middleware/authenticate';
-import { CreateTestData } from '../../types/types';
-import TestService from '../services/testService';
+import { AuthenticatedRequest } from '../../middleware/authenticate.js';
+import { CreateTestData } from '../../types/types.js';
+import TestService from '../services/testService.js';
 
 class TestController {
   static async create(req: AuthenticatedRequest, res: Response) {

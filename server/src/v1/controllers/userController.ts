@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import UserService from '../services/userService';
+import UserService from '../services/userService.js';
 import jwt from 'jsonwebtoken';
-import { AuthenticatedRequest } from '../../middleware/authenticate';
+import { AuthenticatedRequest } from '../../middleware/authenticate.js';
 
 class UserController {
   static async create(req: Request, res: Response) {

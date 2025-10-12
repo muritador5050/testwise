@@ -1,5 +1,5 @@
 import { PrismaClient } from '../../generated/prisma';
-import { CreateTestData } from '../../types/types';
+import { CreateTestData } from '../../types/types.js';
 const prisma = new PrismaClient();
 
 class TestService {
