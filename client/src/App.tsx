@@ -25,8 +25,6 @@ const StudentLayout = lazy(
   () => import('./components/layouts/student/StudentLayout')
 );
 
-
-
 const App: React.FC = () => {
   return (
     <Router>
