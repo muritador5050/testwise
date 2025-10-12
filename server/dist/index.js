@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { errorHandler } from './middleware/errorHandler';
+import { errorHandler } from './middleware/errorHandler.js';
 import { createServer } from 'http';
-import webSocketService from './v1/services/webSocketService';
-import { setupRoutes } from './v1/routes/index';
+import webSocketService from './v1/services/webSocketService.js';
+import { setupRoutes } from './v1/routes/index.js';
 // Configure dotenv
 dotenv.config();
 //App initialization
