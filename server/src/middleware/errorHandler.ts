@@ -1,4 +1,3 @@
-// errorHanler.js
 import { NextFunction, Request, Response } from 'express';
 import { logger } from '../middleware/logger.js';
 
