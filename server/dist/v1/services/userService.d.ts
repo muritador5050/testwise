@@ -8,7 +8,7 @@ declare class UserService {
         id: number;
         email: string;
         name: string | null;
-        role: import("../../generated/prisma").$Enums.Role;
+        role: import(".prisma/client").$Enums.Role;
         avatar: string | null;
         createdAt: Date;
         updatedAt: Date;
@@ -17,7 +17,7 @@ declare class UserService {
         id: number;
         email: string;
         name: string | null;
-        role: import("../../generated/prisma").$Enums.Role;
+        role: import(".prisma/client").$Enums.Role;
         avatar: string | null;
         createdAt: Date;
         updatedAt: Date;
@@ -39,7 +39,7 @@ declare class UserService {
         } & {
             id: number;
             userId: number;
-            status: import("../../generated/prisma").$Enums.AttemptStatus;
+            status: import(".prisma/client").$Enums.AttemptStatus;
             percentScore: number | null;
             score: number;
             maxScore: number | null;
@@ -54,7 +54,7 @@ declare class UserService {
         id: number;
         email: string;
         name: string | null;
-        role: import("../../generated/prisma").$Enums.Role;
+        role: import(".prisma/client").$Enums.Role;
         avatar: string | null;
         createdAt: Date;
         updatedAt: Date;
@@ -68,7 +68,7 @@ declare class UserService {
             id: number;
             email: string;
             name: string | null;
-            role: import("../../generated/prisma").$Enums.Role;
+            role: import(".prisma/client").$Enums.Role;
             avatar: string | null;
             createdAt: Date;
             updatedAt: Date;
@@ -88,7 +88,7 @@ declare class UserService {
         id: number;
         email: string;
         name: string | null;
-        role: import("../../generated/prisma").$Enums.Role;
+        role: import(".prisma/client").$Enums.Role;
         avatar: string | null;
         createdAt: Date;
         updatedAt: Date;
@@ -97,7 +97,7 @@ declare class UserService {
         id: number;
         email: string;
         name: string | null;
-        role: import("../../generated/prisma").$Enums.Role;
+        role: import(".prisma/client").$Enums.Role;
         avatar: string | null;
         createdAt: Date;
         updatedAt: Date;
@@ -113,10 +113,10 @@ declare class UserService {
         averageScore: number;
         inProgressAttempts: number;
         recentActivity: {
-            testTitle: string;
-            status: import("../../generated/prisma").$Enums.AttemptStatus;
-            score: number | null;
-            startedAt: Date;
+            testTitle: any;
+            status: any;
+            score: any;
+            startedAt: any;
         }[];
     }>;
 }

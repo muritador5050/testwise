@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { authenticate } from '../../middleware/authenticate';
-import { authorize } from '../../middleware/authorization';
-import QuestionController from '../controllers/questionController';
+import { authenticate } from '../../middleware/authenticate.js';
+import { authorize } from '../../middleware/authorization.js';
+import QuestionController from '../controllers/questionController.js';
 // Question Routes
 export const questionRoutes = Router();
 questionRoutes.get('/all', authenticate, authorize('ADMIN'), QuestionController.getAll);

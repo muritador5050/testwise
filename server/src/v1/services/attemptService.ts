@@ -1,7 +1,7 @@
-import { PrismaClient } from '../../generated/prisma';
 import { SubmitAnswerData } from '../../types/types.js';
 import TestService from './testService.js';
 import webSocketService from './webSocketService.js';
+import { PrismaClient } from '@prisma/client';
 
 // Initialize Prisma Client
 const prisma = new PrismaClient();
@@ -119,7 +119,7 @@ class AttemptService {
     }
 
     const question = attempt.test.questions.find(
-      (q) => q.id === answerData.questionId
+      (q: { id: number }) => q.id === answerData.questionId
     );
     if (!question) {
       throw new Error('Question not found');
@@ -135,7 +135,7 @@ class AttemptService {
     ) {
       if (answerData.optionId) {
         const option = question.options.find(
-          (o) => o.id === answerData.optionId
+          (o: { id: number | undefined }) => o.id === answerData.optionId
         );
         if (option && option.isCorrect) {
           isCorrect = true;
@@ -196,11 +196,12 @@ class AttemptService {
 
     // Calculate total score
     const score = attempt.answers.reduce(
-      (total, answer) => total + answer.pointsEarned,
+      (total: any, answer: { pointsEarned: any }) =>
+        total + answer.pointsEarned,
       0
     );
     const maxScore = attempt.test.questions.reduce(
-      (total, question) => total + question.points,
+      (total: any, question: { points: any }) => total + question.points,
       0
     );
     const percentScore = maxScore > 0 ? (score / maxScore) * 100 : 0;
@@ -211,7 +212,7 @@ class AttemptService {
 
     const totalQuestions = attempt.test.questions.length;
     const correctAnswers = attempt.answers.filter(
-      (answer) => answer.isCorrect
+      (answer: { isCorrect: any }) => answer.isCorrect
     ).length;
     const incorrectAnswers = totalQuestions - correctAnswers;
     const unansweredQuestions = totalQuestions - attempt.answers.length;
@@ -311,7 +312,7 @@ class AttemptService {
       orderBy: { percentScore: 'desc' },
     });
 
-    return attempts.map((attempt) => ({
+    return attempts.map((attempt: any) => ({
       userId: attempt.userId,
       userName: attempt.user.name,
       email: attempt.user.email,
@@ -335,13 +336,17 @@ class AttemptService {
       },
     });
 
-    return questions.map((question) => {
+    return questions.map((question: any) => {
       const totalAnswers = question.answers.length;
-      const correctAnswers = question.answers.filter((a) => a.isCorrect).length;
+      const correctAnswers = question.answers.filter(
+        (a: { isCorrect: any }) => a.isCorrect
+      ).length;
       const avgPointsEarned =
         totalAnswers > 0
-          ? question.answers.reduce((sum, a) => sum + a.pointsEarned, 0) /
-            totalAnswers
+          ? question.answers.reduce(
+              (sum: any, a: { pointsEarned: any }) => sum + a.pointsEarned,
+              0
+            ) / totalAnswers
           : 0;
 
       return {
@@ -366,19 +371,24 @@ class AttemptService {
     });
 
     const totalAttempts = attempts.length;
-    const avgScore =
+    const avgScore: number =
       totalAttempts > 0
-        ? attempts.reduce((sum, a) => sum + (a.percentScore || 0), 0) /
-          totalAttempts
+        ? attempts.reduce(
+            (sum: number, a: { percentScore: number | null }) =>
+              sum + (a.percentScore || 0),
+            0
+          ) / totalAttempts
         : 0;
 
-    const passed = attempts.filter((a) => (a.percentScore || 0) >= 50).length;
+    const passed = attempts.filter(
+      (a: { percentScore: any }) => (a.percentScore || 0) >= 50
+    ).length;
 
     return {
       totalAttempts,
       averageScore: avgScore,
       passRate: totalAttempts > 0 ? (passed / totalAttempts) * 100 : 0,
-      attempts: attempts.map((a) => ({
+      attempts: attempts.map((a: any) => ({
         testTitle: a.test.title,
         score: a.score,
         percentScore: a.percentScore,
@@ -405,7 +415,7 @@ class AttemptService {
     const distribution = ranges.map((range) => ({
       range: range.label,
       count: attempts.filter(
-        (a) =>
+        (a: any) =>
           (a.percentScore || 0) >= range.min &&
           (a.percentScore || 0) <= range.max
       ).length,

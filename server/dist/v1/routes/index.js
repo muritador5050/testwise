@@ -1,7 +1,7 @@
-import { userRoutes } from './userRoutes';
-import { testRoutes } from './testRoutes';
-import { attemptRoutes } from './attemptRoutes';
-import { questionRoutes } from './questionRoutes';
+import { userRoutes } from './userRoutes.js';
+import { testRoutes } from './testRoutes.js';
+import { attemptRoutes } from './attemptRoutes.js';
+import { questionRoutes } from './questionRoutes.js';
 export const setupRoutes = (app) => {
     app.use('/api/v1/users', userRoutes);
     app.use('/api/v1/tests', testRoutes);

@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { authenticate } from '../../middleware/authenticate';
-import TestController from '../controllers/testController';
-import { authorize } from '../../middleware/authorization';
+import { authenticate } from '../../middleware/authenticate.js';
+import TestController from '../controllers/testController.js';
+import { authorize } from '../../middleware/authorization.js';
 // Test Routes
 export const testRoutes = Router();
 testRoutes.post('/', authenticate, authorize('ADMIN'), TestController.create);

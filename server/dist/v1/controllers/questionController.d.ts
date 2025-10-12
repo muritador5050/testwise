@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AuthenticatedRequest } from '../../middleware/authenticate';
+import { AuthenticatedRequest } from '../../middleware/authenticate.js';
 declare class QuestionController {
     static create(req: AuthenticatedRequest, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
     static getByTest(req: Request, res: Response): Promise<void>;

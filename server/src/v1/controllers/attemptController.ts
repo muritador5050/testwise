@@ -2,7 +2,7 @@ import { Response } from 'express';
 import AttemptService from '../services/attemptService.js';
 import { AuthenticatedRequest } from '../../middleware/authenticate.js';
 import { SubmitAnswerData } from '../../types/types.js';
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 

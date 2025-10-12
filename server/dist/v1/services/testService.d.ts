@@ -1,4 +1,4 @@
-import { CreateTestData } from '../../types/types';
+import { CreateTestData } from '../../types/types.js';
 declare class TestService {
     static createTest(data: CreateTestData): Promise<{
         description: string | null;
@@ -29,7 +29,7 @@ declare class TestService {
             testId: number;
             text: string;
             order: number;
-            questionType: import("../../generated/prisma").$Enums.QuestionType;
+            questionType: import(".prisma/client").$Enums.QuestionType;
             points: number;
         })[];
     } & {

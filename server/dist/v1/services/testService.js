@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 class TestService {
     static async createTest(data) {
@@ -145,7 +145,7 @@ class TestService {
                 title: test.title,
                 totalAttempts: test._count.attempts || 0,
                 totalQuestions: test._count.questions || 0,
-                totalPoints: questions?._sum.points || 0,
+                totalPoints: questions && questions._sum ? questions._sum.points || 0 : 0,
                 averageScore: attempts?._avg.percentScore || 0,
                 averageTimeSpent: attempts?._avg.timeSpent || 0,
                 highestScore: attempts?._max.percentScore || 0,

@@ -1,5 +1,5 @@
-import AttemptService from '../services/attemptService';
-import { PrismaClient } from '../../generated/prisma';
+import AttemptService from '../services/attemptService.js';
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 class AttemptController {
     static async start(req, res) {

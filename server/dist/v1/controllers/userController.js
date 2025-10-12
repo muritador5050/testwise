@@ -1,4 +1,4 @@
-import UserService from '../services/userService';
+import UserService from '../services/userService.js';
 import jwt from 'jsonwebtoken';
 class UserController {
     static async create(req, res) {

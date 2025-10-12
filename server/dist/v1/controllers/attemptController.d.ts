@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../middleware/authenticate';
+import { AuthenticatedRequest } from '../../middleware/authenticate.js';
 declare class AttemptController {
     static start(req: AuthenticatedRequest, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
     static getById(req: AuthenticatedRequest, res: Response): Promise<Response<any, Record<string, any>> | undefined>;

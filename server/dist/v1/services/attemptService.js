@@ -1,6 +1,6 @@
-import { PrismaClient } from '../../generated/prisma';
-import TestService from './testService';
-import webSocketService from './webSocketService';
+import TestService from './testService.js';
+import webSocketService from './webSocketService.js';
+import { PrismaClient } from '@prisma/client';
 // Initialize Prisma Client
 const prisma = new PrismaClient();
 class AttemptService {
@@ -271,8 +271,7 @@ class AttemptService {
             const totalAnswers = question.answers.length;
             const correctAnswers = question.answers.filter((a) => a.isCorrect).length;
             const avgPointsEarned = totalAnswers > 0
-                ? question.answers.reduce((sum, a) => sum + a.pointsEarned, 0) /
-                    totalAnswers
+                ? question.answers.reduce((sum, a) => sum + a.pointsEarned, 0) / totalAnswers
                 : 0;
             return {
                 questionId: question.id,
@@ -294,8 +293,7 @@ class AttemptService {
         });
         const totalAttempts = attempts.length;
         const avgScore = totalAttempts > 0
-            ? attempts.reduce((sum, a) => sum + (a.percentScore || 0), 0) /
-                totalAttempts
+            ? attempts.reduce((sum, a) => sum + (a.percentScore || 0), 0) / totalAttempts
             : 0;
         const passed = attempts.filter((a) => (a.percentScore || 0) >= 50).length;
         return {

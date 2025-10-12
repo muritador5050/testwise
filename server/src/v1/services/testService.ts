@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from '@prisma/client';
 import { CreateTestData } from '../../types/types.js';
 const prisma = new PrismaClient();
 
@@ -159,29 +159,52 @@ class TestService {
 
     // Create lookup maps for faster access
     const attemptStatsMap = new Map(
-      attemptStats.map((stat) => [stat.testId, stat])
+      attemptStats.map((stat: { testId: any }) => [stat.testId, stat])
     );
     const questionStatsMap = new Map(
-      questionStats.map((stat) => [stat.testId, stat])
+      questionStats.map((stat: { testId: any }) => [stat.testId, stat])
     );
 
-    // Combine all data
-    return tests.map((test) => {
-      const attempts = attemptStatsMap.get(test.id);
-      const questions = questionStatsMap.get(test.id);
+    type AttemptStat = {
+      testId: number;
+      _avg: { percentScore: number | null; timeSpent: number | null };
+      _max: { percentScore: number | null };
+      _min: { percentScore: number | null };
+    };
 
-      return {
-        testId: test.id,
-        title: test.title,
-        totalAttempts: test._count.attempts || 0,
-        totalQuestions: test._count.questions || 0,
-        totalPoints: questions?._sum.points || 0,
-        averageScore: attempts?._avg.percentScore || 0,
-        averageTimeSpent: attempts?._avg.timeSpent || 0,
-        highestScore: attempts?._max.percentScore || 0,
-        lowestScore: attempts?._min.percentScore || 0,
-      };
-    });
+    type QuestionStat = {
+      testId: number;
+      _sum: { points: number | null };
+    };
+
+    // Combine all data
+    return tests.map(
+      (test: {
+        id: number;
+        title: string;
+        _count: { attempts: number; questions: number };
+      }) => {
+        const attempts = attemptStatsMap.get(test.id) as
+          | AttemptStat
+          | undefined;
+        const questions = questionStatsMap.get(test.id) as
+          | QuestionStat
+          | undefined;
+
+        return {
+          testId: test.id,
+          title: test.title,
+          totalAttempts: test._count.attempts || 0,
+          totalQuestions: test._count.questions || 0,
+          totalPoints:
+            questions && questions._sum ? questions._sum.points || 0 : 0,
+          averageScore: attempts?._avg.percentScore || 0,
+          averageTimeSpent: attempts?._avg.timeSpent || 0,
+          highestScore: attempts?._max.percentScore || 0,
+          lowestScore: attempts?._min.percentScore || 0,
+        };
+      }
+    );
   }
 }
 

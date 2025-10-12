@@ -1,4 +1,4 @@
-import TestService from '../services/testService';
+import TestService from '../services/testService.js';
 class TestController {
     static async create(req, res) {
         try {

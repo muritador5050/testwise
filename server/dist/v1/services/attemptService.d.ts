@@ -1,9 +1,9 @@
-import { SubmitAnswerData } from '../../types/types';
+import { SubmitAnswerData } from '../../types/types.js';
 declare class AttemptService {
     static startAttempt(userId: number, testId: number, ipAddress?: string): Promise<{
         id: number;
         userId: number;
-        status: import("../../generated/prisma").$Enums.AttemptStatus;
+        status: import(".prisma/client").$Enums.AttemptStatus;
         percentScore: number | null;
         score: number;
         maxScore: number | null;
@@ -19,7 +19,7 @@ declare class AttemptService {
             id: number;
             email: string;
             name: string | null;
-            role: import("../../generated/prisma").$Enums.Role;
+            role: import(".prisma/client").$Enums.Role;
             avatar: string | null;
             createdAt: Date;
             updatedAt: Date;
@@ -38,7 +38,7 @@ declare class AttemptService {
                 testId: number;
                 text: string;
                 order: number;
-                questionType: import("../../generated/prisma").$Enums.QuestionType;
+                questionType: import(".prisma/client").$Enums.QuestionType;
                 points: number;
             })[];
         } & {
@@ -66,7 +66,7 @@ declare class AttemptService {
                 testId: number;
                 text: string;
                 order: number;
-                questionType: import("../../generated/prisma").$Enums.QuestionType;
+                questionType: import(".prisma/client").$Enums.QuestionType;
                 points: number;
             };
         } & {
@@ -82,7 +82,7 @@ declare class AttemptService {
     } & {
         id: number;
         userId: number;
-        status: import("../../generated/prisma").$Enums.AttemptStatus;
+        status: import(".prisma/client").$Enums.AttemptStatus;
         percentScore: number | null;
         score: number;
         maxScore: number | null;
@@ -112,7 +112,7 @@ declare class AttemptService {
         } & {
             id: number;
             userId: number;
-            status: import("../../generated/prisma").$Enums.AttemptStatus;
+            status: import(".prisma/client").$Enums.AttemptStatus;
             percentScore: number | null;
             score: number;
             maxScore: number | null;
@@ -138,7 +138,7 @@ declare class AttemptService {
     } & {
         id: number;
         userId: number;
-        status: import("../../generated/prisma").$Enums.AttemptStatus;
+        status: import(".prisma/client").$Enums.AttemptStatus;
         percentScore: number | null;
         score: number;
         maxScore: number | null;
@@ -159,35 +159,35 @@ declare class AttemptService {
         passRate: number;
     }>;
     static getTestPerformanceByUser(testId: number): Promise<{
-        userId: number;
-        userName: string | null;
-        email: string;
-        attemptNumber: number;
-        score: number;
-        percentScore: number | null;
-        timeSpent: number | null;
-        completedAt: Date | null;
+        userId: any;
+        userName: any;
+        email: any;
+        attemptNumber: any;
+        score: any;
+        percentScore: any;
+        timeSpent: any;
+        completedAt: any;
     }[]>;
     static getQuestionPerformance(testId: number): Promise<{
-        questionId: number;
-        text: string;
-        questionType: import("../../generated/prisma").$Enums.QuestionType;
-        totalAttempts: number;
-        correctCount: number;
+        questionId: any;
+        text: any;
+        questionType: any;
+        totalAttempts: any;
+        correctCount: any;
         accuracyRate: number;
         averagePointsEarned: number;
-        maxPoints: number;
+        maxPoints: any;
     }[]>;
     static getUserPerformanceHistory(userId: number): Promise<{
         totalAttempts: number;
         averageScore: number;
         passRate: number;
         attempts: {
-            testTitle: string;
-            score: number;
-            percentScore: number | null;
-            timeSpent: number | null;
-            completedAt: Date | null;
+            testTitle: any;
+            score: any;
+            percentScore: any;
+            timeSpent: any;
+            completedAt: any;
         }[];
     }>;
     static getScoreDistribution(testId: number): Promise<{

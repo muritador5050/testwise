@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { authenticate } from '../../middleware/authenticate';
-import { attemptRateLimit } from '../../middleware/attemptRateLimit';
-import AttemptController from '../controllers/attemptController';
-import { authorize } from '../../middleware/authorization';
+import { authenticate } from '../../middleware/authenticate.js';
+import { attemptRateLimit } from '../../middleware/attemptRateLimit.js';
+import AttemptController from '../controllers/attemptController.js';
+import { authorize } from '../../middleware/authorization.js';
 export const attemptRoutes = Router();
 attemptRoutes.get('/user', authenticate, AttemptController.getUserAttempts);
 attemptRoutes.get('/analytics', authenticate, authorize('ADMIN'), AttemptController.getAnalytics);

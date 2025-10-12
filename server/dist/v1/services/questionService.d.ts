@@ -12,7 +12,7 @@ declare class QuestionService {
         testId: number;
         text: string;
         order: number;
-        questionType: import("../../generated/prisma").$Enums.QuestionType;
+        questionType: import(".prisma/client").$Enums.QuestionType;
         points: number;
     }>;
     static getQuestionsByTest(testId: number): Promise<({
@@ -28,7 +28,7 @@ declare class QuestionService {
         testId: number;
         text: string;
         order: number;
-        questionType: import("../../generated/prisma").$Enums.QuestionType;
+        questionType: import(".prisma/client").$Enums.QuestionType;
         points: number;
     })[]>;
     static updateQuestion(id: number, data: any): Promise<{
@@ -44,7 +44,7 @@ declare class QuestionService {
         testId: number;
         text: string;
         order: number;
-        questionType: import("../../generated/prisma").$Enums.QuestionType;
+        questionType: import(".prisma/client").$Enums.QuestionType;
         points: number;
     }>;
     static getAllQuestions(): Promise<number>;
@@ -53,7 +53,7 @@ declare class QuestionService {
         testId: number;
         text: string;
         order: number;
-        questionType: import("../../generated/prisma").$Enums.QuestionType;
+        questionType: import(".prisma/client").$Enums.QuestionType;
         points: number;
     }>;
 }

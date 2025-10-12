@@ -1,4 +1,4 @@
-import { logger } from '../middleware/logger';
+import { logger } from '../middleware/logger.js';
 export const errorHandler = (err, req, res, next) => {
     logger.error(err.stack);
     if (err.name === 'ValidationError') {

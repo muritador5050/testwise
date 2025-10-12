@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AuthenticatedRequest } from '../../middleware/authenticate';
+import { AuthenticatedRequest } from '../../middleware/authenticate.js';
 declare class UserController {
     static create(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
     static login(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;

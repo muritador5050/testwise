@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { authenticate } from '../../middleware/authenticate';
-import UserController from '../controllers/userController';
-import { authorize } from '../../middleware/authorization';
+import { authenticate } from '../../middleware/authenticate.js';
+import UserController from '../controllers/userController.js';
+import { authorize } from '../../middleware/authorization.js';
 export const userRoutes = Router();
 userRoutes.post('/signup', UserController.create);
 userRoutes.post('/login', UserController.login);

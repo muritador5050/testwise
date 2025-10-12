@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 class UserService {
@@ -142,7 +142,7 @@ class UserService {
       completedAttempts,
       averageScore: avgScore._avg.percentScore || 0,
       inProgressAttempts: totalAttempts - completedAttempts,
-      recentActivity: recentActivity.map((a) => ({
+      recentActivity: recentActivity.map((a: any) => ({
         testTitle: a.test.title,
         status: a.status,
         score: a.percentScore,
