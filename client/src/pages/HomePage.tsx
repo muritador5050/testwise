@@ -9,21 +9,14 @@ import {
   Icon,
   VStack,
   HStack,
-  useColorModeValue,
   Stack,
 } from '@chakra-ui/react';
 import { BookOpen, Brain, TrendingUp, CheckCircle, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { colors, buttonStyles } from '../utils/colors';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const bgGradient = useColorModeValue(
-    'linear(to-br, indigo.50, white, purple.50)',
-    'linear(to-br, gray.900, gray.800, purple.900)'
-  );
-  const navBg = 'gray.800';
-  const cardBg = 'gray.700';
-  const textColor = 'gray.200';
 
   const features = [
     {
@@ -36,7 +29,6 @@ export default function HomePage() {
       title: 'Track Progress',
       description: 'Real-time analytics and performance insights',
     },
-
     {
       icon: Zap,
       title: 'Instant Results',
@@ -51,7 +43,7 @@ export default function HomePage() {
   ];
 
   return (
-    <Box minH='100vh' bgGradient={bgGradient}>
+    <Box minH='100vh' bg={colors.pageBg}>
       {/* Navigation */}
       <Box
         position='fixed'
@@ -59,42 +51,31 @@ export default function HomePage() {
         left={0}
         right={0}
         zIndex={50}
-        bg={navBg}
-        backdropFilter='blur(10px)'
+        bg='white'
         borderBottom='1px'
-        borderColor='gray.200'
+        borderColor={colors.border}
       >
         <Container maxW='7xl'>
           <Flex py={4} align='center' justify='space-between'>
-            <HStack spacing={2}>
-              <Icon as={BookOpen} w={8} h={8} color='indigo.600' />
-              <Heading
-                size='lg'
-                bgGradient='linear(to-r, indigo.600, purple.600)'
-                bgClip='text'
-              >
+            <HStack spacing={3}>
+              <Icon as={BookOpen} w={8} h={8} color={colors.primary} />
+              <Heading size='lg' color={colors.primary}>
                 TESTWISE
               </Heading>
             </HStack>
 
-            <HStack spacing={4}>
+            <HStack spacing={3}>
               <Button
                 variant='ghost'
-                colorScheme='gray'
+                color={colors.textSecondary}
                 fontWeight='medium'
+                _hover={{ color: colors.primary, bg: colors.sectionBg }}
                 onClick={() => navigate('/users/login')}
               >
                 Login
               </Button>
               <Button
-                bgGradient='linear(to-r, indigo.600, purple.600)'
-                color='white'
-                fontWeight='medium'
-                _hover={{
-                  transform: 'scale(1.05)',
-                  shadow: 'lg',
-                }}
-                transition='all 0.2s'
+                {...buttonStyles.primary}
                 onClick={() => navigate('/users/signup')}
               >
                 Sign Up
@@ -106,48 +87,31 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <Container maxW='7xl' pt={32} pb={20}>
-        <VStack spacing={16}>
+        <VStack spacing={20}>
           {/* Hero Content */}
-          <VStack spacing={6} textAlign='center'>
+          <VStack spacing={8} textAlign='center' maxW='4xl'>
             <Heading
-              fontSize={{ base: '4xl', md: '5xl', lg: '6xl' }}
+              fontSize={{ base: '4xl', md: '6xl' }}
               fontWeight='bold'
-              lineHeight='tight'
+              lineHeight='1.1'
+              color={colors.textPrimary}
             >
-              Master Your Exams with
-              <Text
-                as='span'
-                display='block'
-                bgGradient='linear(to-r, indigo.600, purple.600)'
-                bgClip='text'
-              >
+              Master Your Exams with{' '}
+              <Text as='span' color={colors.primary}>
                 Smart Assessment
               </Text>
             </Heading>
 
-            <Text
-              fontSize={{ base: 'lg', md: 'xl' }}
-              color={textColor}
-              maxW='3xl'
-            >
+            <Text fontSize='xl' color={colors.textSecondary} lineHeight='1.6'>
               Experience the next generation of computer-based testing.
-              Practice, learn, and excel with our intelligent platform designed
-              for modern learners.
+              Practice, learn, and excel with our intelligent platform.
             </Text>
 
-            <Stack direction={{ base: 'column', md: 'row' }} spacing={4} pt={4}>
+            <Stack direction={{ base: 'column', sm: 'row' }} spacing={4} pt={4}>
               <Button
                 size='lg'
-                bgGradient='linear(to-r, indigo.600, purple.600)'
-                color='white'
-                fontWeight='semibold'
-                px={8}
+                {...buttonStyles.primary}
                 rightIcon={<Icon as={CheckCircle} />}
-                _hover={{
-                  transform: 'scale(1.05)',
-                  shadow: '2xl',
-                }}
-                transition='all 0.2s'
                 onClick={() => navigate('/users/signup')}
               >
                 Get Started Free
@@ -155,14 +119,9 @@ export default function HomePage() {
               <Button
                 size='lg'
                 variant='outline'
-                colorScheme='gray'
-                fontWeight='semibold'
-                px={8}
-                _hover={{
-                  borderColor: 'indigo.600',
-                  color: 'indigo.600',
-                }}
-                transition='all 0.2s'
+                borderColor={colors.primary}
+                color={colors.primary}
+                _hover={{ bg: colors.sectionBg }}
               >
                 Watch Demo
               </Button>
@@ -170,27 +129,32 @@ export default function HomePage() {
           </VStack>
 
           {/* Stats Section */}
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8} w='full'>
+          <SimpleGrid
+            columns={{ base: 1, md: 3 }}
+            spacing={6}
+            w='full'
+            maxW='4xl'
+          >
             {stats.map((stat, idx) => (
               <Box
                 key={idx}
-                bg={cardBg}
-                rounded='2xl'
-                p={8}
-                shadow='lg'
+                bg={colors.cardBg}
+                rounded='xl'
+                p={6}
+                shadow='md'
                 textAlign='center'
-                _hover={{ shadow: 'xl' }}
-                transition='all 0.2s'
+                border='1px'
+                borderColor={colors.border}
               >
-                <Heading
-                  size='2xl'
-                  bgGradient='linear(to-r, indigo.600, purple.600)'
-                  bgClip='text'
+                <Text
+                  fontSize='3xl'
+                  fontWeight='bold'
+                  color={colors.primary}
                   mb={2}
                 >
                   {stat.value}
-                </Heading>
-                <Text color={textColor} fontWeight='medium'>
+                </Text>
+                <Text color={colors.textSecondary} fontWeight='medium'>
                   {stat.label}
                 </Text>
               </Box>
@@ -199,41 +163,38 @@ export default function HomePage() {
 
           {/* Features Grid */}
           <VStack spacing={12} w='full'>
-            <Heading size='xl' textAlign='center'>
+            <Heading size='xl' textAlign='center' color={colors.textPrimary}>
               Why Choose TESTWISE?
             </Heading>
 
-            <SimpleGrid
-              columns={{ base: 1, md: 2, lg: 4 }}
-              spacing={6}
-              w='full'
-            >
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8} w='full'>
               {features.map((feature, idx) => (
                 <Box
                   key={idx}
-                  bg={cardBg}
-                  rounded='2xl'
-                  p={8}
-                  shadow='lg'
-                  _hover={{
-                    shadow: '2xl',
-                    transform: 'scale(1.05)',
-                    bgGradient: 'linear(to-br, indigo.50, purple.50)',
-                  }}
-                  transition='all 0.3s'
-                  cursor='pointer'
+                  bg={colors.cardBg}
+                  rounded='xl'
+                  p={6}
+                  shadow='md'
+                  border='1px'
+                  borderColor={colors.border}
+                  textAlign='center'
                 >
-                  <Icon
-                    as={feature.icon}
-                    w={8}
-                    h={8}
-                    color='indigo.600'
-                    mb={4}
-                  />
-                  <Heading size='md' mb={3}>
+                  <Flex justify='center' mb={4}>
+                    <Box p={3} bg={colors.sectionBg} rounded='lg'>
+                      <Icon
+                        as={feature.icon}
+                        w={6}
+                        h={6}
+                        color={colors.primary}
+                      />
+                    </Box>
+                  </Flex>
+                  <Heading size='md' mb={3} color={colors.textPrimary}>
                     {feature.title}
                   </Heading>
-                  <Text color={textColor}>{feature.description}</Text>
+                  <Text color={colors.textSecondary} fontSize='sm'>
+                    {feature.description}
+                  </Text>
                 </Box>
               ))}
             </SimpleGrid>
@@ -242,53 +203,49 @@ export default function HomePage() {
           {/* CTA Section */}
           <Box
             w='full'
-            bgGradient='linear(to-r, indigo.600, purple.600)'
-            rounded='3xl'
+            bg={colors.primary}
+            rounded='2xl'
             p={12}
             textAlign='center'
             color='white'
-            shadow='2xl'
           >
-            <Heading size='xl' mb={4}>
-              Ready to Transform Your Learning?
-            </Heading>
-            <Text fontSize='xl' mb={8} color='indigo.100'>
-              Join thousands of students already succeeding with TESTWISE Pro
-            </Text>
-            <Button
-              size='lg'
-              bg='white'
-              color='indigo.900'
-              fontWeight='bold'
-              px={10}
-              w={{ base: 'full', md: 'auto' }}
-              _hover={{
-                transform: 'scale(1.05)',
-                shadow: '2xl',
-              }}
-              transition='all 0.2s'
-              onClick={() => navigate('/users/signup')}
-            >
-              Start Your Journey Today
-            </Button>
+            <VStack spacing={4}>
+              <Heading size='xl'>Ready to Transform Your Learning?</Heading>
+              <Text fontSize='lg' opacity={0.9}>
+                Join thousands of students already succeeding with TESTWISE
+              </Text>
+              <Button
+                size='lg'
+                bg='white'
+                color={colors.primary}
+                fontWeight='bold'
+                px={8}
+                _hover={{ bg: 'gray.50' }}
+                onClick={() => navigate('/users/signup')}
+              >
+                Start Your Journey Today
+              </Button>
+            </VStack>
           </Box>
         </VStack>
       </Container>
 
       {/* Footer */}
-      <Box bg='gray.900' color='gray.400' py={12}>
+      <Box bg={colors.textPrimary} color='white' py={8}>
         <Container maxW='7xl'>
-          <VStack spacing={4}>
+          <VStack spacing={4} textAlign='center'>
             <HStack spacing={2}>
-              <Icon as={BookOpen} w={6} h={6} color='indigo.400' />
-              <Text fontSize='xl' fontWeight='bold' color='white'>
+              <Icon as={BookOpen} w={5} h={5} color={colors.primary} />
+              <Text fontSize='lg' fontWeight='bold'>
                 TESTWISE
               </Text>
             </HStack>
-            <Text>
+            <Text fontSize='sm' opacity={0.8}>
               Empowering learners worldwide with smart assessment technology
             </Text>
-            <Text fontSize='sm'>© 2025 CBT Pro. All rights reserved.</Text>
+            <Text fontSize='sm' opacity={0.6}>
+              © 2025 TESTWISE. All rights reserved.
+            </Text>
           </VStack>
         </Container>
       </Box>

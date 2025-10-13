@@ -17,6 +17,7 @@ import {
 import { AvatarUpload } from '../utils/avatarUpload';
 import { useRegisterUser } from '../api/services/authService';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { colors, bgStyles, buttonStyles, textStyles } from '../utils/colors';
 
 export const SignupPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -88,17 +89,21 @@ export const SignupPage: React.FC = () => {
   };
 
   return (
-    <Container maxW='md' py={10}>
-      <Card>
+    <Container maxW='md' py={10} {...bgStyles.page} minH='100vh'>
+      <Card {...bgStyles.card} boxShadow='md'>
         <CardBody>
           <VStack spacing={6} as='form' onSubmit={handleSubmit}>
-            <Heading size='lg'>Create Account</Heading>
-            <Text color='gray.600' fontSize='sm'>
+            <Heading size='lg' {...textStyles.heading}>
+              Create Account
+            </Heading>
+            <Text {...textStyles.body} fontSize='sm'>
               Fill in your details to get started
             </Text>
 
             <FormControl isRequired>
-              <FormLabel textAlign='center'>Profile Picture</FormLabel>
+              <FormLabel textAlign='center' {...textStyles.heading}>
+                Profile Picture
+              </FormLabel>
               <Box display='flex' justifyContent='center'>
                 <AvatarUpload
                   onAvatarChange={handleAvatarChange}
@@ -108,7 +113,7 @@ export const SignupPage: React.FC = () => {
             </FormControl>
 
             <FormControl isRequired>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel {...textStyles.heading}>Full Name</FormLabel>
               <Input
                 type='text'
                 name='name'
@@ -116,11 +121,18 @@ export const SignupPage: React.FC = () => {
                 onChange={handleInputChange}
                 placeholder='Enter your full name'
                 disabled={registerMutation.isPending}
+                borderColor={colors.border}
+                _hover={{ borderColor: colors.primaryLight }}
+                color='black'
+                _focus={{
+                  borderColor: colors.primary,
+                  boxShadow: `0 0 0 1px ${colors.primary}`,
+                }}
               />
             </FormControl>
 
             <FormControl isRequired>
-              <FormLabel>Email Address</FormLabel>
+              <FormLabel {...textStyles.heading}>Email Address</FormLabel>
               <Input
                 type='email'
                 name='email'
@@ -128,26 +140,37 @@ export const SignupPage: React.FC = () => {
                 onChange={handleInputChange}
                 placeholder='Enter your email'
                 disabled={registerMutation.isPending}
+                borderColor={colors.border}
+                _hover={{ borderColor: colors.primaryLight }}
+                color='black'
+                _focus={{
+                  borderColor: colors.primary,
+                  boxShadow: `0 0 0 1px ${colors.primary}`,
+                }}
               />
             </FormControl>
 
             <Button
               type='submit'
-              colorScheme='blue'
               width='full'
               size='lg'
               isLoading={registerMutation.isPending}
               loadingText='Creating account...'
               isDisabled={!formData.avatar || !formData.name || !formData.email}
+              {...buttonStyles.primary}
             >
               Sign Up
             </Button>
+
             <Link
               as={RouterLink}
               to='/users/login'
-              color='blue.500'
+              color={colors.primary}
               fontWeight='medium'
-              _hover={{ textDecoration: 'underline' }}
+              _hover={{
+                color: colors.primaryHover,
+                textDecoration: 'underline',
+              }}
               cursor='pointer'
             >
               Already have an account
@@ -156,12 +179,13 @@ export const SignupPage: React.FC = () => {
             {registerMutation.isError && (
               <Box
                 p={3}
-                bg='blue.50'
+                bg={colors.sectionBg}
                 borderRadius='md'
                 w='full'
                 textAlign='center'
+                border={`1px solid ${colors.border}`}
               >
-                <Text color='red.500' fontSize='sm'>
+                <Text color={colors.error} fontSize='sm'>
                   {registerMutation.error.message}
                 </Text>
               </Box>

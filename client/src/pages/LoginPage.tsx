@@ -12,13 +12,16 @@ import {
   useToast,
   Link,
   Flex,
-  useColorModeValue,
   Card,
   CardBody,
+  HStack,
+  Icon,
 } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
 import { useLoginUser } from '../api/services/authService';
 import { navigateByRole, getCurrentUser, setToken } from '../api/apiClient';
+import { colors, buttonStyles } from '../utils/colors';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -57,104 +60,133 @@ export default function LoginPage() {
     navigate(navigateByRole(user.role), { replace: true });
   };
 
-  //bgGradient
-  const bgGradient = useColorModeValue(
-    'linear(to-br, blue.50, purple.50)',
-    'linear(to-br, gray.800, gray.900)'
-  );
-
-  const cardBg = useColorModeValue('white', 'gray.700');
-
   return (
-    <Flex
-      minH='100vh'
-      bgGradient={bgGradient}
-      align='center'
-      justify='center'
-      py={8}
-      px={4}
-    >
-      <Container maxW='md'>
-        <VStack spacing={8}>
-          {/* Header */}
-          <Box textAlign='center'>
-            <Heading size='xl' color='blue.600' mb={3}>
-              Login
-            </Heading>
-            <Text fontSize='lg' color='gray.600'>
-              Enter your email to access the admin panel
-            </Text>
-          </Box>
+    <Box minH='100vh' bg={colors.pageBg}>
+      {/* Navigation */}
+      <Box
+        position='fixed'
+        top={0}
+        left={0}
+        right={0}
+        zIndex={50}
+        bg='white'
+        borderBottom='1px'
+        borderColor={colors.border}
+      >
+        <Container maxW='7xl'>
+          <Flex py={4} align='center' justify='space-between'>
+            <HStack spacing={3}>
+              <Icon as={BookOpen} w={8} h={8} color={colors.primary} />
+              <Heading size='lg' color={colors.primary}>
+                TESTWISE
+              </Heading>
+            </HStack>
 
-          {/* Login Card */}
-          <Card w='full' shadow='lg' borderRadius='xl' bg={cardBg}>
-            <CardBody p={8}>
-              <VStack as='form' onSubmit={handleSubmit} spacing={6}>
-                {/* Email Input */}
-                <FormControl isRequired>
-                  <FormLabel fontWeight='medium'>Email Address</FormLabel>
-                  <Input
-                    type='email'
-                    placeholder='your.email@example.com'
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    size='lg'
-                    fontSize='md'
-                    focusBorderColor='blue.500'
-                    autoComplete='email'
-                  />
-                </FormControl>
-
-                {/* Login Button */}
-                <Button
-                  type='submit'
-                  colorScheme='blue'
-                  size='lg'
-                  w='full'
-                  isLoading={loginMutation.isPending}
-                  loadingText='Signing in...'
-                  fontSize='md'
-                  fontWeight='semibold'
-                  py={6}
-                >
-                  Sign In
-                </Button>
-
-                {/* Demo Info */}
-                {loginMutation.isError && (
-                  <Box
-                    p={3}
-                    bg='blue.50'
-                    borderRadius='md'
-                    w='full'
-                    textAlign='center'
-                  >
-                    <Text color='red.500' fontSize='sm'>
-                      {loginMutation.error.message}
-                    </Text>
-                  </Box>
-                )}
-              </VStack>
-            </CardBody>
-          </Card>
-
-          {/* Footer Links */}
-          <VStack spacing={4} textAlign='center'>
-            <Text fontSize='sm' color='gray.500'>
-              ←{' '}
-              <Link
-                as={RouterLink}
-                to='/'
-                color='blue.500'
+            <HStack spacing={3}>
+              <Button
+                variant='ghost'
+                color={colors.textSecondary}
                 fontWeight='medium'
-                _hover={{ textDecoration: 'underline' }}
+                _hover={{ color: colors.primary, bg: colors.sectionBg }}
+                onClick={() => navigate('/')}
               >
-                Back to homepage
-              </Link>
-            </Text>
+                Back to Home
+              </Button>
+            </HStack>
+          </Flex>
+        </Container>
+      </Box>
+
+      <Flex minH='100vh' align='center' justify='center' py={8} px={4} pt={20}>
+        <Container maxW='md'>
+          <VStack spacing={8}>
+            {/* Header */}
+            <Box textAlign='center'>
+              <Heading size='xl' color={colors.textPrimary} mb={3}>
+                Welcome Back
+              </Heading>
+              <Text fontSize='lg' color={colors.textSecondary}>
+                Enter your email to access your account
+              </Text>
+            </Box>
+
+            {/* Login Card */}
+            <Card w='full' shadow='lg' borderRadius='xl' bg={colors.cardBg}>
+              <CardBody p={8}>
+                <VStack as='form' onSubmit={handleSubmit} spacing={6}>
+                  {/* Email Input */}
+                  <FormControl isRequired>
+                    <FormLabel fontWeight='medium' color={colors.textPrimary}>
+                      Email Address
+                    </FormLabel>
+                    <Input
+                      type='email'
+                      placeholder='your.email@example.com'
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      size='lg'
+                      fontSize='md'
+                      focusBorderColor={colors.primary}
+                      borderColor={colors.border}
+                      bg='white'
+                      color='black'
+                      autoComplete='email'
+                    />
+                  </FormControl>
+
+                  {/* Login Button */}
+                  <Button
+                    type='submit'
+                    {...buttonStyles.primary}
+                    size='lg'
+                    w='full'
+                    isLoading={loginMutation.isPending}
+                    loadingText='Signing in...'
+                    fontSize='md'
+                    fontWeight='semibold'
+                    py={6}
+                  >
+                    Sign In
+                  </Button>
+
+                  {/* Error Message */}
+                  {loginMutation.isError && (
+                    <Box
+                      p={3}
+                      bg='red.50'
+                      borderRadius='md'
+                      w='full'
+                      textAlign='center'
+                      border='1px'
+                      borderColor='red.200'
+                    >
+                      <Text color='red.600' fontSize='sm'>
+                        {loginMutation.error.message}
+                      </Text>
+                    </Box>
+                  )}
+                </VStack>
+              </CardBody>
+            </Card>
+
+            {/* Footer Links */}
+            <VStack spacing={4} textAlign='center'>
+              <Text fontSize='sm' color={colors.textMuted}>
+                ←{' '}
+                <Link
+                  as={RouterLink}
+                  to='/'
+                  color={colors.primary}
+                  fontWeight='medium'
+                  _hover={{ textDecoration: 'underline' }}
+                >
+                  Back to homepage
+                </Link>
+              </Text>
+            </VStack>
           </VStack>
-        </VStack>
-      </Container>
-    </Flex>
+        </Container>
+      </Flex>
+    </Box>
   );
 }
