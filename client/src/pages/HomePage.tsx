@@ -12,14 +12,7 @@ import {
   useColorModeValue,
   Stack,
 } from '@chakra-ui/react';
-import {
-  BookOpen,
-  Brain,
-  TrendingUp,
-  Users,
-  CheckCircle,
-  Zap,
-} from 'lucide-react';
+import { BookOpen, Brain, TrendingUp, CheckCircle, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function HomePage() {
@@ -43,11 +36,7 @@ export default function HomePage() {
       title: 'Track Progress',
       description: 'Real-time analytics and performance insights',
     },
-    {
-      icon: Users,
-      title: 'Collaborative Learning',
-      description: 'Connect with peers and instructors seamlessly',
-    },
+
     {
       icon: Zap,
       title: 'Instant Results',
