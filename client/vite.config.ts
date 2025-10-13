@@ -69,37 +69,37 @@ export default defineConfig({
     }),
   ],
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          // Split node_modules into separate chunks
-          if (id.includes('node_modules')) {
-            // React core libraries
-            if (
-              id.includes('react') ||
-              id.includes('react-dom') ||
-              id.includes('react-router')
-            ) {
-              return 'vendor-react';
-            }
-            // Chakra UI and related
-            if (
-              id.includes('@chakra-ui') ||
-              id.includes('@emotion') ||
-              id.includes('framer-motion')
-            ) {
-              return 'vendor-chakra';
-            }
-            // Charts and data visualization
-            if (id.includes('recharts') || id.includes('d3')) {
-              return 'vendor-charts';
-            }
-            // All other node_modules
-            return 'vendor';
-          }
-        },
-      },
-    },
+    // rollupOptions: {
+    //   output: {
+    //     manualChunks(id) {
+    //       // Split node_modules into separate chunks
+    //       if (id.includes('node_modules')) {
+    //         // React core libraries
+    //         if (
+    //           id.includes('react') ||
+    //           id.includes('react-dom') ||
+    //           id.includes('react-router')
+    //         ) {
+    //           return 'vendor-react';
+    //         }
+    //         // Chakra UI and related
+    //         if (
+    //           id.includes('@chakra-ui') ||
+    //           id.includes('@emotion') ||
+    //           id.includes('framer-motion')
+    //         ) {
+    //           return 'vendor-chakra';
+    //         }
+    //         // Charts and data visualization
+    //         if (id.includes('recharts') || id.includes('d3')) {
+    //           return 'vendor-charts';
+    //         }
+    //         // All other node_modules
+    //         return 'vendor';
+    //       }
+    //     },
+    //   },
+    // },
     chunkSizeWarningLimit: 1000,
   },
 });
