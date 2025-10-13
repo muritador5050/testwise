@@ -9,6 +9,9 @@
     "build": "prisma generate && tsc",
     "start": "node dist/index.js"
   },
+  "prisma": {
+    "seed": "ts-node --esm prisma/seed.ts"
+  },
   "keywords": [],
   "author": "Muritador Abdulazeez",
   "license": "ISC",
@@ -27,6 +30,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.9.0",
     "prisma": "^6.16.2",
+    "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   }
