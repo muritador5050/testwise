@@ -44,6 +44,7 @@ import {
 import { Eye, Edit, Trash } from 'lucide-react';
 import type { User } from '../../types/api';
 import SearchBar from '../../components/shared/SearchBar';
+import { colors, bgStyles, buttonStyles, textStyles } from '../../utils/colors';
 
 export default function UsersPage() {
   const [page, setPage] = useState(1);
@@ -201,14 +202,14 @@ export default function UsersPage() {
   if (isLoading) return <Text textAlign='center'>Loading users...</Text>;
   if (isError)
     return (
-      <Text color='red.500' textAlign='center'>
+      <Text color={colors.error} textAlign='center'>
         Failed to load users.
       </Text>
     );
 
   return (
-    <Box p={4} w='full'>
-      <Heading size='lg' mb={6}>
+    <Box p={4} w='full' {...bgStyles.page}>
+      <Heading size='lg' mb={6} {...textStyles.heading}>
         Manage Users
       </Heading>
 
@@ -226,22 +227,15 @@ export default function UsersPage() {
 
       {/* Show search results count */}
       {searchQuery && (
-        <Text fontSize='sm' color='gray.600' mb={2}>
+        <Text fontSize='sm' color={colors.textMuted} mb={2}>
           Found {filteredUsers.length} user
           {filteredUsers.length !== 1 ? 's' : ''}
         </Text>
       )}
 
-      <Box
-        overflowX='auto'
-        borderWidth='1px'
-        borderRadius='lg'
-        shadow='sm'
-        bg='white'
-        _dark={{ bg: 'gray.800' }}
-      >
+      <Box overflowX='auto' borderRadius='lg' shadow='sm' {...bgStyles.card}>
         <Table variant='simple' size={isMobile ? 'sm' : 'md'}>
-          <Thead bg='gray.100' _dark={{ bg: 'gray.700' }}>
+          <Thead bg={colors.sectionBg}>
             <Tr>
               <Th>ID</Th>
               <Th>User</Th>
@@ -262,15 +256,17 @@ export default function UsersPage() {
                         name={user.name}
                         src={user.avatar ?? ''}
                       />
-                      <Text fontWeight='medium'>{user.name}</Text>
+                      <Text fontWeight='medium' {...textStyles.heading}>
+                        {user.name}
+                      </Text>
                     </HStack>
                   </Td>
-                  {!isMobile && <Td>{user.email}</Td>}
+                  {!isMobile && <Td {...textStyles.body}>{user.email}</Td>}
                   <Td>
                     <Text
                       fontSize='sm'
                       fontWeight='semibold'
-                      color='blue.500'
+                      color={colors.primary}
                       textTransform='capitalize'
                     >
                       {user.role}
@@ -283,7 +279,8 @@ export default function UsersPage() {
                         icon={<Eye size={18} />}
                         variant='ghost'
                         size='sm'
-                        colorScheme='blue'
+                        color={colors.primary}
+                        _hover={{ bg: colors.sectionBg }}
                         onClick={() => handleViewUser(user)}
                       />
                       <IconButton
@@ -291,7 +288,8 @@ export default function UsersPage() {
                         icon={<Edit size={18} />}
                         variant='ghost'
                         size='sm'
-                        colorScheme='green'
+                        color={colors.success}
+                        _hover={{ bg: colors.sectionBg }}
                         onClick={() => handleEditUser(user)}
                       />
                       <IconButton
@@ -299,7 +297,8 @@ export default function UsersPage() {
                         icon={<Trash size={18} />}
                         variant='ghost'
                         size='sm'
-                        colorScheme='red'
+                        color={colors.error}
+                        _hover={{ bg: colors.sectionBg }}
                         onClick={() => handleDeleteUser(user)}
                       />
                     </Flex>
@@ -309,7 +308,7 @@ export default function UsersPage() {
             ) : (
               <Tr>
                 <Td colSpan={isMobile ? 4 : 5} textAlign='center' py={8}>
-                  <Text color='gray.500'>
+                  <Text color={colors.textMuted}>
                     {searchQuery
                       ? `No users found matching "${searchQuery}"`
                       : 'No users available'}
@@ -330,16 +329,19 @@ export default function UsersPage() {
           p={2}
           borderWidth='1px'
           borderRadius='md'
+          borderColor={colors.border}
+          bg={colors.cardBg}
         >
           <Button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             isDisabled={page === 1 || isFetching}
             size='sm'
+            {...buttonStyles.outline}
           >
             Prev
           </Button>
 
-          <Text fontSize='sm'>
+          <Text fontSize='sm' {...textStyles.body}>
             Page {data.pagination.page} of {data.pagination.totalPages} •{' '}
             {data.pagination.total} users
           </Text>
@@ -350,6 +352,7 @@ export default function UsersPage() {
             }
             isDisabled={page === data.pagination.totalPages || isFetching}
             size='sm'
+            {...buttonStyles.outline}
           >
             Next
           </Button>
@@ -359,8 +362,8 @@ export default function UsersPage() {
       {/* View User Modal */}
       <Modal isOpen={isViewOpen} onClose={onViewClose} size='md'>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>User Details</ModalHeader>
+        <ModalContent {...bgStyles.card}>
+          <ModalHeader {...textStyles.heading}>User Details</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             {selectedUser && (
@@ -373,34 +376,52 @@ export default function UsersPage() {
                   />
                 </Flex>
                 <Box>
-                  <Text fontWeight='bold' fontSize='sm' color='gray.500'>
+                  <Text
+                    fontWeight='bold'
+                    fontSize='sm'
+                    color={colors.textMuted}
+                  >
                     ID
                   </Text>
-                  <Text>{selectedUser.id}</Text>
+                  <Text {...textStyles.heading}>{selectedUser.id}</Text>
                 </Box>
                 <Box>
-                  <Text fontWeight='bold' fontSize='sm' color='gray.500'>
+                  <Text
+                    fontWeight='bold'
+                    fontSize='sm'
+                    color={colors.textMuted}
+                  >
                     Name
                   </Text>
-                  <Text>{selectedUser.name}</Text>
+                  <Text {...textStyles.heading}>{selectedUser.name}</Text>
                 </Box>
                 <Box>
-                  <Text fontWeight='bold' fontSize='sm' color='gray.500'>
+                  <Text
+                    fontWeight='bold'
+                    fontSize='sm'
+                    color={colors.textMuted}
+                  >
                     Email
                   </Text>
-                  <Text>{selectedUser.email}</Text>
+                  <Text {...textStyles.body}>{selectedUser.email}</Text>
                 </Box>
                 <Box>
-                  <Text fontWeight='bold' fontSize='sm' color='gray.500'>
+                  <Text
+                    fontWeight='bold'
+                    fontSize='sm'
+                    color={colors.textMuted}
+                  >
                     Role
                   </Text>
-                  <Text textTransform='capitalize'>{selectedUser.role}</Text>
+                  <Text textTransform='capitalize' {...textStyles.heading}>
+                    {selectedUser.role}
+                  </Text>
                 </Box>
               </VStack>
             )}
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme='blue' onClick={onViewClose}>
+            <Button {...buttonStyles.primary} onClick={onViewClose}>
               Close
             </Button>
           </ModalFooter>
@@ -410,24 +431,26 @@ export default function UsersPage() {
       {/* Edit User Modal */}
       <Modal isOpen={isEditOpen} onClose={onEditClose} size='md'>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Edit User</ModalHeader>
+        <ModalContent {...bgStyles.card}>
+          <ModalHeader {...textStyles.heading}>Edit User</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <VStack spacing={4}>
               <FormControl>
-                <FormLabel>Name</FormLabel>
+                <FormLabel {...textStyles.heading}>Name</FormLabel>
                 <Input
                   value={editFormData.name || ''}
                   onChange={(e) =>
                     setEditFormData({ ...editFormData, name: e.target.value })
                   }
                   placeholder='Enter name'
+                  borderColor={colors.border}
+                  color='black'
                 />
               </FormControl>
 
               <FormControl>
-                <FormLabel>Email</FormLabel>
+                <FormLabel {...textStyles.heading}>Email</FormLabel>
                 <Input
                   type='email'
                   value={editFormData.email || ''}
@@ -435,33 +458,60 @@ export default function UsersPage() {
                     setEditFormData({ ...editFormData, email: e.target.value })
                   }
                   placeholder='Enter email'
+                  borderColor={colors.border}
+                  color='black'
                 />
               </FormControl>
 
               <FormControl>
-                <FormLabel>Role</FormLabel>
+                <FormLabel {...textStyles.heading}>Role</FormLabel>
                 <Select
                   value={editFormData.role || ''}
                   onChange={(e) =>
                     setEditFormData({ ...editFormData, role: e.target.value })
                   }
+                  borderColor={colors.border}
+                  color='black'
                 >
-                  <option value='ADMIN'>Admin</option>
-                  <option value='INSTRUCTOR'>Instructor</option>
-                  <option value='STUDENT'>Student</option>
+                  <option
+                    style={{
+                      color: 'white',
+                    }}
+                    value='ADMIN'
+                  >
+                    Admin
+                  </option>
+                  <option
+                    style={{
+                      color: 'white',
+                    }}
+                    value='INSTRUCTOR'
+                  >
+                    Instructor
+                  </option>
+                  <option
+                    style={{
+                      color: 'white',
+                    }}
+                    value='STUDENT'
+                  >
+                    Student
+                  </option>
                 </Select>
               </FormControl>
 
               <FormControl>
-                <FormLabel>Avatar</FormLabel>
+                <FormLabel {...textStyles.heading}>Avatar</FormLabel>
                 <Input
                   type='file'
                   accept='image/*'
                   onChange={handleAvatarChange}
                   pt={1}
+                  color='black'
+                  borderColor={colors.border}
                 />
                 {avatarFile && (
-                  <Text fontSize='sm' mt={2} color='green.500'>
+                  <Text fontSize='sm' mt={2} color={colors.success}>
                     New avatar selected: {avatarFile.name}
                   </Text>
                 )}
@@ -469,11 +519,19 @@ export default function UsersPage() {
             </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button variant='ghost' mr={3} onClick={onEditClose}>
+            <Button
+              variant='ghost'
+              mr={3}
+              onClick={onEditClose}
+              color={colors.textSecondary}
+              _hover={{ bg: colors.sectionBg }}
+            >
               Cancel
             </Button>
             <Button
-              colorScheme='green'
+              {...buttonStyles.primary}
+              bg={colors.success}
+              _hover={{ bg: colors.primaryHover }}
               onClick={handleSubmitEdit}
               isLoading={updateMutation.isPending}
             >
@@ -490,25 +548,35 @@ export default function UsersPage() {
         onClose={onDeleteClose}
       >
         <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+          <AlertDialogContent {...bgStyles.card}>
+            <AlertDialogHeader
+              fontSize='lg'
+              fontWeight='bold'
+              {...textStyles.heading}
+            >
               Delete User
             </AlertDialogHeader>
 
-            <AlertDialogBody>
+            <AlertDialogBody {...textStyles.body}>
               Are you sure you want to delete{' '}
-              <Text as='span' fontWeight='bold'>
+              <Text as='span' fontWeight='bold' {...textStyles.heading}>
                 {selectedUser?.name}
               </Text>
               ? This action cannot be undone.
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onDeleteClose}>
+              <Button
+                ref={cancelRef}
+                onClick={onDeleteClose}
+                {...buttonStyles.outline}
+              >
                 Cancel
               </Button>
               <Button
-                colorScheme='red'
+                bg={colors.error}
+                color='white'
+                _hover={{ bg: colors.primaryHover }}
                 onClick={handleConfirmDelete}
                 ml={3}
                 isLoading={deleteMutation.isPending}

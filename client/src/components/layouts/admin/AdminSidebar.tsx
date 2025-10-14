@@ -6,11 +6,11 @@ import {
   Collapse,
   Icon,
   useDisclosure,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Link, useLocation } from 'react-router-dom';
 import type { NavItem } from '../../../types/navigation';
+import { colors } from '../../../utils/colors';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -24,8 +24,6 @@ const AdminSidebar: React.FC<SidebarProps> = ({
   onNavigate,
 }) => {
   const location = useLocation();
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   const NavItemComponent: React.FC<{ item: NavItem; level?: number }> = ({
     item,
@@ -43,15 +41,14 @@ const AdminSidebar: React.FC<SidebarProps> = ({
       px: 4,
       py: 3,
       pl,
-      bg: isActive ? 'blue.50' : 'transparent',
-      color: isActive ? 'blue.600' : 'gray.600',
+      bg: isActive ? colors.sectionBg : 'transparent',
+      color: isActive ? colors.primary : colors.textSecondary,
       borderRight: isActive ? '3px solid' : 'none',
-      borderRightColor: 'blue.500',
+      borderRightColor: colors.primary,
       _hover: {
-        bg: 'whiteAlpha.200',
-        color: 'blue.600',
+        bg: colors.sectionBg,
+        color: colors.primary,
       },
-
       transition: 'all 0.2s',
       fontSize: 'sm' as const,
       fontWeight: (isActive ? 'semibold' : 'normal') as 'semibold' | 'normal',
@@ -80,6 +77,7 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                   as={isItemOpen ? ChevronDownIcon : ChevronRightIcon}
                   w={4}
                   h={4}
+                  color={colors.textMuted}
                 />
               </>
             )}
@@ -127,9 +125,9 @@ const AdminSidebar: React.FC<SidebarProps> = ({
     return (
       <Box
         w={{ base: '14', md: '16' }}
-        bg={bgColor}
+        bg={colors.cardBg}
         borderRight='1px'
-        borderColor={borderColor}
+        borderColor={colors.border}
         h='full'
         overflowY='auto'
       >
@@ -142,9 +140,17 @@ const AdminSidebar: React.FC<SidebarProps> = ({
               onClick={() => onNavigate?.()}
               p={{ base: 2, md: 3 }}
               borderRadius='md'
-              bg={location.pathname === item.path ? 'blue.50' : 'transparent'}
-              color={location.pathname === item.path ? 'blue.600' : 'gray.600'}
-              _hover={{ bg: 'blue.50', color: 'blue.600' }}
+              bg={
+                location.pathname === item.path
+                  ? colors.sectionBg
+                  : 'transparent'
+              }
+              color={
+                location.pathname === item.path
+                  ? colors.primary
+                  : colors.textSecondary
+              }
+              _hover={{ bg: colors.sectionBg, color: colors.primary }}
               title={item.name}
             >
               <Text fontSize={{ base: 'md', md: 'lg' }}>{item.icon}</Text>
@@ -159,9 +165,9 @@ const AdminSidebar: React.FC<SidebarProps> = ({
   return (
     <Box
       w={{ base: '56', sm: '60', md: '64' }}
-      bg={bgColor}
+      bg={colors.cardBg}
       borderRight='1px'
-      borderColor={borderColor}
+      borderColor={colors.border}
       h='full'
       overflowY='auto'
       transition='width 0.2s'

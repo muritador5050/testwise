@@ -19,6 +19,7 @@ import { Calendar, Clock, BookOpen, AlertCircle } from 'lucide-react';
 import type { Test } from '../../types/api';
 import { useGetAllTests } from '../../api/services/testServices';
 import { useNavigate } from 'react-router-dom';
+import { colors, bgStyles, textStyles, buttonStyles } from '../../utils/colors';
 
 const PublishedExams = () => {
   const navigate = useNavigate();
@@ -90,8 +91,10 @@ const PublishedExams = () => {
     return (
       <Center h='50vh'>
         <VStack spacing={4}>
-          <Text fontSize='lg'>Loading exams...</Text>
-          <Spinner size='xl' color='blue.500' />
+          <Text fontSize='lg' {...textStyles.body}>
+            Loading exams...
+          </Text>
+          <Spinner size='xl' color={colors.primary} />
         </VStack>
       </Center>
     );
@@ -104,24 +107,26 @@ const PublishedExams = () => {
         py={{ base: 4, md: 6 }}
         px={{ base: 3, md: 6 }}
       >
-        <Card>
+        <Card {...bgStyles.card}>
           <CardHeader>
             <HStack>
-              <Calendar size={isMobile ? 18 : 20} />
-              <Heading size={{ base: 'sm', md: 'md' }}>Available Exams</Heading>
+              <Calendar size={isMobile ? 18 : 20} color={colors.primary} />
+              <Heading size={{ base: 'sm', md: 'md' }} {...textStyles.heading}>
+                Available Exams
+              </Heading>
             </HStack>
           </CardHeader>
           <CardBody>
             <VStack spacing={4} py={{ base: 8, md: 12 }}>
-              <AlertCircle size={isMobile ? 36 : 48} color='gray' />
+              <AlertCircle size={isMobile ? 36 : 48} color={colors.textMuted} />
               <Text
-                color='gray.500'
+                {...textStyles.muted}
                 fontSize={{ base: 'md', md: 'lg' }}
                 textAlign='center'
               >
                 No exams available at the moment
               </Text>
-              <Text color='gray.400' fontSize='sm' textAlign='center'>
+              <Text {...textStyles.muted} fontSize='sm' textAlign='center'>
                 Check back later for new assessments
               </Text>
             </VStack>
@@ -148,11 +153,15 @@ const PublishedExams = () => {
             spacing={{ base: 3, md: 0 }}
           >
             <Box>
-              <Heading size={{ base: 'md', md: 'lg' }} mb={2}>
+              <Heading
+                size={{ base: 'md', md: 'lg' }}
+                mb={2}
+                {...textStyles.heading}
+              >
                 Exams
               </Heading>
               <Text
-                color='gray.600'
+                {...textStyles.body}
                 fontSize={{ base: 'sm', md: 'md' }}
                 display={{ base: 'none', sm: 'block' }}
               >
@@ -161,8 +170,7 @@ const PublishedExams = () => {
               </Text>
             </Box>
             <Button
-              variant='outline'
-              colorScheme='gray'
+              {...buttonStyles.outline}
               size={{ base: 'sm', md: 'sm' }}
               onClick={() => navigate('/student')}
               w={{ base: 'full', sm: 'auto' }}
@@ -173,11 +181,13 @@ const PublishedExams = () => {
         </Box>
 
         {/* Exams Card */}
-        <Card>
+        <Card {...bgStyles.card}>
           <CardHeader pb={4}>
             <HStack>
-              <Calendar size={isMobile ? 18 : 20} />
-              <Heading size={{ base: 'sm', md: 'md' }}>Available Exams</Heading>
+              <Calendar size={isMobile ? 18 : 20} color={colors.primary} />
+              <Heading size={{ base: 'sm', md: 'md' }} {...textStyles.heading}>
+                Available Exams
+              </Heading>
             </HStack>
           </CardHeader>
           <CardBody pt={0}>
@@ -193,8 +203,10 @@ const PublishedExams = () => {
                     key={exam.id}
                     p={{ base: 4, md: 5 }}
                     borderWidth='1px'
+                    borderColor={colors.border}
                     borderRadius='lg'
-                    _hover={{ shadow: 'md' }}
+                    bg={colors.cardBg}
+                    _hover={{ shadow: 'md', borderColor: colors.primary }}
                     transition='all 0.2s'
                   >
                     {/* Title and Status */}
@@ -205,12 +217,15 @@ const PublishedExams = () => {
                       spacing={{ base: 2, sm: 0 }}
                     >
                       <VStack align='start' spacing={1} flex={1}>
-                        <Heading size={{ base: 'xs', md: 'sm' }}>
+                        <Heading
+                          size={{ base: 'xs', md: 'sm' }}
+                          {...textStyles.heading}
+                        >
                           {exam.title}
                         </Heading>
                         <Text
                           fontSize={{ base: 'xs', md: 'sm' }}
-                          color='gray.500'
+                          {...textStyles.muted}
                           noOfLines={2}
                         >
                           {exam.description}
@@ -231,7 +246,7 @@ const PublishedExams = () => {
                     <Stack
                       direction={{ base: 'column', sm: 'row' }}
                       fontSize={{ base: 'xs', md: 'sm' }}
-                      color='gray.600'
+                      {...textStyles.body}
                       spacing={{ base: 2, sm: 4, md: 6 }}
                       mb={3}
                     >
@@ -253,7 +268,7 @@ const PublishedExams = () => {
                     {exam.maxAttempts > 0 && (
                       <Text
                         fontSize={{ base: 'xs', md: 'sm' }}
-                        color='gray.500'
+                        {...textStyles.muted}
                         mb={3}
                       >
                         Attempts remaining: {attemptsLeft} / {exam.maxAttempts}
@@ -262,7 +277,7 @@ const PublishedExams = () => {
 
                     {/* Action Button */}
                     <Button
-                      colorScheme='blue'
+                      {...buttonStyles.primary}
                       size={{ base: 'sm', md: 'md' }}
                       width='full'
                       isDisabled={!canStartExam(exam) || attemptsLeft <= 0}

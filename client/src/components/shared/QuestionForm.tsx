@@ -22,6 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { DeleteIcon, AddIcon } from '@chakra-ui/icons';
 import type { Option, Question, QuestionType } from '../../types/api';
+import { colors, bgStyles, buttonStyles } from '../../utils/colors';
 
 interface QuestionFormProps {
   onSave: (question: Question | Omit<Question, 'id'>) => void;
@@ -194,18 +195,25 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
     return (
       <FormControl isInvalid={!!errors.options}>
-        <FormLabel>
+        <FormLabel color={colors.textPrimary} fontWeight='600'>
           Options {formData.questionType === 'TRUE_FALSE' && '(True/False)'}
         </FormLabel>
         <VStack spacing={3} align='stretch'>
           {options.map((option, index) => (
-            <HStack key={option.id}>
+            <HStack
+              key={option.id}
+              p={3}
+              bg={colors.sectionBg}
+              borderRadius='md'
+            >
               <Checkbox
                 isChecked={option.isCorrect}
                 onChange={() => handleCorrectOptionChange(index)}
                 isDisabled={
                   formData.questionType === 'TRUE_FALSE' && options.length === 2
                 }
+                colorScheme='green'
+                size='lg'
               />
               <Input
                 value={option.text}
@@ -214,6 +222,15 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                 }
                 placeholder={`Option ${index + 1}`}
                 isDisabled={formData.questionType === 'TRUE_FALSE' && index < 2}
+                bg={colors.cardBg}
+                borderColor={colors.border}
+                color={colors.textPrimary}
+                _hover={{ borderColor: colors.primary }}
+                _focus={{
+                  borderColor: colors.primary,
+                  boxShadow: `0 0 0 1px ${colors.primary}`,
+                }}
+                _placeholder={{ color: colors.textMuted }}
               />
               {options.length > 2 && (
                 <IconButton
@@ -221,6 +238,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                   icon={<DeleteIcon />}
                   onClick={() => removeOption(index)}
                   size='sm'
+                  bg={colors.error}
+                  color='white'
+                  _hover={{ bg: '#dc2626' }}
                 />
               )}
             </HStack>
@@ -231,15 +251,24 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
               onClick={addOption}
               size='sm'
               variant='outline'
+              borderColor={colors.primary}
+              color={colors.primary}
+              _hover={{ bg: colors.sectionBg }}
             >
               Add Option
             </Button>
           )}
         </VStack>
         {errors.options && (
-          <Alert status='error' mt={2} size='sm'>
-            <AlertIcon />
-            {errors.options}
+          <Alert
+            status='error'
+            mt={2}
+            size='sm'
+            bg='#fee'
+            borderColor={colors.error}
+          >
+            <AlertIcon color={colors.error} />
+            <Box color={colors.error}>{errors.options}</Box>
           </Alert>
         )}
       </FormControl>
@@ -255,32 +284,38 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   ]);
 
   return (
-    <Box
-      p={6}
-      bg='white'
-      borderRadius='lg'
-      boxShadow='md'
-      border='1px'
-      borderColor='gray.200'
-    >
-      <VStack spacing={4} align='stretch'>
-        <Heading size='md'>
+    <Box p={6} {...bgStyles.card} borderRadius='lg' boxShadow='lg'>
+      <VStack spacing={5} align='stretch'>
+        <Heading size='md' color={colors.textPrimary}>
           {question ? 'Edit Question' : 'Create New Question'}
         </Heading>
 
         <FormControl isInvalid={!!errors.text} isRequired>
-          <FormLabel>Question Text</FormLabel>
+          <FormLabel color={colors.textPrimary} fontWeight='600'>
+            Question Text
+          </FormLabel>
           <Textarea
             value={formData.text}
             onChange={(e) => setFormData({ ...formData, text: e.target.value })}
             placeholder='Enter your question here...'
             rows={3}
+            bg={colors.cardBg}
+            borderColor={colors.border}
+            color={colors.textPrimary}
+            _hover={{ borderColor: colors.primary }}
+            _focus={{
+              borderColor: colors.primary,
+              boxShadow: `0 0 0 1px ${colors.primary}`,
+            }}
+            _placeholder={{ color: colors.textMuted }}
           />
         </FormControl>
 
-        <HStack width='100%' align='flex-start'>
+        <HStack width='100%' align='flex-start' spacing={4}>
           <FormControl>
-            <FormLabel>Question Type</FormLabel>
+            <FormLabel color={colors.textPrimary} fontWeight='600'>
+              Question Type
+            </FormLabel>
             <Select
               value={formData.questionType}
               onChange={(e) =>
@@ -289,6 +324,10 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                   questionType: e.target.value as QuestionType,
                 })
               }
+              bg={colors.cardBg}
+              borderColor={colors.border}
+              color={colors.textPrimary}
+              _hover={{ borderColor: colors.primary }}
             >
               <option value='MULTIPLE_CHOICE'>Multiple Choice</option>
               <option value='TRUE_FALSE'>True/False</option>
@@ -298,7 +337,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           </FormControl>
 
           <FormControl isInvalid={!!errors.points} width='150px' isRequired>
-            <FormLabel>Points</FormLabel>
+            <FormLabel color={colors.textPrimary} fontWeight='600'>
+              Points
+            </FormLabel>
             <NumberInput
               value={formData.points}
               onChange={(_valueString, valueNumber) =>
@@ -308,16 +349,23 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
               step={0.5}
               precision={1}
             >
-              <NumberInputField />
+              <NumberInputField
+                bg={colors.cardBg}
+                borderColor={colors.border}
+                color={colors.textPrimary}
+                _hover={{ borderColor: colors.primary }}
+              />
               <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
+                <NumberIncrementStepper borderColor={colors.border} />
+                <NumberDecrementStepper borderColor={colors.border} />
               </NumberInputStepper>
             </NumberInput>
           </FormControl>
 
           <FormControl width='100px'>
-            <FormLabel>Order</FormLabel>
+            <FormLabel color={colors.textPrimary} fontWeight='600'>
+              Order
+            </FormLabel>
             <NumberInput
               value={formData.order}
               onChange={(_valueString, valueNumber) =>
@@ -325,7 +373,12 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
               }
               min={1}
             >
-              <NumberInputField />
+              <NumberInputField
+                bg={colors.cardBg}
+                borderColor={colors.border}
+                color={colors.textPrimary}
+                _hover={{ borderColor: colors.primary }}
+              />
             </NumberInput>
           </FormControl>
         </HStack>
@@ -333,25 +386,45 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         {renderOptions()}
 
         {formData.questionType === 'SHORT_ANSWER' && (
-          <Alert status='info' size='sm'>
-            <AlertIcon />
-            For short answer questions, you'll need to manually grade student
-            responses.
+          <Alert
+            status='info'
+            size='sm'
+            bg={colors.sectionBg}
+            borderColor={colors.info}
+          >
+            <AlertIcon color={colors.info} />
+            <Box color={colors.textSecondary}>
+              For short answer questions, you'll need to manually grade student
+              responses.
+            </Box>
           </Alert>
         )}
 
         {formData.questionType === 'ESSAY' && (
-          <Alert status='info' size='sm'>
-            <AlertIcon />
-            Essay questions require manual grading and review.
+          <Alert
+            status='info'
+            size='sm'
+            bg={colors.sectionBg}
+            borderColor={colors.info}
+          >
+            <AlertIcon color={colors.info} />
+            <Box color={colors.textSecondary}>
+              Essay questions require manual grading and review.
+            </Box>
           </Alert>
         )}
 
         <HStack justify='flex-end' pt={4}>
-          <Button variant='outline' onClick={onCancel}>
+          <Button
+            variant='outline'
+            onClick={onCancel}
+            borderColor={colors.border}
+            color={colors.textSecondary}
+            _hover={{ bg: colors.sectionBg }}
+          >
             Cancel
           </Button>
-          <Button colorScheme='blue' onClick={handleSubmit}>
+          <Button {...buttonStyles.primary} onClick={handleSubmit}>
             {question ? 'Update' : 'Create'} Question
           </Button>
         </HStack>

@@ -10,7 +10,6 @@ import {
   MenuList,
   MenuItem,
   MenuDivider,
-  useColorModeValue,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -19,6 +18,7 @@ import {
 import { HamburgerIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Link, useLocation } from 'react-router-dom';
 import type { User } from '../../../types/api';
+import { colors, buttonStyles } from '../../../utils/colors';
 
 interface NavbarProps {
   onToggle: () => void;
@@ -34,8 +34,6 @@ const AdminNavbar: React.FC<NavbarProps> = ({
   onLogout,
 }) => {
   const location = useLocation();
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   // Generate breadcrumbs from path
   const generateBreadcrumbs = () => {
@@ -64,9 +62,9 @@ const AdminNavbar: React.FC<NavbarProps> = ({
 
   return (
     <Box
-      bg={bgColor}
+      bg={colors.cardBg}
       borderBottom='1px'
-      borderColor={borderColor}
+      borderColor={colors.border}
       position='fixed'
       top='0'
       left='0'
@@ -83,11 +81,15 @@ const AdminNavbar: React.FC<NavbarProps> = ({
             icon={<HamburgerIcon />}
             variant='ghost'
             onClick={onToggle}
+            color={colors.textSecondary}
+            _hover={{ bg: colors.sectionBg }}
           />
 
           {/* Breadcrumbs */}
           {isSidebarOpen && (
-            <Breadcrumb separator={<ChevronRightIcon color='gray.500' />}>
+            <Breadcrumb
+              separator={<ChevronRightIcon color={colors.textMuted} />}
+            >
               {breadcrumbs.map((crumb, index) => (
                 <BreadcrumbItem key={`index-${index}`}>
                   <BreadcrumbLink
@@ -95,11 +97,14 @@ const AdminNavbar: React.FC<NavbarProps> = ({
                     to={crumb.path}
                     isCurrentPage={index === breadcrumbs.length - 1}
                     color={
-                      index === breadcrumbs.length - 1 ? 'blue.600' : 'gray.600'
+                      index === breadcrumbs.length - 1
+                        ? colors.primary
+                        : colors.textSecondary
                     }
                     fontWeight={
                       index === breadcrumbs.length - 1 ? 'semibold' : 'normal'
                     }
+                    _hover={{ color: colors.primary }}
                   >
                     {crumb.name}
                   </BreadcrumbLink>
@@ -111,7 +116,7 @@ const AdminNavbar: React.FC<NavbarProps> = ({
 
         {/* Right Section - User Menu */}
         <HStack spacing={4}>
-          <Text fontSize='sm' color='gray.600'>
+          <Text fontSize='sm' color={colors.textSecondary}>
             Welcome, Admin {user?.name}
           </Text>
           <Menu>
@@ -123,22 +128,31 @@ const AdminNavbar: React.FC<NavbarProps> = ({
                 cursor='pointer'
               />
             </MenuButton>
-            <MenuList>
-              <MenuDivider />
-              <MenuItem>
+            <MenuList
+              bg={colors.cardBg}
+              borderColor={colors.border}
+              boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            >
+              <MenuDivider borderColor={colors.border} />
+              <MenuItem bg={colors.cardBg} _hover={{ bg: colors.sectionBg }}>
                 <Button
                   as={Link}
                   to='/student'
-                  colorScheme='blue'
-                  variant='solid'
+                  bg={buttonStyles.primary.bg}
+                  color={buttonStyles.primary.color}
                   size='md'
                   rounded='md'
-                  _hover={{ bg: 'blue.600' }}
+                  _hover={{ bg: buttonStyles.primary._hover.bg }}
                 >
                   Preview Student Test Experience
                 </Button>
               </MenuItem>
-              <MenuItem onClick={onLogout} color='red.600'>
+              <MenuItem
+                onClick={onLogout}
+                color={colors.error}
+                bg={colors.cardBg}
+                _hover={{ bg: colors.sectionBg }}
+              >
                 Logout
               </MenuItem>
             </MenuList>

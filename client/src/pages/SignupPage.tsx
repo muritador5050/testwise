@@ -89,7 +89,7 @@ export const SignupPage: React.FC = () => {
   };
 
   return (
-    <Container maxW='md' py={10} {...bgStyles.page} minH='100vh'>
+    <Container maxW='md' py={10} minH='100vh'>
       <Card {...bgStyles.card} boxShadow='md'>
         <CardBody>
           <VStack spacing={6} as='form' onSubmit={handleSubmit}>

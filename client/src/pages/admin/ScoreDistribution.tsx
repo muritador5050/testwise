@@ -10,7 +10,6 @@ import {
   Stat,
   StatLabel,
   StatNumber,
-  useColorModeValue,
   Spinner,
   Alert,
   AlertIcon,
@@ -24,6 +23,7 @@ import {
 import { ViewIcon } from '@chakra-ui/icons';
 import { useGetAllTests } from '../../api/services/testServices';
 import { useGetScoreDistribution } from '../../api/services/attemptService';
+import { colors, bgStyles, textStyles } from '../../utils/colors';
 
 // Color scheme for different score ranges
 const getRangeColor = (range: string): string => {
@@ -64,11 +64,6 @@ const ScoreDistributionChart: React.FC = () => {
     }
   }, [testsData, selectedTestId]);
 
-  const sidebarBg = useColorModeValue('gray.50', 'gray.700');
-  const selectedBg = useColorModeValue('blue.50', 'blue.700');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const bgColor = useColorModeValue('white', 'gray.800');
-
   const data = scoreDistributionData || [];
   const calculatedTotal = data.reduce((sum, item) => sum + item.count, 0);
   const highestCount =
@@ -82,7 +77,7 @@ const ScoreDistributionChart: React.FC = () => {
     return (
       <Container maxW='container.xl' py={8}>
         <Flex justify='center' align='center' minH='400px'>
-          <Spinner size='xl' color='blue.500' thickness='4px' />
+          <Spinner size='xl' color={colors.primary} thickness='4px' />
         </Flex>
       </Container>
     );
@@ -109,13 +104,13 @@ const ScoreDistributionChart: React.FC = () => {
         {/* Left Sidebar - Tests List */}
         <Box
           w={{ base: '100%', lg: '350px' }}
-          bg={sidebarBg}
+          bg={colors.sectionBg}
           borderRadius='lg'
           p={4}
           border='1px'
-          borderColor={borderColor}
+          borderColor={colors.border}
         >
-          <Heading size='md' mb={4}>
+          <Heading size='md' mb={4} {...textStyles.heading}>
             All Tests ({testsData?.tests?.length || 0})
           </Heading>
 
@@ -125,20 +120,28 @@ const ScoreDistributionChart: React.FC = () => {
                 key={test.id}
                 p={3}
                 borderRadius='md'
-                bg={selectedTestId === test.id ? selectedBg : 'transparent'}
+                bg={selectedTestId === test.id ? colors.cardBg : 'transparent'}
                 border='1px'
                 borderColor={
-                  selectedTestId === test.id ? 'blue.200' : 'transparent'
+                  selectedTestId === test.id ? colors.primary : 'transparent'
                 }
                 cursor='pointer'
                 _hover={{
-                  bg: selectedTestId === test.id ? selectedBg : 'gray.100',
+                  bg:
+                    selectedTestId === test.id
+                      ? colors.cardBg
+                      : 'rgba(255, 255, 255, 0.5)',
                 }}
                 onClick={() => setSelectedTestId(test.id)}
               >
                 <Flex justify='space-between' align='start'>
                   <Box flex={1}>
-                    <Text fontWeight='medium' fontSize='sm' noOfLines={2}>
+                    <Text
+                      fontWeight='medium'
+                      fontSize='sm'
+                      noOfLines={2}
+                      {...textStyles.heading}
+                    >
                       {test.title}
                     </Text>
                     <HStack spacing={2} mt={1}>
@@ -191,24 +194,23 @@ const ScoreDistributionChart: React.FC = () => {
           )}
 
           {selectedTest ? (
-            <Box
-              p={6}
-              borderWidth='1px'
-              borderColor={borderColor}
-              borderRadius='lg'
-              boxShadow='sm'
-            >
+            <Box p={6} {...bgStyles.card} borderRadius='lg' boxShadow='sm'>
               <VStack spacing={6} align='stretch'>
                 {/* Header */}
                 <Box>
-                  <Text fontSize='xl' fontWeight='bold' mb={2}>
+                  <Text
+                    fontSize='xl'
+                    fontWeight='bold'
+                    mb={2}
+                    {...textStyles.heading}
+                  >
                     Score Distribution - {selectedTest.title}
                   </Text>
-                  <Text color='gray.600' fontSize='sm'>
+                  <Text {...textStyles.body} fontSize='sm'>
                     Test ID: {selectedTestId}
                   </Text>
                   {calculatedTotal > 0 && (
-                    <Text color='gray.600' fontSize='sm'>
+                    <Text {...textStyles.body} fontSize='sm'>
                       Total Students: {calculatedTotal}
                     </Text>
                   )}
@@ -216,7 +218,7 @@ const ScoreDistributionChart: React.FC = () => {
 
                 {distributionLoading ? (
                   <Flex justify='center' align='center' minH='200px'>
-                    <Spinner size='xl' color='blue.500' thickness='4px' />
+                    <Spinner size='xl' color={colors.primary} thickness='4px' />
                   </Flex>
                 ) : (
                   <>
@@ -234,15 +236,23 @@ const ScoreDistributionChart: React.FC = () => {
                         return (
                           <Box key={index}>
                             <HStack justify='space-between' mb={2}>
-                              <Text fontSize='sm' fontWeight='medium'>
+                              <Text
+                                fontSize='sm'
+                                fontWeight='medium'
+                                {...textStyles.heading}
+                              >
                                 {item.range}
                               </Text>
                               <HStack spacing={2}>
-                                <Text fontSize='sm' fontWeight='bold'>
+                                <Text
+                                  fontSize='sm'
+                                  fontWeight='bold'
+                                  {...textStyles.heading}
+                                >
                                   {item.count}
                                 </Text>
                                 {calculatedTotal > 0 && (
-                                  <Text fontSize='sm' color='gray.500'>
+                                  <Text fontSize='sm' {...textStyles.muted}>
                                     ({percentage.toFixed(1)}%)
                                   </Text>
                                 )}
@@ -261,7 +271,7 @@ const ScoreDistributionChart: React.FC = () => {
                                 size='lg'
                                 borderRadius='md'
                                 height='20px'
-                                bg={'gray.100'}
+                                bg={colors.pageBg}
                                 position='relative'
                                 {...(isHighest && {
                                   border: '2px solid',
@@ -282,19 +292,29 @@ const ScoreDistributionChart: React.FC = () => {
                         mt={4}
                       >
                         <Stat>
-                          <StatLabel>Total Students</StatLabel>
-                          <StatNumber>{calculatedTotal}</StatNumber>
+                          <StatLabel {...textStyles.body}>
+                            Total Students
+                          </StatLabel>
+                          <StatNumber {...textStyles.heading}>
+                            {calculatedTotal}
+                          </StatNumber>
                         </Stat>
                         <Stat>
-                          <StatLabel>Highest Range</StatLabel>
-                          <StatNumber fontSize='lg'>
+                          <StatLabel {...textStyles.body}>
+                            Highest Range
+                          </StatLabel>
+                          <StatNumber fontSize='lg' {...textStyles.heading}>
                             {data.find((item) => item.count === highestCount)
                               ?.range || 'N/A'}
                           </StatNumber>
                         </Stat>
                         <Stat>
-                          <StatLabel>Most Frequent</StatLabel>
-                          <StatNumber>{highestCount}</StatNumber>
+                          <StatLabel {...textStyles.body}>
+                            Most Frequent
+                          </StatLabel>
+                          <StatNumber {...textStyles.heading}>
+                            {highestCount}
+                          </StatNumber>
                         </Stat>
                       </SimpleGrid>
                     )}
@@ -316,14 +336,12 @@ const ScoreDistributionChart: React.FC = () => {
               <Flex justify='center' align='center' minH='200px'>
                 <Box
                   p={6}
-                  bg={bgColor}
-                  borderWidth='1px'
-                  borderColor={borderColor}
+                  {...bgStyles.card}
                   borderRadius='lg'
                   boxShadow='sm'
                   textAlign='center'
                 >
-                  <Text color='gray.500'>
+                  <Text {...textStyles.muted}>
                     Select a test to view score distribution
                   </Text>
                 </Box>

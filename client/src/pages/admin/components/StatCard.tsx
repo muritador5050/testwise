@@ -1,6 +1,7 @@
 import React from 'react';
-import { Box, Text, Flex, Icon, useColorModeValue } from '@chakra-ui/react';
+import { Box, Text, Flex, Icon } from '@chakra-ui/react';
 import { type LucideIcon } from 'lucide-react';
+import { colors, textStyles } from '../../../utils/colors';
 
 interface StatCardProps {
   icon: LucideIcon;
@@ -15,18 +16,27 @@ export const StatCard: React.FC<StatCardProps> = ({
   value,
   color,
 }) => {
-  const bgColor = useColorModeValue('gray.50', 'gray.700');
-
   return (
-    <Flex align='center' gap={3} p={3} bg={bgColor} borderRadius='lg'>
-      <Box p={2} borderRadius='lg' bg={color}>
-        <Icon as={icon} boxSize={4} color='white' />
+    <Flex
+      align='center'
+      gap={3}
+      p={4}
+      bg={colors.cardBg}
+      borderRadius='xl'
+      borderLeft='4px solid'
+      borderColor={color}
+      boxShadow='md'
+      _hover={{ boxShadow: 'xl', transform: 'translateY(-3px)' }}
+      transition='all 0.25s ease-in-out'
+    >
+      <Box p={2.5} borderRadius='lg' bg={color}>
+        <Icon as={icon} boxSize={6} color='white' />
       </Box>
       <Box>
-        <Text fontSize='xs' color='gray.500'>
+        <Text fontSize='xs' {...textStyles.muted}>
           {label}
         </Text>
-        <Text fontSize='sm' fontWeight='semibold'>
+        <Text fontSize='md' fontWeight='semibold' {...textStyles.heading}>
           {value}
         </Text>
       </Box>

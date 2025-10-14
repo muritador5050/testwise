@@ -42,6 +42,7 @@ import {
   ArrowBackIcon,
 } from '@chakra-ui/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { colors, bgStyles, buttonStyles } from '../../utils/colors';
 
 import {
   useCreateQuestion,
@@ -471,15 +472,15 @@ const QuestionManager: React.FC = () => {
   const getQuestionTypeColor = (type: QuestionType): string => {
     switch (type) {
       case 'MULTIPLE_CHOICE':
-        return 'blue';
+        return colors.primary;
       case 'TRUE_FALSE':
-        return 'green';
+        return colors.success;
       case 'SHORT_ANSWER':
-        return 'orange';
+        return colors.warning;
       case 'ESSAY':
-        return 'purple';
+        return '#a855f7';
       default:
-        return 'gray';
+        return colors.textMuted;
     }
   };
 
@@ -491,38 +492,44 @@ const QuestionManager: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box p={6} textAlign='center'>
-        <Text>Loading questions...</Text>
+      <Box p={6} textAlign='center' minH='100vh' bg={colors.pageBg}>
+        <Text color={colors.textSecondary}>Loading questions...</Text>
       </Box>
     );
   }
 
   return (
-    <Box p={6} minH='100vh'>
+    <Box p={6} minH='100vh' bg={colors.pageBg}>
       <IconButton
         aria-label='back'
         icon={<ArrowBackIcon />}
         onClick={() => navigate('/instructor/exams/create')}
+        mb={4}
+        borderColor={colors.border}
+        color={colors.textPrimary}
+        _hover={{ bg: colors.sectionBg }}
       />
       <VStack spacing={6} align='stretch'>
         <HStack justify='space-between' align='center' flexWrap='wrap'>
           <VStack align='flex-start' spacing={1}>
-            <Heading size='lg'>Manage Questions</Heading>
-            <Text fontSize='md' color='blue.200' fontWeight='semibold'>
+            <Heading size='lg' color={colors.textPrimary}>
+              Manage Questions
+            </Heading>
+            <Text fontSize='md' color={colors.primary} fontWeight='semibold'>
               Test: {title}
             </Text>
           </VStack>
         </HStack>
 
-        <SimpleGrid columns={3} spacing={4}>
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
           <Box
-            p={4}
-            bgGradient='linear(to-br, blue.500, blue.600)'
+            p={5}
+            bgGradient={`linear(to-br, ${colors.primary}, ${colors.primaryHover})`}
             color='white'
             borderRadius='lg'
-            shadow='md'
+            shadow='lg'
           >
-            <Text fontWeight='bold' fontSize='sm' opacity={0.9}>
+            <Text fontWeight='bold' fontSize='sm' opacity={0.95} mb={1}>
               Total Questions
             </Text>
             <Text fontSize='3xl' fontWeight='bold'>
@@ -530,13 +537,13 @@ const QuestionManager: React.FC = () => {
             </Text>
           </Box>
           <Box
-            p={4}
-            bgGradient='linear(to-br, green.500, green.600)'
+            p={5}
+            bgGradient={`linear(to-br, ${colors.success}, #059669)`}
             color='white'
             borderRadius='lg'
-            shadow='md'
+            shadow='lg'
           >
-            <Text fontWeight='bold' fontSize='sm' opacity={0.9}>
+            <Text fontWeight='bold' fontSize='sm' opacity={0.95} mb={1}>
               Total Points
             </Text>
             <Text fontSize='3xl' fontWeight='bold'>
@@ -544,13 +551,13 @@ const QuestionManager: React.FC = () => {
             </Text>
           </Box>
           <Box
-            p={4}
-            bgGradient='linear(to-br, purple.500, purple.600)'
+            p={5}
+            bgGradient='linear(to-br, #a855f7, #9333ea)'
             color='white'
             borderRadius='lg'
-            shadow='md'
+            shadow='lg'
           >
-            <Text fontWeight='bold' fontSize='sm' opacity={0.9}>
+            <Text fontWeight='bold' fontSize='sm' opacity={0.95} mb={1}>
               Types
             </Text>
             <Text fontSize='sm' noOfLines={2}>
@@ -562,21 +569,24 @@ const QuestionManager: React.FC = () => {
         <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap={6}>
           <Box
             p={6}
+            {...bgStyles.card}
             borderRadius='lg'
-            shadow='lg'
-            border='2px'
-            borderColor='blue.200'
+            shadow='xl'
+            borderWidth='2px'
+            borderColor={colors.primary}
           >
             <VStack spacing={4} align='stretch'>
               <HStack justify='space-between' align='center'>
-                <Heading size='md'>
+                <Heading size='md' color={colors.textPrimary}>
                   {editingQuestion ? '✏️ Edit Question' : '➕ Create Questions'}
                 </Heading>
 
                 {!editingQuestion && (
                   <Button
                     leftIcon={<AddIcon />}
-                    colorScheme='green'
+                    bg={colors.success}
+                    color='white'
+                    _hover={{ bg: '#059669' }}
                     size='sm'
                     onClick={addQuestionForm}
                   >
@@ -586,12 +596,18 @@ const QuestionManager: React.FC = () => {
               </HStack>
 
               {!editingQuestion && questionForms.length > 1 && (
-                <Alert status='info' borderRadius='md' fontSize='sm'>
-                  <AlertIcon />
-                  Multiple question mode. You can create {
-                    questionForms.length
-                  }{' '}
-                  questions at once.
+                <Alert
+                  status='info'
+                  borderRadius='md'
+                  fontSize='sm'
+                  bg={colors.sectionBg}
+                  borderColor={colors.info}
+                >
+                  <AlertIcon color={colors.info} />
+                  <Text color={colors.textSecondary}>
+                    Multiple question mode. You can create{' '}
+                    {questionForms.length} questions at once.
+                  </Text>
                 </Alert>
               )}
 
@@ -600,8 +616,9 @@ const QuestionManager: React.FC = () => {
                   key={formIndex}
                   p={4}
                   borderRadius='md'
-                  border='1px'
-                  borderColor='gray.200'
+                  borderWidth='2px'
+                  borderColor={colors.border}
+                  bg={colors.cardBg}
                   position='relative'
                 >
                   {!editingQuestion && questionForms.length > 1 && (
@@ -609,8 +626,10 @@ const QuestionManager: React.FC = () => {
                       aria-label='Remove question'
                       icon={<DeleteIcon />}
                       size='sm'
-                      colorScheme='red'
-                      variant='ghost'
+                      bg={colors.error}
+                      color='white'
+                      _hover={{ bg: '#dc2626' }}
+                      variant='solid'
                       position='absolute'
                       top={2}
                       right={2}
@@ -620,10 +639,14 @@ const QuestionManager: React.FC = () => {
 
                   {!editingQuestion && questionForms.length > 1 && (
                     <Badge
-                      colorScheme='blue'
+                      bg={colors.primary}
+                      color='white'
                       position='absolute'
                       top={2}
                       left={2}
+                      px={3}
+                      py={1}
+                      borderRadius='full'
                     >
                       Question {formIndex + 1}
                     </Badge>
@@ -635,7 +658,9 @@ const QuestionManager: React.FC = () => {
                     mt={questionForms.length > 1 ? 6 : 0}
                   >
                     <FormControl isRequired>
-                      <FormLabel fontWeight='semibold'>Question Text</FormLabel>
+                      <FormLabel fontWeight='600' color={colors.textPrimary}>
+                        Question Text
+                      </FormLabel>
                       <Textarea
                         value={form.text}
                         onChange={(e) =>
@@ -645,19 +670,20 @@ const QuestionManager: React.FC = () => {
                         }
                         placeholder='Enter your question here...'
                         rows={2}
-                        borderColor='gray.300'
-                        _hover={{ borderColor: 'blue.400' }}
+                        borderColor={colors.border}
+                        color={colors.textPrimary}
+                        _hover={{ borderColor: colors.primary }}
                         _focus={{
-                          borderColor: 'blue.500',
-                          boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)',
+                          borderColor: colors.primary,
+                          boxShadow: `0 0 0 1px ${colors.primary}`,
                         }}
-                        _placeholder={{ color: 'gray.400' }}
+                        _placeholder={{ color: colors.textMuted }}
                       />
                     </FormControl>
 
                     <HStack width='100%' align='flex-start' spacing={3}>
                       <FormControl flex={2}>
-                        <FormLabel fontWeight='semibold'>
+                        <FormLabel fontWeight='600' color={colors.textPrimary}>
                           Question Type
                         </FormLabel>
                         <Select
@@ -667,8 +693,9 @@ const QuestionManager: React.FC = () => {
                               questionType: e.target.value as QuestionType,
                             })
                           }
-                          borderColor='gray.300'
-                          _hover={{ borderColor: 'blue.400' }}
+                          borderColor={colors.border}
+                          color={colors.textPrimary}
+                          _hover={{ borderColor: colors.primary }}
                         >
                           <option value='MULTIPLE_CHOICE'>
                             Multiple Choice
@@ -680,7 +707,9 @@ const QuestionManager: React.FC = () => {
                       </FormControl>
 
                       <FormControl flex={1} isRequired>
-                        <FormLabel fontWeight='semibold'>Points</FormLabel>
+                        <FormLabel fontWeight='600' color={colors.textPrimary}>
+                          Points
+                        </FormLabel>
                         <NumberInput
                           value={form.points}
                           onChange={(_valueString, valueNumber) =>
@@ -692,16 +721,25 @@ const QuestionManager: React.FC = () => {
                           step={0.5}
                           precision={1}
                         >
-                          <NumberInputField borderColor='gray.300' />
+                          <NumberInputField
+                            borderColor={colors.border}
+                            color={colors.textPrimary}
+                          />
                           <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
+                            <NumberIncrementStepper
+                              borderColor={colors.border}
+                            />
+                            <NumberDecrementStepper
+                              borderColor={colors.border}
+                            />
                           </NumberInputStepper>
                         </NumberInput>
                       </FormControl>
 
                       <FormControl flex={1}>
-                        <FormLabel fontWeight='semibold'>Order</FormLabel>
+                        <FormLabel fontWeight='600' color={colors.textPrimary}>
+                          Order
+                        </FormLabel>
                         <NumberInput
                           value={form.order}
                           onChange={(_valueString, valueNumber) =>
@@ -711,7 +749,10 @@ const QuestionManager: React.FC = () => {
                           }
                           min={1}
                         >
-                          <NumberInputField borderColor='gray.300' />
+                          <NumberInputField
+                            borderColor={colors.border}
+                            color={colors.textPrimary}
+                          />
                         </NumberInput>
                       </FormControl>
                     </HStack>
@@ -720,18 +761,21 @@ const QuestionManager: React.FC = () => {
                       form.questionType
                     ) && (
                       <FormControl>
-                        <FormLabel fontWeight='semibold'>
+                        <FormLabel fontWeight='600' color={colors.textPrimary}>
                           Options (Check the correct answer)
                         </FormLabel>
                         <VStack spacing={2} align='stretch'>
                           {form.options.map((option, optionIndex) => (
                             <HStack
                               key={option.id}
-                              p={2}
-                              borderWidth='1px'
+                              p={3}
+                              borderWidth='2px'
                               borderColor={
-                                option.isCorrect ? 'green.400' : 'gray.200'
+                                option.isCorrect
+                                  ? colors.success
+                                  : colors.border
                               }
+                              bg={option.isCorrect ? '#f0fdf4' : colors.cardBg}
                               borderRadius='md'
                             >
                               <Checkbox
@@ -756,9 +800,10 @@ const QuestionManager: React.FC = () => {
                                   )
                                 }
                                 placeholder={`Option ${optionIndex + 1}`}
-                                borderColor='gray.300'
-                                _hover={{ borderColor: 'blue.400' }}
-                                _placeholder={{ color: 'gray.400' }}
+                                borderColor='transparent'
+                                color={colors.textPrimary}
+                                _hover={{ borderColor: colors.primary }}
+                                _placeholder={{ color: colors.textMuted }}
                               />
                               {form.options.length > 2 && (
                                 <IconButton
@@ -768,8 +813,9 @@ const QuestionManager: React.FC = () => {
                                     removeOption(formIndex, optionIndex)
                                   }
                                   size='sm'
-                                  colorScheme='red'
-                                  variant='ghost'
+                                  bg={colors.error}
+                                  color='white'
+                                  _hover={{ bg: '#dc2626' }}
                                 />
                               )}
                             </HStack>
@@ -780,7 +826,9 @@ const QuestionManager: React.FC = () => {
                               onClick={() => addOption(formIndex)}
                               size='sm'
                               variant='outline'
-                              colorScheme='blue'
+                              borderColor={colors.primary}
+                              color={colors.primary}
+                              _hover={{ bg: colors.sectionBg }}
                               alignSelf='flex-start'
                             >
                               Add Option
@@ -793,11 +841,17 @@ const QuestionManager: React.FC = () => {
                     {['SHORT_ANSWER', 'ESSAY'].includes(form.questionType) && (
                       <FormControl>
                         <HStack justify='space-between' align='center' mb={2}>
-                          <FormLabel fontWeight='semibold' mb={0}>
+                          <FormLabel
+                            fontWeight='600'
+                            color={colors.textPrimary}
+                            mb={0}
+                          >
                             Expected Answer (Optional)
                           </FormLabel>
                           <HStack spacing={2}>
-                            <Text fontSize='sm'>Mark as correct</Text>
+                            <Text fontSize='sm' color={colors.textSecondary}>
+                              Mark as correct
+                            </Text>
                             <Checkbox
                               isChecked={form.isAnswerCorrect}
                               onChange={(e) =>
@@ -820,33 +874,43 @@ const QuestionManager: React.FC = () => {
                           rows={3}
                           borderWidth='2px'
                           borderColor={
-                            form.isAnswerCorrect ? 'green.300' : 'gray.300'
+                            form.isAnswerCorrect
+                              ? colors.success
+                              : colors.border
                           }
+                          bg={form.isAnswerCorrect ? '#f0fdf4' : colors.cardBg}
+                          color={colors.textPrimary}
                           _hover={{
                             borderColor: form.isAnswerCorrect
-                              ? 'green.400'
-                              : 'blue.400',
+                              ? '#059669'
+                              : colors.primary,
                           }}
                           _focus={{
                             borderColor: form.isAnswerCorrect
-                              ? 'green.500'
-                              : 'blue.500',
-                            boxShadow: `0 0 0 1px var(--chakra-colors-${
-                              form.isAnswerCorrect ? 'green' : 'blue'
-                            }-500)`,
+                              ? colors.success
+                              : colors.primary,
+                            boxShadow: `0 0 0 1px ${
+                              form.isAnswerCorrect
+                                ? colors.success
+                                : colors.primary
+                            }`,
                           }}
-                          _placeholder={{ color: 'gray.400' }}
+                          _placeholder={{ color: colors.textMuted }}
                         />
                         <Alert
                           status='info'
                           borderRadius='md'
                           mt={2}
                           fontSize='sm'
+                          bg={colors.sectionBg}
+                          borderColor={colors.info}
                         >
-                          <AlertIcon />
-                          {form.questionType === 'SHORT_ANSWER'
-                            ? 'Short answer questions require manual grading.'
-                            : 'Essay questions require manual grading and review.'}
+                          <AlertIcon color={colors.info} />
+                          <Text color={colors.textSecondary}>
+                            {form.questionType === 'SHORT_ANSWER'
+                              ? 'Short answer questions require manual grading.'
+                              : 'Essay questions require manual grading and review.'}
+                          </Text>
                         </Alert>
                       </FormControl>
                     )}
@@ -855,11 +919,17 @@ const QuestionManager: React.FC = () => {
               ))}
 
               <HStack justify='flex-end' pt={4}>
-                <Button variant='outline' onClick={resetForms}>
+                <Button
+                  variant='outline'
+                  onClick={resetForms}
+                  borderColor={colors.border}
+                  color={colors.textSecondary}
+                  _hover={{ bg: colors.sectionBg }}
+                >
                   Cancel
                 </Button>
                 <Button
-                  colorScheme='blue'
+                  {...buttonStyles.primary}
                   onClick={
                     editingQuestion ? handleUpdateQuestion : handleAddQuestions
                   }
@@ -879,24 +949,35 @@ const QuestionManager: React.FC = () => {
             </VStack>
           </Box>
 
-          {/* The Questions List section remains the same */}
+          {/* Questions List */}
           <Box
             p={6}
+            {...bgStyles.card}
             borderRadius='lg'
-            shadow='lg'
-            border='2px'
-            borderColor='purple.200'
+            shadow='xl'
+            borderWidth='2px'
+            borderColor='#a855f7'
           >
             <VStack spacing={4} align='stretch'>
-              <Heading size='md'>📝 Questions List</Heading>
+              <Heading size='md' color={colors.textPrimary}>
+                📝 Questions List
+              </Heading>
 
               {questions.length === 0 ? (
-                <Box textAlign='center' py={12}>
+                <Box
+                  textAlign='center'
+                  py={12}
+                  px={4}
+                  bg={colors.sectionBg}
+                  borderRadius='lg'
+                >
                   <Text fontSize='6xl' mb={4}>
                     📋
                   </Text>
-                  <Text>No questions added yet.</Text>
-                  <Text fontSize='sm' mt={2}>
+                  <Text color={colors.textPrimary} fontWeight='500'>
+                    No questions added yet.
+                  </Text>
+                  <Text fontSize='sm' mt={2} color={colors.textMuted}>
                     Create your first question using the form.
                   </Text>
                 </Box>
@@ -907,69 +988,113 @@ const QuestionManager: React.FC = () => {
                   maxH='600px'
                   overflowY='auto'
                   pr={2}
+                  css={{
+                    '&::-webkit-scrollbar': {
+                      width: '8px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                      background: colors.sectionBg,
+                      borderRadius: '4px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      background: colors.border,
+                      borderRadius: '4px',
+                    },
+                    '&::-webkit-scrollbar-thumb:hover': {
+                      background: colors.textMuted,
+                    },
+                  }}
                 >
                   {sortedQuestions.map((question) => (
                     <Card
                       key={question.id}
                       variant='outline'
                       borderWidth='2px'
-                      borderColor='gray.200'
-                      _hover={{ borderColor: 'blue.300' }}
+                      borderColor={colors.border}
+                      bg={colors.cardBg}
+                      _hover={{ borderColor: colors.primary, shadow: 'md' }}
+                      transition='all 0.2s'
                     >
                       <CardBody>
                         <HStack align='start' spacing={3}>
-                          <DragHandleIcon cursor='grab' mt={1} />
+                          <DragHandleIcon
+                            color={colors.textMuted}
+                            cursor='grab'
+                            mt={1}
+                          />
 
                           <VStack flex={1} align='stretch' spacing={2}>
                             <HStack flexWrap='wrap' spacing={2}>
-                              <Badge variant='outline' colorScheme='gray'>
+                              <Badge
+                                variant='solid'
+                                bg={colors.sectionBg}
+                                color={colors.textPrimary}
+                                px={2}
+                                py={1}
+                                borderRadius='full'
+                              >
                                 #{question.order}
                               </Badge>
                               <Badge
-                                colorScheme={getQuestionTypeColor(
-                                  question.questionType
-                                )}
+                                bg={getQuestionTypeColor(question.questionType)}
+                                color='white'
+                                px={3}
+                                py={1}
+                                borderRadius='full'
+                                textTransform='capitalize'
                               >
                                 {formatQuestionType(question.questionType)}
                               </Badge>
-                              <Badge colorScheme='yellow'>
+                              <Badge
+                                bg={colors.warning}
+                                color='white'
+                                px={3}
+                                py={1}
+                                borderRadius='full'
+                              >
                                 {question.points} pt
                                 {question.points !== 1 ? 's' : ''}
                               </Badge>
                             </HStack>
 
-                            <Text fontWeight='medium'>{question.text}</Text>
+                            <Text fontWeight='600' color={colors.textPrimary}>
+                              {question.text}
+                            </Text>
 
                             {['MULTIPLE_CHOICE', 'TRUE_FALSE'].includes(
                               question.questionType
                             ) &&
                               question.options && (
-                                <VStack align='stretch' spacing={1}>
+                                <VStack
+                                  align='stretch'
+                                  spacing={1}
+                                  p={3}
+                                  bg={colors.sectionBg}
+                                  borderRadius='md'
+                                >
                                   {question.options
                                     .sort((a, b) => a.order - b.order)
                                     .map((option) => (
                                       <HStack key={option.id} spacing={2}>
                                         <Box
-                                          w={2}
-                                          h={2}
+                                          w={3}
+                                          h={3}
                                           borderRadius='full'
                                           bg={
                                             option.isCorrect
-                                              ? 'green.500'
-                                              : 'gray.300'
+                                              ? colors.success
+                                              : colors.border
                                           }
                                         />
                                         <Text
                                           fontSize='sm'
                                           color={
                                             option.isCorrect
-                                              ? 'green.600'
-                                              : 'gray.600'
+                                              ? colors.success
+                                              : colors.textSecondary
                                           }
                                           fontWeight={
-                                            option.isCorrect
-                                              ? 'medium'
-                                              : 'normal'
+                                            option.isCorrect ? '600' : 'normal'
                                           }
                                         >
                                           {option.text}
@@ -987,20 +1112,23 @@ const QuestionManager: React.FC = () => {
                               question.options.length > 0 && (
                                 <Box
                                   p={3}
-                                  bg='green.50'
+                                  bg='#f0fdf4'
                                   borderRadius='md'
                                   borderWidth='1px'
-                                  borderColor='green.200'
+                                  borderColor={colors.success}
                                 >
                                   <Text
                                     fontSize='xs'
                                     fontWeight='bold'
-                                    color='green.700'
+                                    color={colors.success}
                                     mb={1}
                                   >
                                     Expected Answer:
                                   </Text>
-                                  <Text fontSize='sm'>
+                                  <Text
+                                    fontSize='sm'
+                                    color={colors.textSecondary}
+                                  >
                                     {question.options[0].text}
                                   </Text>
                                 </Box>
@@ -1009,7 +1137,11 @@ const QuestionManager: React.FC = () => {
                             {question.questionType === 'SHORT_ANSWER' &&
                               (!question.options ||
                                 question.options.length === 0) && (
-                                <Text fontSize='sm' fontStyle='italic'>
+                                <Text
+                                  fontSize='sm'
+                                  color={colors.textMuted}
+                                  fontStyle='italic'
+                                >
                                   Manual grading required
                                 </Text>
                               )}
@@ -1019,7 +1151,7 @@ const QuestionManager: React.FC = () => {
                                 question.options.length === 0) && (
                                 <Text
                                   fontSize='sm'
-                                  color='gray.500'
+                                  color={colors.textMuted}
                                   fontStyle='italic'
                                 >
                                   Essay - manual grading required
@@ -1032,16 +1164,20 @@ const QuestionManager: React.FC = () => {
                               aria-label='Edit question'
                               icon={<EditIcon />}
                               size='sm'
-                              colorScheme='blue'
-                              variant='ghost'
+                              variant='outline'
+                              borderColor={colors.primary}
+                              color={colors.primary}
+                              _hover={{ bg: colors.sectionBg }}
                               onClick={() => handleEditQuestion(question)}
                             />
                             <IconButton
                               aria-label='Delete question'
                               icon={<DeleteIcon />}
                               size='sm'
-                              colorScheme='red'
-                              variant='ghost'
+                              variant='outline'
+                              borderColor={colors.error}
+                              color={colors.error}
+                              _hover={{ bg: '#fee' }}
                               onClick={() => handleDeleteClick(question)}
                             />
                           </HStack>
@@ -1060,23 +1196,36 @@ const QuestionManager: React.FC = () => {
           leastDestructiveRef={cancelRef}
           onClose={onClose}
         >
-          <AlertDialogOverlay>
-            <AlertDialogContent>
-              <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+          <AlertDialogOverlay bg='blackAlpha.700'>
+            <AlertDialogContent bg={colors.cardBg} borderColor={colors.border}>
+              <AlertDialogHeader
+                fontSize='lg'
+                fontWeight='bold'
+                color={colors.textPrimary}
+              >
                 Delete Question
               </AlertDialogHeader>
 
-              <AlertDialogBody>
+              <AlertDialogBody color={colors.textSecondary}>
                 Are you sure you want to delete this question? This action
                 cannot be undone.
               </AlertDialogBody>
 
               <AlertDialogFooter>
-                <Button ref={cancelRef} onClick={onClose}>
+                <Button
+                  ref={cancelRef}
+                  onClick={onClose}
+                  variant='outline'
+                  borderColor={colors.border}
+                  color={colors.textSecondary}
+                  _hover={{ bg: colors.sectionBg }}
+                >
                   Cancel
                 </Button>
                 <Button
-                  colorScheme='red'
+                  bg={colors.error}
+                  color='white'
+                  _hover={{ bg: '#dc2626' }}
                   onClick={handleDeleteConfirm}
                   ml={3}
                   isLoading={deleteQuestion.isPending}

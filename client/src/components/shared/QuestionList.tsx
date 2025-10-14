@@ -20,6 +20,7 @@ import {
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon, DragHandleIcon } from '@chakra-ui/icons';
 import type { Question, QuestionType } from '../../types/api';
+import { colors, bgStyles } from '../../utils/colors';
 
 interface QuestionListProps {
   questions: Question[];
@@ -58,15 +59,15 @@ const QuestionList: React.FC<QuestionListProps> = ({
   const getQuestionTypeColor = useCallback((type: QuestionType): string => {
     switch (type) {
       case 'MULTIPLE_CHOICE':
-        return 'blue';
+        return colors.primary;
       case 'TRUE_FALSE':
-        return 'green';
+        return colors.success;
       case 'SHORT_ANSWER':
-        return 'orange';
+        return colors.warning;
       case 'ESSAY':
-        return 'purple';
+        return '#a855f7';
       default:
-        return 'gray';
+        return colors.textMuted;
     }
   }, []);
 
@@ -76,8 +77,14 @@ const QuestionList: React.FC<QuestionListProps> = ({
 
   if (questions.length === 0) {
     return (
-      <Box textAlign='center' py={10}>
-        <Text color='gray.500'>
+      <Box
+        textAlign='center'
+        py={10}
+        px={4}
+        bg={colors.sectionBg}
+        borderRadius='lg'
+      >
+        <Text color={colors.textMuted} fontSize='lg'>
           No questions added yet. Click "Add Question" to get started.
         </Text>
       </Box>
@@ -89,7 +96,14 @@ const QuestionList: React.FC<QuestionListProps> = ({
   return (
     <VStack spacing={4} align='stretch'>
       {sortedQuestions.map((question) => (
-        <Card key={question.id} variant='outline'>
+        <Card
+          key={question.id}
+          variant='outline'
+          {...bgStyles.card}
+          boxShadow='md'
+          _hover={{ boxShadow: 'lg', borderColor: colors.primary }}
+          transition='all 0.2s'
+        >
           <CardBody>
             <Stack
               direction={{ base: 'column', md: 'row' }}
@@ -98,26 +112,51 @@ const QuestionList: React.FC<QuestionListProps> = ({
             >
               {/* Drag Handle and Order */}
               <HStack flexShrink={0}>
-                <DragHandleIcon color='gray.400' cursor='grab' />
-                <Badge variant='outline' colorScheme='gray'>
+                <DragHandleIcon color={colors.textMuted} cursor='grab' />
+                <Badge
+                  variant='solid'
+                  bg={colors.sectionBg}
+                  color={colors.textPrimary}
+                  fontSize='sm'
+                  px={3}
+                  py={1}
+                  borderRadius='full'
+                >
                   {question.order}
                 </Badge>
               </HStack>
 
               {/* Question Content */}
               <Box flex={1}>
-                <HStack mb={2} flexWrap='wrap' spacing={2}>
+                <HStack mb={3} flexWrap='wrap' spacing={2}>
                   <Badge
-                    colorScheme={getQuestionTypeColor(question.questionType)}
+                    bg={getQuestionTypeColor(question.questionType)}
+                    color='white'
+                    px={3}
+                    py={1}
+                    borderRadius='full'
+                    textTransform='capitalize'
                   >
                     {formatQuestionType(question.questionType)}
                   </Badge>
-                  <Badge variant='outline'>
+                  <Badge
+                    variant='outline'
+                    borderColor={colors.border}
+                    color={colors.textSecondary}
+                    px={3}
+                    py={1}
+                    borderRadius='full'
+                  >
                     {question.points} point{question.points !== 1 ? 's' : ''}
                   </Badge>
                 </HStack>
 
-                <Text mb={2} whiteSpace='pre-wrap'>
+                <Text
+                  mb={3}
+                  whiteSpace='pre-wrap'
+                  color={colors.textPrimary}
+                  fontWeight='500'
+                >
                   {question.text}
                 </Text>
 
@@ -126,22 +165,36 @@ const QuestionList: React.FC<QuestionListProps> = ({
                   question.questionType
                 ) &&
                   question.options && (
-                    <VStack align='stretch' spacing={1} mt={3}>
+                    <VStack
+                      align='stretch'
+                      spacing={2}
+                      mt={3}
+                      p={3}
+                      bg={colors.sectionBg}
+                      borderRadius='md'
+                    >
                       {question.options
                         .sort((a, b) => a.order - b.order)
                         .map((option) => (
-                          <HStack key={option.id} spacing={2}>
+                          <HStack key={option.id} spacing={3}>
                             <Box
-                              w={2}
-                              h={2}
+                              w={3}
+                              h={3}
                               borderRadius='full'
-                              bg={option.isCorrect ? 'green.500' : 'gray.300'}
+                              bg={
+                                option.isCorrect
+                                  ? colors.success
+                                  : colors.border
+                              }
                             />
                             <Text
                               fontSize='sm'
                               color={
-                                option.isCorrect ? 'green.600' : 'gray.600'
+                                option.isCorrect
+                                  ? colors.success
+                                  : colors.textSecondary
                               }
+                              fontWeight={option.isCorrect ? '600' : 'normal'}
                             >
                               {option.text}
                               {option.isCorrect && ' ✓'}
@@ -152,13 +205,23 @@ const QuestionList: React.FC<QuestionListProps> = ({
                   )}
 
                 {question.questionType === 'SHORT_ANSWER' && (
-                  <Text fontSize='sm' color='gray.600' fontStyle='italic'>
+                  <Text
+                    fontSize='sm'
+                    color={colors.textMuted}
+                    fontStyle='italic'
+                    mt={2}
+                  >
                     Short answer question - manual grading required
                   </Text>
                 )}
 
                 {question.questionType === 'ESSAY' && (
-                  <Text fontSize='sm' color='gray.600' fontStyle='italic'>
+                  <Text
+                    fontSize='sm'
+                    color={colors.textMuted}
+                    fontStyle='italic'
+                    mt={2}
+                  >
                     Essay question - manual grading required
                   </Text>
                 )}
@@ -171,6 +234,9 @@ const QuestionList: React.FC<QuestionListProps> = ({
                   icon={<EditIcon />}
                   size='sm'
                   variant='outline'
+                  borderColor={colors.primary}
+                  color={colors.primary}
+                  _hover={{ bg: colors.sectionBg }}
                   onClick={() => onEdit(question)}
                 />
                 <IconButton
@@ -178,7 +244,9 @@ const QuestionList: React.FC<QuestionListProps> = ({
                   icon={<DeleteIcon />}
                   size='sm'
                   variant='outline'
-                  colorScheme='red'
+                  borderColor={colors.error}
+                  color={colors.error}
+                  _hover={{ bg: '#fee' }}
                   onClick={() => handleDeleteClick(question)}
                 />
               </HStack>
@@ -193,22 +261,38 @@ const QuestionList: React.FC<QuestionListProps> = ({
         leastDestructiveRef={cancelRef}
         onClose={onClose}
       >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+        <AlertDialogOverlay bg='blackAlpha.700'>
+          <AlertDialogContent bg={colors.cardBg} borderColor={colors.border}>
+            <AlertDialogHeader
+              fontSize='lg'
+              fontWeight='bold'
+              color={colors.textPrimary}
+            >
               Delete Question
             </AlertDialogHeader>
 
-            <AlertDialogBody>
+            <AlertDialogBody color={colors.textSecondary}>
               Are you sure you want to delete this question? This action cannot
               be undone.
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
+              <Button
+                ref={cancelRef}
+                onClick={onClose}
+                borderColor={colors.border}
+                color={colors.textSecondary}
+                _hover={{ bg: colors.sectionBg }}
+              >
                 Cancel
               </Button>
-              <Button colorScheme='red' onClick={handleDeleteConfirm} ml={3}>
+              <Button
+                bg={colors.error}
+                color='white'
+                _hover={{ bg: '#dc2626' }}
+                onClick={handleDeleteConfirm}
+                ml={3}
+              >
                 Delete
               </Button>
             </AlertDialogFooter>

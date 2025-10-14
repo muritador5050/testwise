@@ -13,6 +13,7 @@ import {
   HStack,
 } from '@chakra-ui/react';
 import { formatTime } from '../hooks/useExamHelper';
+import { colors } from '../../../utils/colors';
 
 interface ExamSidebarProps {
   studentName: string;
@@ -37,7 +38,7 @@ export const ExamSidebar: React.FC<ExamSidebarProps> = ({
 }) => {
   return (
     <Box w='full'>
-      <Card>
+      <Card bg={colors.cardBg} borderColor={colors.border} borderWidth='1px'>
         <CardBody>
           <VStack spacing={{ base: 3, md: 4 }} align='stretch'>
             {/* Student Info - Compact on mobile */}
@@ -46,14 +47,19 @@ export const ExamSidebar: React.FC<ExamSidebarProps> = ({
                 size='md'
                 name={studentName}
                 src={studentAvatar || ''}
-                bg='blue.500'
+                bg={colors.primary}
               />
               <VStack align='start' spacing={0}>
-                <Text fontWeight='bold' fontSize='md'>
+                <Text
+                  fontWeight='bold'
+                  fontSize='md'
+                  color={colors.textPrimary}
+                >
                   {studentName}
                 </Text>
                 <Badge
-                  colorScheme={isConnected ? 'green' : 'red'}
+                  bg={isConnected ? colors.success : colors.error}
+                  color='white'
                   fontSize='xs'
                 >
                   {isConnected ? '● Live' : '● Offline'}
@@ -67,60 +73,77 @@ export const ExamSidebar: React.FC<ExamSidebarProps> = ({
                 size='xl'
                 name={studentName}
                 src={studentAvatar || ''}
-                bg='blue.500'
+                bg={colors.primary}
               />
-              <Text fontWeight='bold' fontSize='lg' textAlign='center'>
+              <Text
+                fontWeight='bold'
+                fontSize='lg'
+                textAlign='center'
+                color={colors.textPrimary}
+              >
                 {studentName}
               </Text>
             </VStack>
 
-            <Divider />
+            <Divider borderColor={colors.border} />
 
             {/* Exam Details - Compact on mobile */}
             <VStack spacing={2} align='stretch'>
               <Text
                 fontWeight='semibold'
-                color='gray.600'
+                color={colors.textSecondary}
                 fontSize='sm'
                 display={{ base: 'none', md: 'block' }}
               >
                 EXAM DETAILS
               </Text>
               <Box>
-                <Text fontSize='xs' color='gray.500'>
+                <Text fontSize='xs' color={colors.textMuted}>
                   Title
                 </Text>
-                <Text fontWeight='medium' fontSize={{ base: 'sm', md: 'md' }}>
+                <Text
+                  fontWeight='medium'
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  color={colors.textPrimary}
+                >
                   {examTitle}
                 </Text>
               </Box>
               {examDescription && (
                 <Box display={{ base: 'none', md: 'block' }}>
-                  <Text fontSize='xs' color='gray.500'>
+                  <Text fontSize='xs' color={colors.textMuted}>
                     Description
                   </Text>
-                  <Text fontWeight='medium' fontSize='sm'>
+                  <Text
+                    fontWeight='medium'
+                    fontSize='sm'
+                    color={colors.textPrimary}
+                  >
                     {examDescription}
                   </Text>
                 </Box>
               )}
               <Box>
-                <Text fontSize='xs' color='gray.500'>
+                <Text fontSize='xs' color={colors.textMuted}>
                   Total Questions
                 </Text>
-                <Text fontWeight='medium' fontSize={{ base: 'sm', md: 'md' }}>
+                <Text
+                  fontWeight='medium'
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  color={colors.textPrimary}
+                >
                   {totalQuestions}
                 </Text>
               </Box>
             </VStack>
 
-            <Divider />
+            <Divider borderColor={colors.border} />
 
             {/* Timer */}
             <VStack spacing={3}>
               <Text
                 fontWeight='semibold'
-                color='gray.600'
+                color={colors.textSecondary}
                 fontSize='sm'
                 display={{ base: 'none', md: 'block' }}
               >
@@ -130,17 +153,20 @@ export const ExamSidebar: React.FC<ExamSidebarProps> = ({
                 value={timePercentage}
                 size={{ base: '100px', md: '120px' }}
                 thickness='8px'
-                color={timeRemaining < 300 ? 'red.400' : 'blue.400'}
+                color={timeRemaining < 300 ? colors.error : colors.primary}
+                trackColor={colors.border}
               >
                 <CircularProgressLabel
                   fontSize={{ base: 'md', md: 'lg' }}
                   fontWeight='bold'
+                  color={colors.textPrimary}
                 >
                   {formatTime(timeRemaining)}
                 </CircularProgressLabel>
               </CircularProgress>
               <Badge
-                colorScheme={isConnected ? 'green' : 'red'}
+                bg={isConnected ? colors.success : colors.error}
+                color='white'
                 fontSize='xs'
                 display={{ base: 'none', md: 'inline-flex' }}
               >

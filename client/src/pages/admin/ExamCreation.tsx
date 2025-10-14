@@ -34,6 +34,7 @@ import {
   usePublishTest,
 } from '../../api/services/testServices';
 import type { CreateTest, Test } from '../../types/api';
+import { colors, bgStyles, buttonStyles, textStyles } from '../../utils/colors';
 
 const ExamCreation: React.FC = () => {
   const [formData, setFormData] = useState<CreateTest>({
@@ -118,6 +119,8 @@ const ExamCreation: React.FC = () => {
       align='flex-start'
       spacing={{ base: 6, md: 8 }}
       p={{ base: 4, md: 6, lg: 8 }}
+      bg={colors.pageBg}
+      minH='100vh'
     >
       {/* Left: Form */}
       <Box
@@ -126,6 +129,9 @@ const ExamCreation: React.FC = () => {
         p={{ base: 4, md: 6, lg: 8 }}
         borderRadius='lg'
         shadow='lg'
+        {...bgStyles.card}
+        border='1px solid'
+        borderColor={colors.border}
       >
         <VStack
           spacing={{ base: 4, md: 6 }}
@@ -133,7 +139,7 @@ const ExamCreation: React.FC = () => {
           as='form'
           onSubmit={handleSubmit}
         >
-          <Heading size={{ base: 'md', md: 'lg' }}>
+          <Heading size={{ base: 'md', md: 'lg' }} {...textStyles.heading}>
             {editingId ? 'Update Test' : 'Create New Test'}
           </Heading>
 
@@ -141,6 +147,7 @@ const ExamCreation: React.FC = () => {
             <FormLabel
               fontWeight='semibold'
               fontSize={{ base: 'sm', md: 'md' }}
+              {...textStyles.body}
             >
               Test Title
             </FormLabel>
@@ -150,9 +157,11 @@ const ExamCreation: React.FC = () => {
                 setFormData({ ...formData, title: e.target.value })
               }
               placeholder='Enter test title'
-              borderColor='gray.300'
-              _placeholder={{ color: 'gray.400' }}
+              borderColor={colors.border}
+              _placeholder={{ color: colors.textMuted }}
               fontSize={{ base: 'sm', md: 'md' }}
+              bg='white'
+              color='black'
             />
           </FormControl>
 
@@ -160,6 +169,7 @@ const ExamCreation: React.FC = () => {
             <FormLabel
               fontWeight='semibold'
               fontSize={{ base: 'sm', md: 'md' }}
+              {...textStyles.body}
             >
               Description
             </FormLabel>
@@ -170,9 +180,11 @@ const ExamCreation: React.FC = () => {
               }
               placeholder='Enter test description (optional)'
               rows={4}
-              borderColor='gray.300'
-              _placeholder={{ color: 'gray.400' }}
+              borderColor={colors.border}
+              _placeholder={{ color: colors.textMuted }}
               fontSize={{ base: 'sm', md: 'md' }}
+              bg='white'
+              color='black'
             />
           </FormControl>
 
@@ -181,6 +193,7 @@ const ExamCreation: React.FC = () => {
               <FormLabel
                 fontWeight='semibold'
                 fontSize={{ base: 'sm', md: 'md' }}
+                {...textStyles.body}
               >
                 Duration (minutes)
               </FormLabel>
@@ -192,8 +205,10 @@ const ExamCreation: React.FC = () => {
                 min={1}
               >
                 <NumberInputField
-                  borderColor='gray.300'
+                  borderColor={colors.border}
                   fontSize={{ base: 'sm', md: 'md' }}
+                  bg='white'
+                  color='black'
                 />
                 <NumberInputStepper>
                   <NumberIncrementStepper />
@@ -206,6 +221,7 @@ const ExamCreation: React.FC = () => {
               <FormLabel
                 fontWeight='semibold'
                 fontSize={{ base: 'sm', md: 'md' }}
+                {...textStyles.body}
               >
                 Max Attempts
               </FormLabel>
@@ -217,8 +233,10 @@ const ExamCreation: React.FC = () => {
                 min={1}
               >
                 <NumberInputField
-                  borderColor='gray.300'
+                  borderColor={colors.border}
                   fontSize={{ base: 'sm', md: 'md' }}
+                  bg='white'
+                  color='black'
                 />
                 <NumberInputStepper>
                   <NumberIncrementStepper />
@@ -233,6 +251,7 @@ const ExamCreation: React.FC = () => {
               <FormLabel
                 fontWeight='semibold'
                 fontSize={{ base: 'sm', md: 'md' }}
+                {...textStyles.body}
               >
                 Available From
               </FormLabel>
@@ -245,8 +264,10 @@ const ExamCreation: React.FC = () => {
                     availableFrom: e.target.value || null,
                   })
                 }
-                borderColor='gray.300'
+                borderColor={colors.border}
                 fontSize={{ base: 'sm', md: 'md' }}
+                bg='white'
+                color='black'
               />
             </FormControl>
 
@@ -254,6 +275,7 @@ const ExamCreation: React.FC = () => {
               <FormLabel
                 fontWeight='semibold'
                 fontSize={{ base: 'sm', md: 'md' }}
+                {...textStyles.body}
               >
                 Available Until
               </FormLabel>
@@ -266,8 +288,10 @@ const ExamCreation: React.FC = () => {
                     availableUntil: e.target.value || null,
                   })
                 }
-                borderColor='gray.300'
+                borderColor={colors.border}
                 fontSize={{ base: 'sm', md: 'md' }}
+                bg='white'
+                color='black'
               />
             </FormControl>
           </Stack>
@@ -277,6 +301,7 @@ const ExamCreation: React.FC = () => {
               mb='0'
               fontWeight='semibold'
               fontSize={{ base: 'sm', md: 'md' }}
+              {...textStyles.body}
             >
               Publish Test
             </FormLabel>
@@ -285,9 +310,21 @@ const ExamCreation: React.FC = () => {
               onChange={(e) =>
                 setFormData({ ...formData, isPublished: e.target.checked })
               }
-              colorScheme='blue'
+              sx={{
+                'span.chakra-switch__track': {
+                  backgroundColor: formData.isPublished ? '#38B2AC' : '#CBD5E0',
+                },
+                'span.chakra-switch__thumb': {
+                  backgroundColor: 'white',
+                },
+              }}
             />
-            <Text ml={3} fontSize='sm' color='gray.600'>
+            <Text
+              ml={3}
+              fontSize='sm'
+              color={formData.isPublished ? 'teal.300' : colors.textMuted}
+              fontWeight={formData.isPublished ? 'bold' : 'normal'}
+            >
               {formData.isPublished ? 'Published' : 'Draft'}
             </Text>
           </FormControl>
@@ -304,6 +341,9 @@ const ExamCreation: React.FC = () => {
               onClick={resetForm}
               w={{ base: 'full', sm: 'auto' }}
               size={{ base: 'md', md: 'md' }}
+              borderColor={colors.primary}
+              color={colors.primary}
+              _hover={{ bg: colors.sectionBg }}
             >
               Reset
             </Button>
@@ -316,6 +356,7 @@ const ExamCreation: React.FC = () => {
               colorScheme='blue'
               w={{ base: 'full', sm: 'auto' }}
               size={{ base: 'md', md: 'md' }}
+              {...buttonStyles.primary}
             >
               {editingId ? 'Update Test' : 'Create Test'}
             </Button>
@@ -325,35 +366,50 @@ const ExamCreation: React.FC = () => {
 
       {/* Right: Test List */}
       <Box flex='1' w={{ base: '100%', lg: 'auto' }}>
-        <Heading size={{ base: 'sm', md: 'md' }} mb={4}>
+        <Heading size={{ base: 'sm', md: 'md' }} mb={4} {...textStyles.heading}>
           All Tests
         </Heading>
         <SimpleGrid columns={{ base: 1 }} spacing={4}>
           {tests.tests.map((test) => (
-            <Card key={test.id} shadow='md' borderRadius='lg'>
+            <Card
+              key={test.id}
+              shadow='md'
+              borderRadius='lg'
+              {...bgStyles.card}
+              border='1px solid'
+              borderColor={colors.border}
+            >
               <CardHeader pb={2}>
-                <Heading size={{ base: 'xs', md: 'sm' }}>{test.title}</Heading>
+                <Heading
+                  size={{ base: 'xs', md: 'sm' }}
+                  {...textStyles.heading}
+                >
+                  {test.title}
+                </Heading>
               </CardHeader>
               <CardBody py={3}>
-                <Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.600'>
+                <Text
+                  fontSize={{ base: 'xs', md: 'sm' }}
+                  color={colors.textSecondary}
+                >
                   {test.description || 'No description'}
                 </Text>
-                <Text fontSize='xs' color='gray.500' mt={2}>
+                <Text fontSize='xs' color={colors.textMuted} mt={2}>
                   Duration: {test.duration} mins | Attempts: {test.maxAttempts}
                 </Text>
-                <Text fontSize='xs' color='gray.500'>
+                <Text fontSize='xs' color={colors.textMuted}>
                   Questions: {test._count?.questions ?? 0} | Attempts Made:{' '}
                   {test._count?.attempts ?? 0}
                 </Text>
                 <Text
                   fontSize='xs'
-                  color={test.isPublished ? 'green.500' : 'orange.500'}
+                  color={test.isPublished ? colors.success : colors.warning}
                   fontWeight='semibold'
                 >
                   {test.isPublished ? 'Published' : 'Draft'}
                 </Text>
                 {test.availableFrom && test.availableUntil && (
-                  <Text fontSize='xs' color='gray.500' mt={1}>
+                  <Text fontSize='xs' color={colors.textMuted} mt={1}>
                     Available:{' '}
                     {new Date(test.availableFrom).toLocaleDateString()} -{' '}
                     {new Date(test.availableUntil).toLocaleDateString()}
@@ -373,6 +429,7 @@ const ExamCreation: React.FC = () => {
                     variant='ghost'
                     size='sm'
                     onClick={() => handleEdit(test)}
+                    color={colors.primary}
                   />
                   <IconButton
                     aria-label='delete'
@@ -380,12 +437,17 @@ const ExamCreation: React.FC = () => {
                     variant='ghost'
                     size='sm'
                     onClick={() => handleDelete(test.id)}
+                    color={colors.error}
                   />
                   <Button
                     size='sm'
                     onClick={() => publish.mutate(test.id)}
                     colorScheme={test.isPublished ? 'red' : 'green'}
                     fontSize='xs'
+                    bg={test.isPublished ? colors.error : colors.success}
+                    _hover={{
+                      bg: test.isPublished ? '#dc2626' : '#059669',
+                    }}
                   >
                     {test.isPublished ? 'Unpublish' : 'Publish'}
                   </Button>
@@ -401,6 +463,7 @@ const ExamCreation: React.FC = () => {
                   }
                   w={{ base: 'full', sm: 'auto' }}
                   fontSize='xs'
+                  {...buttonStyles.primary}
                 >
                   {test.questions?.length !== 0
                     ? 'Add More Questions'

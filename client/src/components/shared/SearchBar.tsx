@@ -6,9 +6,9 @@ import {
   InputRightElement,
   IconButton,
   Box,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { Search, X } from 'lucide-react';
+import { colors } from '../../utils/colors';
 
 export interface SearchBarProps {
   // Core props
@@ -56,11 +56,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
   id,
   'aria-label': ariaLabel = 'Search',
 }) => {
-  // Color values for light/dark mode
-  const searchIconColor = useColorModeValue('gray.400', 'gray.500');
-  const clearButtonColor = useColorModeValue('gray.500', 'gray.400');
-  const defaultBgColor = useColorModeValue('white', 'gray.800');
-
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.value);
   };
@@ -90,7 +85,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             icon={<Search />}
             variant='ghost'
             size='xs'
-            color={searchIconColor}
+            color={colors.textMuted}
             onClick={handleSearchClick}
             isDisabled={disabled}
           />
@@ -107,7 +102,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
           borderRadius={borderRadius}
           autoFocus={autoFocus}
           disabled={disabled}
-          backgroundColor={backgroundColor || defaultBgColor}
+          backgroundColor={backgroundColor || colors.cardBg}
+          borderColor={colors.border}
+          color={colors.textPrimary}
+          _placeholder={{ color: colors.textMuted }}
+          _focus={{
+            borderColor: colors.primary,
+            boxShadow: `0 0 0 1px ${colors.primary}`,
+          }}
           aria-label={ariaLabel}
           pr={showClearButton && value ? '2.5rem' : undefined}
         />
@@ -120,7 +122,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
               icon={<X />}
               variant='ghost'
               size='xs'
-              color={clearButtonColor}
+              color={colors.textSecondary}
+              _hover={{ color: colors.textPrimary }}
               onClick={handleClear}
               isDisabled={disabled}
             />

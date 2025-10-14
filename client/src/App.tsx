@@ -6,6 +6,8 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import UnauthorizedPage from './pages/UnathourizedPage';
 import { PageLoader } from './utils/PageLoader';
+import { Box } from '@chakra-ui/react';
+import { colors } from './utils/colors';
 
 // Lazy load heavy components
 const SignupPage = lazy(() =>
@@ -27,37 +29,39 @@ const StudentLayout = lazy(
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-          {/* Public Routes */}
-          <Route path='/' element={<HomePage />} />
-          <Route path='/users/login' element={<LoginPage />} />
-          <Route path='/users/signup' element={<SignupPage />} />
-          <Route path='/unauthorized' element={<UnauthorizedPage />} />
+    <Box minH='100vh' bg={colors.pageBg}>
+      <Router>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* Public Routes */}
+            <Route path='/' element={<HomePage />} />
+            <Route path='/users/login' element={<LoginPage />} />
+            <Route path='/users/signup' element={<SignupPage />} />
+            <Route path='/unauthorized' element={<UnauthorizedPage />} />
 
-          {/* Student Routes */}
-          <Route
-            path='/student/*'
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT', 'ADMIN']}>
-                <StudentLayout />
-              </ProtectedRoute>
-            }
-          />
+            {/* Student Routes */}
+            <Route
+              path='/student/*'
+              element={
+                <ProtectedRoute allowedRoles={['STUDENT', 'ADMIN']}>
+                  <StudentLayout />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Admin Routes */}
-          <Route
-            path='/admin/*'
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </Suspense>
-    </Router>
+            {/* Admin Routes */}
+            <Route
+              path='/admin/*'
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Suspense>
+      </Router>
+    </Box>
   );
 };
 

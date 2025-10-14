@@ -21,6 +21,7 @@ import {
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons';
 import { useGetAllTests } from '../../api/services/testServices';
 import { useGetQuestionsByTest } from '../../api/services/questionServices';
+import { colors, bgStyles, textStyles } from '../../utils/colors';
 
 interface Option {
   id: number;
@@ -92,24 +93,34 @@ export default function QuestionBank() {
   if (testsLoading) {
     return (
       <Center h='200px'>
-        <Spinner size='xl' />
+        <Spinner size='xl' color={colors.primary} />
       </Center>
     );
   }
 
   return (
-    <Box p={6}>
+    <Box p={6} bg={colors.pageBg} minH='100vh'>
       <VStack spacing={6} align='stretch'>
-        <Heading size='lg'>Question Bank</Heading>
+        <Heading size='lg' {...textStyles.heading}>
+          Question Bank
+        </Heading>
 
         {/* Tests List */}
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
           {testsData?.tests.map((test) => (
-            <Card key={test.id} variant='outline'>
+            <Card
+              key={test.id}
+              variant='outline'
+              {...bgStyles.card}
+              border='1px solid'
+              borderColor={colors.border}
+            >
               <CardBody>
                 <VStack align='start' spacing={3}>
-                  <Heading size='md'>{test.title}</Heading>
-                  <Text color='gray.600'>{test.description}</Text>
+                  <Heading size='md' {...textStyles.heading}>
+                    {test.title}
+                  </Heading>
+                  <Text color={colors.textSecondary}>{test.description}</Text>
 
                   <Box>
                     <Badge
@@ -123,7 +134,7 @@ export default function QuestionBank() {
                     </Badge>
                   </Box>
 
-                  <Text fontSize='sm' color='gray.500'>
+                  <Text fontSize='sm' color={colors.textMuted}>
                     Duration: {test.duration} mins • Max Attempts:{' '}
                     {test.maxAttempts}
                   </Text>
@@ -132,10 +143,11 @@ export default function QuestionBank() {
 
               <CardFooter>
                 <Button
-                  colorScheme='teal'
                   width='full'
                   onClick={() => handleFetchQuestions(test.id)}
                   isLoading={questionsLoading && selectedTestId === test.id}
+                  bg={colors.primary}
+                  _hover={{ bg: colors.primaryHover }}
                 >
                   View Questions
                 </Button>
@@ -147,20 +159,30 @@ export default function QuestionBank() {
         {/* Questions Display */}
         {selectedTestId && questionsData && (
           <Box mt={8}>
-            <Divider my={6} />
-            <Heading size='md' mb={4}>
+            <Divider my={6} borderColor={colors.border} />
+            <Heading size='md' mb={4} {...textStyles.heading}>
               Questions for{' '}
               {testsData?.tests.find((t) => t.id === selectedTestId)?.title}
             </Heading>
 
             <VStack spacing={6} align='stretch'>
               {questionsData.map((question: Question, index: number) => (
-                <Card key={question.id} variant='elevated'>
+                <Card
+                  key={question.id}
+                  variant='elevated'
+                  {...bgStyles.card}
+                  border='1px solid'
+                  borderColor={colors.border}
+                >
                   <CardBody>
                     <VStack align='start' spacing={4}>
                       {/* Question Header */}
                       <Box width='full'>
-                        <Text fontWeight='bold' fontSize='lg'>
+                        <Text
+                          fontWeight='bold'
+                          fontSize='lg'
+                          {...textStyles.heading}
+                        >
                           {index + 1}. {question.text}
                         </Text>
                         <Box mt={2}>
@@ -195,10 +217,12 @@ export default function QuestionBank() {
                                     : WarningIcon
                                 }
                                 color={
-                                  option.isCorrect ? 'green.500' : 'gray.300'
+                                  option.isCorrect
+                                    ? colors.success
+                                    : colors.textMuted
                                 }
                               />
-                              <Text>
+                              <Text color={colors.textSecondary}>
                                 {option.order}. {option.text}
                                 {option.isCorrect && (
                                   <Badge ml={2} colorScheme='green' size='sm'>
@@ -213,7 +237,7 @@ export default function QuestionBank() {
 
                       {/* For questions without options */}
                       {question.options.length === 0 && (
-                        <Text fontStyle='italic' color='gray.500'>
+                        <Text fontStyle='italic' color={colors.textMuted}>
                           {question.questionType === 'SHORT_ANSWER'
                             ? 'Short answer question - student will type their response'
                             : 'Essay question - student will write detailed response'}

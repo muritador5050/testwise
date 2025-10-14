@@ -15,7 +15,6 @@ import {
   StatHelpText,
   Badge,
   Divider,
-  useColorModeValue,
   Button,
 } from '@chakra-ui/react';
 import {
@@ -29,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useGetUserPerformance } from '../../../api/services/attemptService';
 import { Link } from 'react-router-dom';
+import { colors, bgStyles, textStyles } from '../../../utils/colors';
 
 // Helper functions
 const formatTime = (seconds: number): string => {
@@ -68,83 +68,89 @@ const getPassStatus = (
   const isPass = percentScore >= 50;
   return {
     icon: isPass ? <CheckCircle size={16} /> : <XCircle size={16} />,
-    color: isPass ? 'green.500' : 'red.500',
+    color: isPass ? colors.success : colors.error,
   };
 };
 
 // Main Component
 export const StudentPerformance: React.FC = () => {
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const headerColor = useColorModeValue('gray.800', 'white');
-
   const { data } = useGetUserPerformance();
 
   return (
     <VStack spacing={6} align='stretch' w='full'>
       {/* Summary Stats */}
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-        <Card bg={cardBg} border='1px' borderColor={borderColor}>
+        <Card {...bgStyles.card}>
           <CardBody>
             <Stat>
               <HStack>
-                <BarChart3 size={24} color='#3182CE' />
-                <StatLabel>Total Attempts</StatLabel>
+                <BarChart3 size={24} color={colors.primary} />
+                <StatLabel {...textStyles.body}>Total Attempts</StatLabel>
               </HStack>
-              <StatNumber fontSize='2xl'>{data?.totalAttempts}</StatNumber>
-              <StatHelpText>All time test attempts</StatHelpText>
+              <StatNumber fontSize='2xl' {...textStyles.heading}>
+                {data?.totalAttempts}
+              </StatNumber>
+              <StatHelpText {...textStyles.muted}>
+                All time test attempts
+              </StatHelpText>
             </Stat>
           </CardBody>
         </Card>
 
-        <Card bg={cardBg} border='1px' borderColor={borderColor}>
+        <Card {...bgStyles.card}>
           <CardBody>
             <Stat>
               <HStack>
-                <TrendingUp size={24} color='#38A169' />
-                <StatLabel>Average Score</StatLabel>
+                <TrendingUp size={24} color={colors.success} />
+                <StatLabel {...textStyles.body}>Average Score</StatLabel>
               </HStack>
-              <StatNumber fontSize='2xl'>
+              <StatNumber fontSize='2xl' {...textStyles.heading}>
                 {data?.averageScore.toFixed(1)}%
               </StatNumber>
-              <StatHelpText>Across all attempts</StatHelpText>
+              <StatHelpText {...textStyles.muted}>
+                Across all attempts
+              </StatHelpText>
             </Stat>
           </CardBody>
         </Card>
 
-        <Card bg={cardBg} border='1px' borderColor={borderColor}>
+        <Card {...bgStyles.card}>
           <CardBody>
             <Stat>
               <HStack>
-                <Target size={24} color='#DD6B20' />
-                <StatLabel>Pass Rate</StatLabel>
+                <Target size={24} color={colors.warning} />
+                <StatLabel {...textStyles.body}>Pass Rate</StatLabel>
               </HStack>
-              <StatNumber fontSize='2xl'>
+              <StatNumber fontSize='2xl' {...textStyles.heading}>
                 {data?.passRate.toFixed(1)}%
               </StatNumber>
-              <StatHelpText>Tests passed (≥50%)</StatHelpText>
+              <StatHelpText {...textStyles.muted}>
+                Tests passed (≥50%)
+              </StatHelpText>
             </Stat>
           </CardBody>
         </Card>
       </SimpleGrid>
 
       {/* Attempts History */}
-      <Card bg={cardBg} border='1px' borderColor={borderColor}>
+      <Card {...bgStyles.card}>
         <CardHeader>
           <HStack justify='space-between'>
             <HStack>
-              <Calendar size={20} />
-              <Text fontSize='xl' fontWeight='bold' color={headerColor}>
+              <Calendar size={20} color={colors.primary} />
+              <Text fontSize='xl' fontWeight='bold' {...textStyles.heading}>
                 Recent Attempts
               </Text>
             </HStack>
 
-            {(data?.attempts.length ?? 0) > 5 && (
+            {(data?.attempts.length ?? 0) > 2 && (
               <Button
                 as={Link}
                 to='/student/results'
                 size='sm'
-                color={'white'}
+                bg={colors.primary}
+                color='white'
+                _hover={{ bg: colors.primaryHover }}
                 variant='ghost'
               >
                 View All
@@ -155,13 +161,17 @@ export const StudentPerformance: React.FC = () => {
         <CardBody>
           {!data?.attempts || data.attempts.length === 0 ? (
             <VStack spacing={2} py={8}>
-              <Text color='gray.500'>No attempts yet</Text>
-              <Text fontSize='sm' color='gray.400'>
+              <Text {...textStyles.muted}>No attempts yet</Text>
+              <Text fontSize='sm' {...textStyles.muted}>
                 Start taking tests to see your performance
               </Text>
             </VStack>
           ) : (
-            <VStack spacing={4} align='stretch' divider={<Divider />}>
+            <VStack
+              spacing={4}
+              align='stretch'
+              divider={<Divider borderColor={colors.border} />}
+            >
               {data?.attempts.slice(0, 3).map((attempt, index) => {
                 const passStatus = getPassStatus(attempt.percentScore ?? 0);
                 return (
@@ -169,11 +179,16 @@ export const StudentPerformance: React.FC = () => {
                     key={index}
                     p={3}
                     borderRadius='md'
-                    _hover={{ bg: 'gray.700' }}
+                    _hover={{ bg: colors.sectionBg }}
+                    transition='background 0.2s'
                   >
                     <VStack align='stretch' spacing={3}>
                       <HStack justify='space-between'>
-                        <Text fontWeight='semibold' fontSize='lg'>
+                        <Text
+                          fontWeight='semibold'
+                          fontSize='lg'
+                          {...textStyles.heading}
+                        >
                           {attempt.testTitle}
                         </Text>
                         <Badge
@@ -189,7 +204,7 @@ export const StudentPerformance: React.FC = () => {
                       <HStack
                         justify='space-between'
                         fontSize='sm'
-                        color='gray.600'
+                        {...textStyles.body}
                       >
                         <HStack>
                           <Target size={16} />
@@ -205,7 +220,11 @@ export const StudentPerformance: React.FC = () => {
 
                       <Box>
                         <HStack justify='space-between' mb={1}>
-                          <Text fontSize='sm' fontWeight='medium'>
+                          <Text
+                            fontSize='sm'
+                            fontWeight='medium'
+                            {...textStyles.body}
+                          >
                             Performance
                           </Text>
                           <HStack spacing={1}>
@@ -230,7 +249,7 @@ export const StudentPerformance: React.FC = () => {
                       <HStack
                         justify='space-between'
                         fontSize='sm'
-                        color='gray.500'
+                        {...textStyles.muted}
                       >
                         <Text>Completed:</Text>
                         <Text>{formatDate(attempt.completedAt ?? '')}</Text>

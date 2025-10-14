@@ -1,7 +1,6 @@
 import React, { useState, useCallback, lazy } from 'react';
 import {
   Box,
-  useColorModeValue,
   Drawer,
   DrawerOverlay,
   DrawerContent,
@@ -15,6 +14,7 @@ import {
 import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
 import { Route, Routes } from 'react-router-dom';
+import { colors } from '../../../utils/colors';
 
 const AdminDashboard = lazy(
   () => import('../../../pages/admin/AdminDashboard')
@@ -129,7 +129,6 @@ const navItems = [
 
 const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const bgColor = useColorModeValue('gray.50', 'gray.900');
   const logoutMutation = useLogoutUser();
   const { data: user } = useCurrentUser();
 
@@ -152,7 +151,7 @@ const AdminLayout: React.FC = () => {
   const contentMarginLeft = isMobile ? '0' : isSidebarOpen ? '64' : '16';
 
   return (
-    <Box minH='100vh' bg={bgColor}>
+    <Box minH='100vh' bg={colors.pageBg}>
       <AdminNavbar
         onToggle={handleToggleSidebar}
         isSidebarOpen={isSidebarOpen}

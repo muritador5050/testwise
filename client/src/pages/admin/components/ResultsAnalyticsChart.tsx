@@ -7,7 +7,6 @@ import {
   Text,
   Card,
   CardBody,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import {
   BarChart,
@@ -23,14 +22,11 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useGetAttemptAnalytics } from '../../../api/services/attemptService';
+import { colors, bgStyles, textStyles } from '../../../utils/colors';
 
 const ResultsAnalyticsCharts: React.FC = () => {
   const { data } = useGetAttemptAnalytics();
   const navigate = useNavigate();
-
-  const cardBg = useColorModeValue('white', 'gray.700');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const chartTextColor = useColorModeValue('#374151', '#9CA3AF');
 
   // Navigation handler
   const handleChartClick = () => {
@@ -42,26 +38,30 @@ const ResultsAnalyticsCharts: React.FC = () => {
     {
       name: 'Completed',
       value: data?.completedAttempts || 0,
-      color: '#10B981',
+      color: colors.success,
     },
     {
       name: 'In Progress',
       value: data?.inProgressAttempts || 0,
-      color: '#F59E0B',
+      color: colors.warning,
     },
-    { name: 'Timed Out', value: data?.timedOutAttempts || 0, color: '#EF4444' },
+    {
+      name: 'Timed Out',
+      value: data?.timedOutAttempts || 0,
+      color: colors.error,
+    },
   ];
 
   // Data for bar chart - Key Metrics Comparison
   const metricsData = [
     { name: 'Pass Rate', value: data?.passRate || 0, fill: '#8B5CF6' },
-    { name: 'Avg Score', value: data?.averageScore || 0, fill: '#3B82F6' },
+    { name: 'Avg Score', value: data?.averageScore || 0, fill: colors.primary },
     {
       name: 'Completion',
       value: data?.totalAttempts
         ? ((data?.completedAttempts || 0) / data.totalAttempts) * 100
         : 0,
-      fill: '#10B981',
+      fill: colors.success,
     },
   ];
 
@@ -71,9 +71,7 @@ const ResultsAnalyticsCharts: React.FC = () => {
       <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
         {/* Attempt Status Distribution - Pie Chart */}
         <Card
-          bg={cardBg}
-          borderWidth='1px'
-          borderColor={borderColor}
+          {...bgStyles.card}
           cursor='pointer'
           onClick={handleChartClick}
           _hover={{ boxShadow: 'lg', transform: 'translateY(-2px)' }}
@@ -81,7 +79,7 @@ const ResultsAnalyticsCharts: React.FC = () => {
         >
           <CardBody>
             <VStack align='stretch' spacing={4}>
-              <Text fontSize='lg' fontWeight='semibold'>
+              <Text fontSize='lg' fontWeight='semibold' {...textStyles.heading}>
                 Attempt Status Distribution
               </Text>
               <Box height='300px'>
@@ -107,9 +105,9 @@ const ResultsAnalyticsCharts: React.FC = () => {
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: cardBg,
-                        borderColor: borderColor,
-                        color: chartTextColor,
+                        backgroundColor: colors.cardBg,
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
                       }}
                     />
                     <Legend />
@@ -122,9 +120,7 @@ const ResultsAnalyticsCharts: React.FC = () => {
 
         {/* Key Metrics Comparison - Bar Chart */}
         <Card
-          bg={cardBg}
-          borderWidth='1px'
-          borderColor={borderColor}
+          {...bgStyles.card}
           cursor='pointer'
           onClick={handleChartClick}
           _hover={{ boxShadow: 'lg', transform: 'translateY(-2px)' }}
@@ -132,33 +128,36 @@ const ResultsAnalyticsCharts: React.FC = () => {
         >
           <CardBody>
             <VStack align='stretch' spacing={4}>
-              <Text fontSize='lg' fontWeight='semibold'>
+              <Text fontSize='lg' fontWeight='semibold' {...textStyles.heading}>
                 Key Metrics Comparison
               </Text>
               <Box height='300px'>
                 <ResponsiveContainer width='100%' height='100%'>
                   <BarChart data={metricsData} onClick={handleChartClick}>
-                    <CartesianGrid strokeDasharray='3 3' stroke={borderColor} />
+                    <CartesianGrid
+                      strokeDasharray='3 3'
+                      stroke={colors.border}
+                    />
                     <XAxis
                       dataKey='name'
-                      stroke={chartTextColor}
+                      stroke={colors.textPrimary}
                       fontSize={12}
                     />
                     <YAxis
-                      stroke={chartTextColor}
+                      stroke={colors.textPrimary}
                       fontSize={12}
                       label={{
                         value: 'Percentage (%)',
                         angle: -90,
                         position: 'insideLeft',
-                        style: { fill: chartTextColor },
+                        style: { fill: colors.textPrimary },
                       }}
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: cardBg,
-                        borderColor: borderColor,
-                        color: chartTextColor,
+                        backgroundColor: colors.cardBg,
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
                       }}
                     />
                     <Bar

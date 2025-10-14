@@ -10,12 +10,12 @@ import {
   CardBody,
   Badge,
   Divider,
-  useColorModeValue,
   Button,
 } from '@chakra-ui/react';
 import { Clock, Target, CheckCircle, XCircle, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useGetUserPerformance } from '../../api/services/attemptService';
+import { colors, bgStyles, textStyles } from '../../utils/colors';
 
 // Helper functions
 const formatTime = (seconds: number): string => {
@@ -55,28 +55,23 @@ const getPassStatus = (
   const isPass = percentScore >= 50;
   return {
     icon: isPass ? <CheckCircle size={16} /> : <XCircle size={16} />,
-    color: isPass ? 'green.500' : 'red.500',
+    color: isPass ? colors.success : colors.error,
   };
 };
 
 // Main Component
 const StudentResults: React.FC = () => {
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const headerColor = useColorModeValue('gray.800', 'white');
-  const hoverBg = useColorModeValue('gray.50', 'gray.700');
-
   const { data } = useGetUserPerformance();
 
   return (
-    <VStack spacing={8} align='stretch' w='full' p={6}>
+    <VStack spacing={8} align='stretch' w='full' p={6} bg={colors.pageBg}>
       {/* Attempts History */}
-      <Card bg={cardBg} border='1px' borderColor={borderColor} shadow='md'>
+      <Card {...bgStyles.card} shadow='md'>
         <CardHeader pb={4}>
           <HStack justify='space-between' align='center'>
             <HStack spacing={3}>
-              <Calendar size={24} />
-              <Text fontSize='2xl' fontWeight='bold' color={headerColor}>
+              <Calendar size={24} color={colors.primary} />
+              <Text fontSize='2xl' fontWeight='bold' {...textStyles.heading}>
                 All Your Results
               </Text>
             </HStack>
@@ -84,15 +79,22 @@ const StudentResults: React.FC = () => {
               as={Link}
               to='/student'
               size='md'
-              colorScheme='blue'
+              bg={colors.primary}
+              color='white'
+              _hover={{ bg: colors.primaryHover }}
               variant='outline'
+              borderColor={colors.primary}
             >
               Back To Dashboard
             </Button>
           </HStack>
         </CardHeader>
         <CardBody pt={0}>
-          <VStack spacing={6} align='stretch' divider={<Divider />}>
+          <VStack
+            spacing={6}
+            align='stretch'
+            divider={<Divider borderColor={colors.border} />}
+          >
             {data?.attempts.map((attempt, index) => {
               const passStatus = getPassStatus(attempt.percentScore ?? 0);
               return (
@@ -101,14 +103,19 @@ const StudentResults: React.FC = () => {
                   p={6}
                   borderRadius='lg'
                   border='1px'
-                  borderColor={borderColor}
-                  _hover={{ bg: hoverBg, shadow: 'sm' }}
+                  borderColor={colors.border}
+                  _hover={{ bg: colors.sectionBg, shadow: 'sm' }}
                   transition='all 0.2s'
                 >
                   <VStack align='stretch' spacing={4}>
                     {/* Header with test title and score */}
                     <HStack justify='space-between' align='flex-start'>
-                      <Text fontWeight='semibold' fontSize='lg' flex={1}>
+                      <Text
+                        fontWeight='semibold'
+                        fontSize='lg'
+                        flex={1}
+                        {...textStyles.heading}
+                      >
                         {attempt.testTitle}
                       </Text>
                       <Badge
@@ -126,7 +133,7 @@ const StudentResults: React.FC = () => {
                     <HStack
                       justify='space-between'
                       fontSize='sm'
-                      color='gray.600'
+                      color={colors.textSecondary}
                     >
                       <HStack spacing={2}>
                         <Target size={16} />
@@ -141,7 +148,11 @@ const StudentResults: React.FC = () => {
                     {/* Progress bar section */}
                     <Box>
                       <HStack justify='space-between' mb={2}>
-                        <Text fontSize='sm' fontWeight='medium'>
+                        <Text
+                          fontSize='sm'
+                          fontWeight='medium'
+                          {...textStyles.body}
+                        >
                           Performance
                         </Text>
                         <HStack spacing={2}>
@@ -172,7 +183,7 @@ const StudentResults: React.FC = () => {
                     <HStack
                       justify='space-between'
                       fontSize='sm'
-                      color='gray.500'
+                      color={colors.textMuted}
                       pt={2}
                     >
                       <Text fontWeight='medium'>Completed:</Text>

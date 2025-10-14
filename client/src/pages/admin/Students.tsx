@@ -40,6 +40,7 @@ import {
 import { Eye } from 'lucide-react';
 import type { User } from '../../types/api';
 import SearchBar from '../../components/shared/SearchBar';
+import { colors, textStyles } from '../../utils/colors';
 
 export default function Students() {
   const [page, setPage] = useState(1);
@@ -119,17 +120,22 @@ export default function Students() {
     }
   };
 
-  if (isLoading) return <Text textAlign='center'>Loading students...</Text>;
+  if (isLoading)
+    return (
+      <Text textAlign='center' {...textStyles.body}>
+        Loading students...
+      </Text>
+    );
   if (isError)
     return (
-      <Text color='red.500' textAlign='center'>
+      <Text color={colors.error} textAlign='center'>
         Failed to load students.
       </Text>
     );
 
   return (
-    <Box p={4} w='full'>
-      <Heading size='lg' mb={6}>
+    <Box p={4} w='full' bg={colors.pageBg} minH='100vh'>
+      <Heading size='lg' mb={6} {...textStyles.heading}>
         Students
       </Heading>
 
@@ -145,7 +151,7 @@ export default function Students() {
       </Box>
 
       {searchQuery && (
-        <Text fontSize='sm' color='gray.600' mb={2}>
+        <Text fontSize='sm' color={colors.textSecondary} mb={2}>
           Found {filteredStudents.length} student
           {filteredStudents.length !== 1 ? 's' : ''}
         </Text>
@@ -154,25 +160,27 @@ export default function Students() {
       <Box
         overflowX='auto'
         borderWidth='1px'
+        borderColor={colors.border}
         borderRadius='lg'
         shadow='sm'
-        bg='white'
-        _dark={{ bg: 'gray.800' }}
+        bg={colors.cardBg}
       >
         <Table variant='simple' size={isMobile ? 'sm' : 'md'}>
-          <Thead bg='gray.100' _dark={{ bg: 'gray.700' }}>
+          <Thead bg={colors.sectionBg}>
             <Tr>
-              <Th>ID</Th>
-              <Th>Student</Th>
-              {!isMobile && <Th>Email</Th>}
-              <Th textAlign='center'>Actions</Th>
+              <Th color={colors.textPrimary}>ID</Th>
+              <Th color={colors.textPrimary}>Student</Th>
+              {!isMobile && <Th color={colors.textPrimary}>Email</Th>}
+              <Th textAlign='center' color={colors.textPrimary}>
+                Actions
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
             {filteredStudents.length > 0 ? (
               filteredStudents.map((user: User) => (
-                <Tr key={user.id}>
-                  <Td>{user.id}</Td>
+                <Tr key={user.id} _hover={{ bg: colors.sectionBg }}>
+                  <Td color={colors.textSecondary}>{user.id}</Td>
                   <Td>
                     <HStack spacing={3}>
                       <Avatar
@@ -180,10 +188,14 @@ export default function Students() {
                         name={user.name}
                         src={user.avatar ?? ''}
                       />
-                      <Text fontWeight='medium'>{user.name}</Text>
+                      <Text fontWeight='medium' color={colors.textPrimary}>
+                        {user.name}
+                      </Text>
                     </HStack>
                   </Td>
-                  {!isMobile && <Td>{user.email}</Td>}
+                  {!isMobile && (
+                    <Td color={colors.textSecondary}>{user.email}</Td>
+                  )}
                   <Td>
                     <Flex justify='center'>
                       <IconButton
@@ -191,7 +203,8 @@ export default function Students() {
                         icon={<Eye size={18} />}
                         variant='ghost'
                         size='sm'
-                        colorScheme='blue'
+                        color={colors.primary}
+                        _hover={{ bg: colors.sectionBg }}
                         onClick={() => handleViewActivity(user.id)}
                       />
                     </Flex>
@@ -201,7 +214,7 @@ export default function Students() {
             ) : (
               <Tr>
                 <Td colSpan={isMobile ? 3 : 4} textAlign='center' py={8}>
-                  <Text color='gray.500'>
+                  <Text color={colors.textMuted}>
                     {searchQuery
                       ? `No students found matching "${searchQuery}"`
                       : 'No students available'}
@@ -220,17 +233,23 @@ export default function Students() {
           mt={4}
           p={2}
           borderWidth='1px'
+          borderColor={colors.border}
           borderRadius='md'
+          bg={colors.cardBg}
         >
           <Button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             isDisabled={page === 1 || isFetching}
             size='sm'
+            bg={colors.primary}
+            color='white'
+            _hover={{ bg: colors.primaryHover }}
+            _disabled={{ bg: colors.border, cursor: 'not-allowed' }}
           >
             Prev
           </Button>
 
-          <Text fontSize='sm'>
+          <Text fontSize='sm' color={colors.textSecondary}>
             Page {data.pagination.page} of {data.pagination.totalPages} •{' '}
             {filteredStudents.length} students
           </Text>
@@ -241,6 +260,10 @@ export default function Students() {
             }
             isDisabled={page === data.pagination.totalPages || isFetching}
             size='sm'
+            bg={colors.primary}
+            color='white'
+            _hover={{ bg: colors.primaryHover }}
+            _disabled={{ bg: colors.border, cursor: 'not-allowed' }}
           >
             Next
           </Button>
@@ -255,17 +278,23 @@ export default function Students() {
         size='md'
       >
         <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth='1px'>Student Activity</DrawerHeader>
+        <DrawerContent bg={colors.cardBg}>
+          <DrawerCloseButton color={colors.textSecondary} />
+          <DrawerHeader
+            borderBottomWidth='1px'
+            borderColor={colors.border}
+            color={colors.textPrimary}
+          >
+            Student Activity
+          </DrawerHeader>
 
           <DrawerBody>
             {isActivityLoading ? (
               <Flex justify='center' align='center' h='200px'>
-                <Spinner size='lg' />
+                <Spinner size='lg' color={colors.primary} />
               </Flex>
             ) : isActivityError ? (
-              <Alert status='error'>
+              <Alert status='error' bg='transparent' color={colors.error}>
                 <AlertIcon />
                 Failed to load activity data
               </Alert>
@@ -273,7 +302,7 @@ export default function Students() {
               <VStack spacing={6} align='stretch'>
                 {/* Stats Overview */}
                 <Box>
-                  <Heading size='sm' mb={4}>
+                  <Heading size='sm' mb={4} color={colors.textPrimary}>
                     Overview
                   </Heading>
                   <VStack spacing={3}>
@@ -281,36 +310,46 @@ export default function Students() {
                       px={4}
                       py={3}
                       borderWidth='1px'
+                      borderColor={colors.border}
                       borderRadius='lg'
-                      bg='blue.50'
-                      _dark={{ bg: 'blue.900' }}
+                      bg='#dbeafe'
                     >
-                      <StatLabel>Total Attempts</StatLabel>
-                      <StatNumber>{activityData.totalAttempts}</StatNumber>
+                      <StatLabel color={colors.textSecondary}>
+                        Total Attempts
+                      </StatLabel>
+                      <StatNumber color={colors.textPrimary}>
+                        {activityData.totalAttempts}
+                      </StatNumber>
                     </Stat>
 
                     <Stat
                       px={4}
                       py={3}
                       borderWidth='1px'
+                      borderColor={colors.border}
                       borderRadius='lg'
-                      bg='green.50'
-                      _dark={{ bg: 'green.900' }}
+                      bg='#d1fae5'
                     >
-                      <StatLabel>Completed Attempts</StatLabel>
-                      <StatNumber>{activityData.completedAttempts}</StatNumber>
+                      <StatLabel color={colors.textSecondary}>
+                        Completed Attempts
+                      </StatLabel>
+                      <StatNumber color={colors.textPrimary}>
+                        {activityData.completedAttempts}
+                      </StatNumber>
                     </Stat>
 
                     <Stat
                       px={4}
                       py={3}
                       borderWidth='1px'
+                      borderColor={colors.border}
                       borderRadius='lg'
-                      bg='purple.50'
-                      _dark={{ bg: 'purple.900' }}
+                      bg='#e9d5ff'
                     >
-                      <StatLabel>Average Score</StatLabel>
-                      <StatNumber>
+                      <StatLabel color={colors.textSecondary}>
+                        Average Score
+                      </StatLabel>
+                      <StatNumber color={colors.textPrimary}>
                         {activityData.averageScore.toFixed(2)}%
                       </StatNumber>
                     </Stat>
@@ -319,21 +358,25 @@ export default function Students() {
                       px={4}
                       py={3}
                       borderWidth='1px'
+                      borderColor={colors.border}
                       borderRadius='lg'
-                      bg='orange.50'
-                      _dark={{ bg: 'orange.900' }}
+                      bg='#fed7aa'
                     >
-                      <StatLabel>In Progress</StatLabel>
-                      <StatNumber>{activityData.inProgressAttempts}</StatNumber>
+                      <StatLabel color={colors.textSecondary}>
+                        In Progress
+                      </StatLabel>
+                      <StatNumber color={colors.textPrimary}>
+                        {activityData.inProgressAttempts}
+                      </StatNumber>
                     </Stat>
                   </VStack>
                 </Box>
 
-                <Divider />
+                <Divider borderColor={colors.border} />
 
                 {/* Recent Activity */}
                 <Box>
-                  <Heading size='sm' mb={4}>
+                  <Heading size='sm' mb={4} color={colors.textPrimary}>
                     Recent Activity
                   </Heading>
                   {activityData.recentActivity.length > 0 ? (
@@ -343,12 +386,16 @@ export default function Students() {
                           key={index}
                           p={4}
                           borderWidth='1px'
+                          borderColor={colors.border}
                           borderRadius='md'
-                          bg='gray.50'
-                          _dark={{ bg: 'gray.700' }}
+                          bg={colors.sectionBg}
                         >
                           <Flex justify='space-between' align='start' mb={2}>
-                            <Text fontWeight='semibold' fontSize='sm'>
+                            <Text
+                              fontWeight='semibold'
+                              fontSize='sm'
+                              color={colors.textPrimary}
+                            >
                               {activity.testTitle}
                             </Text>
                             <Badge
@@ -357,21 +404,17 @@ export default function Students() {
                               {activity.status.replace('_', ' ')}
                             </Badge>
                           </Flex>
-                          <Text
-                            fontSize='sm'
-                            color='gray.600'
-                            _dark={{ color: 'gray.400' }}
-                          >
+                          <Text fontSize='sm' color={colors.textSecondary}>
                             Score: {activity?.score?.toFixed(2)}%
                           </Text>
-                          <Text fontSize='xs' color='gray.500' mt={1}>
+                          <Text fontSize='xs' color={colors.textMuted} mt={1}>
                             {formatDate(activity.startedAt)}
                           </Text>
                         </Box>
                       ))}
                     </VStack>
                   ) : (
-                    <Text color='gray.500' fontSize='sm'>
+                    <Text color={colors.textMuted} fontSize='sm'>
                       No recent activity
                     </Text>
                   )}
@@ -380,8 +423,14 @@ export default function Students() {
             ) : null}
           </DrawerBody>
 
-          <DrawerFooter borderTopWidth='1px'>
-            <Button variant='outline' onClick={handleDrawerClose}>
+          <DrawerFooter borderTopWidth='1px' borderColor={colors.border}>
+            <Button
+              variant='outline'
+              onClick={handleDrawerClose}
+              borderColor={colors.primary}
+              color={colors.primary}
+              _hover={{ bg: colors.sectionBg }}
+            >
               Close
             </Button>
           </DrawerFooter>

@@ -13,23 +13,21 @@ import {
   AlertDescription,
   Icon,
   VStack,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { BarChart3, TrendingUp, Users } from 'lucide-react';
 import { useTestsStats } from '../../api/services/testServices';
 import { TestStatisticsCard } from './components/TestStatisticCard';
+import { colors, textStyles } from '../../utils/colors';
 
 const ExamsStats: React.FC = () => {
-  const bgColor = useColorModeValue('gray.50', 'gray.900');
-
   const { data, isLoading, error } = useTestsStats();
 
   if (isLoading) {
     return (
-      <Box minH='100vh' bg={bgColor} py={8} px={4}>
+      <Box minH='100vh' bg={colors.pageBg} py={8} px={4}>
         <Container maxW='7xl'>
           <Flex justify='center' align='center' h='400px'>
-            <Spinner size='xl' color='blue.500' thickness='4px' />
+            <Spinner size='xl' color={colors.primary} thickness='4px' />
           </Flex>
         </Container>
       </Box>
@@ -38,7 +36,7 @@ const ExamsStats: React.FC = () => {
 
   if (error) {
     return (
-      <Box minH='100vh' bg={bgColor} py={8} px={4}>
+      <Box minH='100vh' bg={colors.pageBg} py={8} px={4}>
         <Container maxW='7xl'>
           <Flex justify='center' align='center' h='400px'>
             <Alert
@@ -50,6 +48,8 @@ const ExamsStats: React.FC = () => {
               textAlign='center'
               borderRadius='lg'
               maxW='md'
+              bg={colors.error}
+              color='white'
             >
               <AlertIcon boxSize='40px' mr={0} />
               <AlertTitle mt={4} mb={1} fontSize='lg'>
@@ -72,13 +72,15 @@ const ExamsStats: React.FC = () => {
       : 0;
 
   return (
-    <Box minH='100vh' bg={bgColor} py={8} px={4}>
+    <Box minH='100vh' bg={colors.pageBg} py={8} px={4}>
       <Container maxW='7xl'>
         <Box mb={8}>
-          <Heading size='xl' mb={2}>
+          <Heading size='xl' mb={2} {...textStyles.heading}>
             Test Analytics
           </Heading>
-          <Text color='gray.600'>Overview of all test performance metrics</Text>
+          <Text color={colors.textSecondary}>
+            Overview of all test performance metrics
+          </Text>
         </Box>
 
         <Grid
@@ -146,11 +148,11 @@ const ExamsStats: React.FC = () => {
 
         {(!data || data.length === 0) && (
           <VStack py={12} spacing={4}>
-            <Icon as={BarChart3} boxSize={16} color='gray.300' />
-            <Heading size='md' color='gray.600'>
+            <Icon as={BarChart3} boxSize={16} color={colors.textMuted} />
+            <Heading size='md' color={colors.textSecondary}>
               No Test Data Available
             </Heading>
-            <Text color='gray.500'>
+            <Text color={colors.textMuted}>
               Start creating tests to see analytics here.
             </Text>
           </VStack>

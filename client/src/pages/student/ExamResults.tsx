@@ -19,6 +19,7 @@ import { CheckCircleIcon, TimeIcon, StarIcon } from '@chakra-ui/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useLogoutUser } from '../../api/services/authService';
 import { formatTime } from './hooks/useExamHelper';
+import { colors } from '../../utils/colors';
 
 interface Test {
   title: string;
@@ -59,15 +60,31 @@ const ExamResult: React.FC = () => {
 
   if (!data) {
     return (
-      <Flex minH='100vh' bg='gray.50' align='center' justify='center' p={4}>
-        <Card maxW='sm' w='full'>
+      <Flex
+        minH='100vh'
+        bg={colors.pageBg}
+        align='center'
+        justify='center'
+        p={4}
+      >
+        <Card
+          maxW='sm'
+          w='full'
+          bg={colors.cardBg}
+          borderColor={colors.border}
+          borderWidth='1px'
+        >
           <CardBody textAlign='center'>
-            <Text>No result data found. Please complete an exam first.</Text>
+            <Text color={colors.textPrimary}>
+              No result data found. Please complete an exam first.
+            </Text>
             <Button
               mt={4}
-              colorScheme='blue'
+              bg={colors.primary}
+              color='white'
               w='full'
               onClick={() => navigate('/student')}
+              _hover={{ bg: colors.primaryHover }}
             >
               Go to Dashboard
             </Button>
@@ -94,15 +111,16 @@ const ExamResult: React.FC = () => {
   };
 
   return (
-    <Flex minH='100vh' align='center' justify='center' p={4}>
+    <Flex minH='100vh' bg={colors.pageBg} align='center' justify='center' p={4}>
       <Box maxW='800px' w='full'>
-        <Card>
+        <Card bg={colors.cardBg} borderColor={colors.border} borderWidth='1px'>
           <CardBody p={{ base: 4, md: 8 }}>
             <VStack spacing={8} align='stretch'>
               {/* Header */}
               <VStack spacing={3}>
                 <Badge
-                  colorScheme={isPassed ? 'green' : 'red'}
+                  bg={isPassed ? colors.success : colors.error}
+                  color='white'
                   fontSize='lg'
                   px={4}
                   py={2}
@@ -115,15 +133,20 @@ const ExamResult: React.FC = () => {
                   fontSize={{ base: 'xl', md: '2xl' }}
                   fontWeight='bold'
                   textAlign='center'
+                  color={colors.textPrimary}
                 >
                   {test.title}
                 </Text>
-                <Text fontSize='md' color='gray.600' textAlign='center'>
+                <Text
+                  fontSize='md'
+                  color={colors.textSecondary}
+                  textAlign='center'
+                >
                   Attempt #{attempt.attemptNumber}
                 </Text>
               </VStack>
 
-              <Divider />
+              <Divider borderColor={colors.border} />
 
               {/* Score Circle */}
               <Flex justify='center' py={4}>
@@ -131,20 +154,22 @@ const ExamResult: React.FC = () => {
                   value={percentScore}
                   size={{ base: '150px', md: '200px' }}
                   thickness='12px'
-                  color={isPassed ? 'green.400' : 'red.400'}
+                  color={isPassed ? colors.success : colors.error}
+                  trackColor={colors.border}
                 >
                   <CircularProgressLabel>
                     <VStack spacing={0}>
                       <Text
                         fontSize={{ base: '2xl', md: '4xl' }}
                         fontWeight='bold'
+                        color={colors.textPrimary}
                       >
                         {percentScore.toFixed(1)}%
                       </Text>
                       <Text
                         fontSize={{ base: 'xl', md: '2xl' }}
                         fontWeight='bold'
-                        color='gray.600'
+                        color={colors.textSecondary}
                       >
                         {getGrade(percentScore)}
                       </Text>
@@ -153,7 +178,7 @@ const ExamResult: React.FC = () => {
                 </CircularProgress>
               </Flex>
 
-              <Divider />
+              <Divider borderColor={colors.border} />
 
               {/* Statistics Grid */}
               <Grid
@@ -161,22 +186,30 @@ const ExamResult: React.FC = () => {
                 gap={4}
               >
                 <GridItem>
-                  <Card borderWidth='1px' borderColor='blue.200'>
+                  <Card
+                    bg={colors.cardBg}
+                    borderWidth='2px'
+                    borderColor={colors.primary}
+                  >
                     <CardBody p={4}>
                       <HStack spacing={3}>
                         <Box
                           p={2}
-                          bg='blue.500'
+                          bg={colors.primary}
                           borderRadius='lg'
                           color='white'
                         >
                           <CheckCircleIcon boxSize={5} />
                         </Box>
                         <VStack align='start' spacing={0}>
-                          <Text fontSize='sm' color='gray.600'>
+                          <Text fontSize='sm' color={colors.textSecondary}>
                             Correct
                           </Text>
-                          <Text fontSize='2xl' fontWeight='bold'>
+                          <Text
+                            fontSize='2xl'
+                            fontWeight='bold'
+                            color={colors.textPrimary}
+                          >
                             {correctAnswers}
                           </Text>
                         </VStack>
@@ -186,17 +219,30 @@ const ExamResult: React.FC = () => {
                 </GridItem>
 
                 <GridItem>
-                  <Card borderWidth='1px' borderColor='red.200'>
+                  <Card
+                    bg={colors.cardBg}
+                    borderWidth='2px'
+                    borderColor={colors.error}
+                  >
                     <CardBody p={4}>
                       <HStack spacing={3}>
-                        <Box p={2} bg='red.500' borderRadius='lg' color='white'>
+                        <Box
+                          p={2}
+                          bg={colors.error}
+                          borderRadius='lg'
+                          color='white'
+                        >
                           <Text fontSize='xl'>✗</Text>
                         </Box>
                         <VStack align='start' spacing={0}>
-                          <Text fontSize='sm' color='gray.600'>
+                          <Text fontSize='sm' color={colors.textSecondary}>
                             Incorrect
                           </Text>
-                          <Text fontSize='2xl' fontWeight='bold'>
+                          <Text
+                            fontSize='2xl'
+                            fontWeight='bold'
+                            color={colors.textPrimary}
+                          >
                             {incorrectAnswers}
                           </Text>
                         </VStack>
@@ -206,22 +252,25 @@ const ExamResult: React.FC = () => {
                 </GridItem>
 
                 <GridItem>
-                  <Card borderWidth='1px' borderColor='purple.200'>
+                  <Card
+                    bg={colors.cardBg}
+                    borderWidth='2px'
+                    borderColor='#a855f7'
+                  >
                     <CardBody p={4}>
                       <HStack spacing={3}>
-                        <Box
-                          p={2}
-                          bg='purple.500'
-                          borderRadius='lg'
-                          color='white'
-                        >
+                        <Box p={2} bg='#a855f7' borderRadius='lg' color='white'>
                           <StarIcon boxSize={5} />
                         </Box>
                         <VStack align='start' spacing={0}>
-                          <Text fontSize='sm' color='gray.600'>
+                          <Text fontSize='sm' color={colors.textSecondary}>
                             Total Questions
                           </Text>
-                          <Text fontSize='2xl' fontWeight='bold'>
+                          <Text
+                            fontSize='2xl'
+                            fontWeight='bold'
+                            color={colors.textPrimary}
+                          >
                             {totalQuestions}
                           </Text>
                         </VStack>
@@ -231,22 +280,30 @@ const ExamResult: React.FC = () => {
                 </GridItem>
 
                 <GridItem>
-                  <Card borderWidth='1px' borderColor='orange.200'>
+                  <Card
+                    bg={colors.cardBg}
+                    borderWidth='2px'
+                    borderColor={colors.warning}
+                  >
                     <CardBody p={4}>
                       <HStack spacing={3}>
                         <Box
                           p={2}
-                          bg='orange.500'
+                          bg={colors.warning}
                           borderRadius='lg'
                           color='white'
                         >
                           <TimeIcon boxSize={5} />
                         </Box>
                         <VStack align='start' spacing={0}>
-                          <Text fontSize='sm' color='gray.600'>
+                          <Text fontSize='sm' color={colors.textSecondary}>
                             Time Spent
                           </Text>
-                          <Text fontSize='lg' fontWeight='bold'>
+                          <Text
+                            fontSize='lg'
+                            fontWeight='bold'
+                            color={colors.textPrimary}
+                          >
                             {formatTime(timeSpent)}
                           </Text>
                         </VStack>
@@ -256,39 +313,55 @@ const ExamResult: React.FC = () => {
                 </GridItem>
               </Grid>
 
-              <Divider />
+              <Divider borderColor={colors.border} />
 
               {/* Additional Info */}
               <VStack spacing={2} align='stretch'>
                 <HStack justify='space-between'>
-                  <Text fontSize='sm' color='gray.600'>
+                  <Text fontSize='sm' color={colors.textSecondary}>
                     Score:
                   </Text>
-                  <Text fontSize='sm' fontWeight='semibold'>
+                  <Text
+                    fontSize='sm'
+                    fontWeight='semibold'
+                    color={colors.textPrimary}
+                  >
                     {attempt.score} / {attempt.maxScore} points
                   </Text>
                 </HStack>
                 <HStack justify='space-between'>
-                  <Text fontSize='sm' color='gray.600'>
+                  <Text fontSize='sm' color={colors.textSecondary}>
                     Passing Score:
                   </Text>
-                  <Text fontSize='sm' fontWeight='semibold'>
+                  <Text
+                    fontSize='sm'
+                    fontWeight='semibold'
+                    color={colors.textPrimary}
+                  >
                     {passingScore}%
                   </Text>
                 </HStack>
                 <HStack justify='space-between'>
-                  <Text fontSize='sm' color='gray.600'>
+                  <Text fontSize='sm' color={colors.textSecondary}>
                     Submitted:
                   </Text>
-                  <Text fontSize='sm' fontWeight='semibold'>
+                  <Text
+                    fontSize='sm'
+                    fontWeight='semibold'
+                    color={colors.textPrimary}
+                  >
                     {new Date(completedAt).toLocaleString()}
                   </Text>
                 </HStack>
                 <HStack justify='space-between'>
-                  <Text fontSize='sm' color='gray.600'>
+                  <Text fontSize='sm' color={colors.textSecondary}>
                     Duration:
                   </Text>
-                  <Text fontSize='sm' fontWeight='semibold'>
+                  <Text
+                    fontSize='sm'
+                    fontWeight='semibold'
+                    color={colors.textPrimary}
+                  >
                     {test.duration} minutes
                   </Text>
                 </HStack>
@@ -301,19 +374,23 @@ const ExamResult: React.FC = () => {
                 flexDir={{ base: 'column', sm: 'row' }}
               >
                 <Button
-                  colorScheme='blue'
+                  bg={colors.primary}
+                  color='white'
                   size='lg'
                   w='full'
                   onClick={() => navigate('/student')}
+                  _hover={{ bg: colors.primaryHover }}
                 >
                   Dashboard
                 </Button>
                 <Button
                   variant='outline'
-                  colorScheme='gray'
+                  borderColor={colors.border}
+                  color={colors.textPrimary}
                   size='lg'
                   w='full'
                   onClick={() => logout.mutate()}
+                  _hover={{ bg: colors.pageBg }}
                 >
                   Logout
                 </Button>

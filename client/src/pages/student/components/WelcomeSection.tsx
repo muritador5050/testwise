@@ -12,6 +12,7 @@ import {
 import { ArrowRight, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCurrentUser } from '../../../api/services/authService';
+import { colors, buttonStyles, textStyles } from '../../../utils/colors';
 
 interface Props {
   studentName: string;
@@ -33,23 +34,27 @@ const WelcomeSection: React.FC<Props> = ({
       {/* Top row: Avatar + Name + Logout */}
       <HStack spacing={3} w='full'>
         <Avatar size={{ base: 'md', md: 'lg' }} src={avatar} name={studentName}>
-          <AvatarBadge boxSize='1.25em' bg='green.500' />
+          <AvatarBadge boxSize='1.25em' bg={colors.success} />
         </Avatar>
 
         <VStack align='start' spacing={0} flex='1' minW={0}>
-          <Heading size={{ base: 'sm', md: 'lg' }} noOfLines={1}>
+          <Heading
+            size={{ base: 'sm', md: 'lg' }}
+            noOfLines={1}
+            {...textStyles.heading}
+          >
             Welcome back, {studentName}!
           </Heading>
           {/* Hide subtitle on mobile */}
           <Text
-            color='gray.600'
+            {...textStyles.body}
             fontSize={{ base: 'xs', md: 'sm' }}
             display={{ base: 'none', sm: 'block' }}
           >
             Ready to continue your learning journey?
           </Text>
           {currentUser.data?.role === 'ADMIN' && (
-            <Text as={Link} to='/admin' color='green' size='sm'>
+            <Text as={Link} to='/admin' color={colors.success} size='sm'>
               Back to ADMIN
             </Text>
           )}
@@ -58,7 +63,7 @@ const WelcomeSection: React.FC<Props> = ({
         <IconButton
           aria-label='Logout'
           icon={<LogOut size={isMobile ? 18 : 20} />}
-          colorScheme='red'
+          colorScheme='blue'
           variant='ghost'
           size={{ base: 'sm', md: 'md' }}
           onClick={handleLogout}
@@ -67,7 +72,6 @@ const WelcomeSection: React.FC<Props> = ({
 
       {/* Bottom row: Browse Tests button (full width on mobile) */}
       <Button
-        colorScheme='blue'
         size={{ base: 'sm', md: 'md' }}
         as={Link}
         to={'/student/exams'}
@@ -75,7 +79,7 @@ const WelcomeSection: React.FC<Props> = ({
         w={{ base: 'full', md: 'auto' }}
         alignSelf={{ base: 'stretch', md: 'flex-end' }}
         boxShadow='sm'
-        _hover={{ transform: 'translateY(-2px)', boxShadow: 'md' }}
+        {...buttonStyles.primary}
       >
         {isMobile ? 'Browse Tests' : 'Browse Tests'}
       </Button>

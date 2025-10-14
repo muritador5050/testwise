@@ -10,6 +10,7 @@ import {
   CardBody,
 } from '@chakra-ui/react';
 import type { Question } from '../../../types/api';
+import { colors } from '../../../utils/colors';
 
 interface QuestionNavigatorProps {
   questions: Question[];
@@ -35,6 +36,9 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
   return (
     <Box w='full'>
       <Card
+        bg={colors.cardBg}
+        borderColor={colors.border}
+        borderWidth='1px'
         boxShadow={{ base: 'none', lg: 'md' }}
         borderRadius={{ base: 0, lg: 'md' }}
       >
@@ -43,16 +47,16 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
           <Box display={{ base: 'block', lg: 'none' }}>
             <HStack spacing={2} mb={3} justify='space-between'>
               <HStack spacing={2} fontSize='xs'>
-                <Box w={2} h={2} bg='green.400' borderRadius='sm' />
-                <Text>Answered</Text>
-                <Badge colorScheme='green' fontSize='xs'>
+                <Box w={2} h={2} bg={colors.success} borderRadius='sm' />
+                <Text color={colors.textSecondary}>Answered</Text>
+                <Badge bg={colors.success} color='white' fontSize='xs'>
                   {answeredCount}
                 </Badge>
               </HStack>
               <HStack spacing={2} fontSize='xs'>
-                <Box w={2} h={2} bg='gray.200' borderRadius='sm' />
-                <Text>Left</Text>
-                <Badge colorScheme='orange' fontSize='xs'>
+                <Box w={2} h={2} bg={colors.border} borderRadius='sm' />
+                <Text color={colors.textSecondary}>Left</Text>
+                <Badge bg={colors.warning} color='white' fontSize='xs'>
                   {remainingCount}
                 </Badge>
               </HStack>
@@ -66,37 +70,31 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                   onClick={() => onQuestionJump(index)}
                   size='sm'
                   variant={currentQuestion === index ? 'solid' : 'outline'}
-                  colorScheme={
-                    currentQuestion === index
-                      ? 'blue'
-                      : isQuestionAnswered(q.id)
-                      ? 'green'
-                      : 'gray'
-                  }
                   bg={
                     currentQuestion === index
-                      ? 'blue.500'
+                      ? colors.primary
                       : isQuestionAnswered(q.id)
-                      ? 'green.400'
+                      ? colors.success
                       : 'white'
                   }
                   color={
                     currentQuestion === index || isQuestionAnswered(q.id)
                       ? 'white'
-                      : 'gray.700'
+                      : colors.textPrimary
                   }
                   borderColor={
                     isQuestionAnswered(q.id) && currentQuestion !== index
-                      ? 'green.400'
-                      : 'gray.300'
+                      ? colors.success
+                      : colors.border
                   }
                   _hover={{
                     bg:
                       currentQuestion === index
-                        ? 'blue.600'
+                        ? colors.primaryHover
                         : isQuestionAnswered(q.id)
-                        ? 'green.500'
-                        : 'gray.100',
+                        ? colors.success
+                        : colors.pageBg,
+                    opacity: isQuestionAnswered(q.id) ? 0.9 : 1,
                   }}
                   h='36px'
                   w='36px'
@@ -113,11 +111,13 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
 
             {/* Submit Button */}
             <Button
-              colorScheme='green'
+              bg={colors.success}
+              color='white'
               size='md'
               onClick={onSubmit}
               isLoading={isSubmitting}
               w='full'
+              _hover={{ opacity: 0.9 }}
             >
               Submit Exam
             </Button>
@@ -125,19 +125,24 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
 
           {/* Desktop Full Layout */}
           <Box display={{ base: 'none', lg: 'block' }}>
-            <Text fontWeight='bold' fontSize='lg' mb={4}>
+            <Text
+              fontWeight='bold'
+              fontSize='lg'
+              mb={4}
+              color={colors.textPrimary}
+            >
               Question Navigator
             </Text>
 
             {/* Legend */}
             <HStack spacing={4} fontSize='sm' mb={4}>
               <HStack>
-                <Box w={3} h={3} bg='green.400' borderRadius='sm' />
-                <Text>Answered</Text>
+                <Box w={3} h={3} bg={colors.success} borderRadius='sm' />
+                <Text color={colors.textSecondary}>Answered</Text>
               </HStack>
               <HStack>
-                <Box w={3} h={3} bg='gray.200' borderRadius='sm' />
-                <Text>Unanswered</Text>
+                <Box w={3} h={3} bg={colors.border} borderRadius='sm' />
+                <Text color={colors.textSecondary}>Unanswered</Text>
               </HStack>
             </HStack>
 
@@ -149,37 +154,31 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                   onClick={() => onQuestionJump(index)}
                   size='lg'
                   variant={currentQuestion === index ? 'solid' : 'outline'}
-                  colorScheme={
-                    currentQuestion === index
-                      ? 'blue'
-                      : isQuestionAnswered(q.id)
-                      ? 'green'
-                      : 'gray'
-                  }
                   bg={
                     currentQuestion === index
-                      ? 'blue.500'
+                      ? colors.primary
                       : isQuestionAnswered(q.id)
-                      ? 'green.400'
+                      ? colors.success
                       : 'white'
                   }
                   color={
                     currentQuestion === index || isQuestionAnswered(q.id)
                       ? 'white'
-                      : 'gray.700'
+                      : colors.textPrimary
                   }
                   borderColor={
                     isQuestionAnswered(q.id) && currentQuestion !== index
-                      ? 'green.400'
-                      : 'gray.300'
+                      ? colors.success
+                      : colors.border
                   }
                   _hover={{
                     bg:
                       currentQuestion === index
-                        ? 'blue.600'
+                        ? colors.primaryHover
                         : isQuestionAnswered(q.id)
-                        ? 'green.500'
-                        : 'gray.100',
+                        ? colors.success
+                        : colors.pageBg,
+                    opacity: isQuestionAnswered(q.id) ? 0.9 : 1,
                   }}
                   h='45px'
                   w='45px'
@@ -195,18 +194,18 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
             {/* Stats */}
             <HStack justify='space-between' mb={4}>
               <HStack>
-                <Text fontSize='sm' color='gray.600'>
+                <Text fontSize='sm' color={colors.textSecondary}>
                   Answered:
                 </Text>
-                <Badge colorScheme='green' fontSize='md'>
+                <Badge bg={colors.success} color='white' fontSize='md'>
                   {answeredCount}
                 </Badge>
               </HStack>
               <HStack>
-                <Text fontSize='sm' color='gray.600'>
+                <Text fontSize='sm' color={colors.textSecondary}>
                   Remaining:
                 </Text>
-                <Badge colorScheme='orange' fontSize='md'>
+                <Badge bg={colors.warning} color='white' fontSize='md'>
                   {remainingCount}
                 </Badge>
               </HStack>
@@ -214,11 +213,13 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
 
             {/* Submit Button */}
             <Button
-              colorScheme='green'
+              bg={colors.success}
+              color='white'
               size='lg'
               onClick={onSubmit}
               isLoading={isSubmitting}
               w='full'
+              _hover={{ opacity: 0.9 }}
             >
               Submit Exam
             </Button>

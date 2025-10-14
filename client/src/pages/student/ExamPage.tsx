@@ -42,6 +42,7 @@ import { useExamAnswers } from './hooks/useExamAnswer';
 import { useExamTimer } from './hooks/useExamTimer';
 import { useTabSwitchDetection } from './hooks/useTabSwicthDetection';
 import { Menu } from 'lucide-react';
+import { colors } from '../../utils/colors';
 
 const ExamPage: React.FC = () => {
   const toast = useToast();
@@ -193,10 +194,14 @@ const ExamPage: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <Flex minH='100vh' align='center' justify='center' bg='gray.50'>
+      <Flex minH='100vh' align='center' justify='center' bg={colors.pageBg}>
         <VStack spacing={4}>
-          <CircularProgress isIndeterminate color='blue.400' size='80px' />
-          <Text fontSize='lg' color='gray.600'>
+          <CircularProgress
+            isIndeterminate
+            color={colors.primary}
+            size='80px'
+          />
+          <Text fontSize='lg' color={colors.textPrimary}>
             Loading exam...
           </Text>
         </VStack>
@@ -204,29 +209,33 @@ const ExamPage: React.FC = () => {
     );
   }
 
-  // Error state
-  if (!testData || questions.length === 0) {
-    return (
-      <Flex minH='100vh' align='center' justify='center' bg='gray.50'>
-        <Card>
-          <CardBody>
-            <VStack spacing={4} p={8}>
-              <Text fontSize='xl' fontWeight='bold' color='red.500'>
-                Exam Not Found
-              </Text>
-              <Text color='gray.600'>
-                The exam you're looking for doesn't exist or has no questions
-                yet!
-              </Text>
-              <Button colorScheme='blue' onClick={() => window.history.back()}>
-                Go Back
-              </Button>
-            </VStack>
-          </CardBody>
-        </Card>
-      </Flex>
-    );
-  }
+ if (!testData || questions.length === 0) {
+   return (
+     <Flex minH='100vh' align='center' justify='center' bg={colors.pageBg}>
+       <Card bg={colors.cardBg} borderColor={colors.border} borderWidth='1px'>
+         <CardBody>
+           <VStack spacing={4} p={8}>
+             <Text fontSize='xl' fontWeight='bold' color={colors.error}>
+               Exam Not Found
+             </Text>
+             <Text color={colors.textSecondary}>
+               The exam you're looking for doesn't exist or has no questions
+               yet!
+             </Text>
+             <Button
+               bg={colors.primary}
+               color='white'
+               _hover={{ bg: colors.primaryHover }}
+               onClick={() => window.history.back()}
+             >
+               Go Back
+             </Button>
+           </VStack>
+         </CardBody>
+       </Card>
+     </Flex>
+   );
+ }
 
   const currentQ = questions[currentQuestion];
   const totalQuestions = testData._count?.questions || questions.length;
@@ -234,6 +243,7 @@ const ExamPage: React.FC = () => {
   return (
     <Flex
       minH='100vh'
+      bg={colors.pageBg}
       p={{ base: 2, md: 4, lg: 6 }}
       direction={{ base: 'column', lg: 'row' }}
       gap={{ base: 3, md: 6 }}
@@ -246,8 +256,9 @@ const ExamPage: React.FC = () => {
         top={0}
         left={0}
         right={0}
+        bg={colors.cardBg}
         borderBottom='1px'
-        borderColor='gray.200'
+        borderColor={colors.border}
         zIndex={20}
         px={4}
         py={3}
@@ -260,14 +271,22 @@ const ExamPage: React.FC = () => {
             variant='ghost'
             size='md'
             onClick={onSidebarOpen}
+            color={colors.textPrimary}
+            _hover={{ bg: colors.pageBg }}
           />
           <HStack spacing={3}>
-            <Badge colorScheme='blue' fontSize='sm' px={2} py={1}>
+            <Badge
+              bg={colors.primary}
+              color='white'
+              fontSize='sm'
+              px={2}
+              py={1}
+            >
               {answeredCount}/{totalQuestions}
             </Badge>
             <HStack
               spacing={2}
-              bg={timeRemaining < 300 ? 'red.50' : 'blue.50'}
+              bg={timeRemaining < 300 ? '#fee2e2' : colors.sectionBg}
               px={3}
               py={2}
               borderRadius='md'
@@ -275,13 +294,13 @@ const ExamPage: React.FC = () => {
               <Box
                 w={2}
                 h={2}
-                bg={timeRemaining < 300 ? 'red.400' : 'blue.400'}
+                bg={timeRemaining < 300 ? colors.error : colors.primary}
                 borderRadius='full'
               />
               <Text
                 fontWeight='bold'
                 fontSize='lg'
-                color={timeRemaining < 300 ? 'red.600' : 'blue.600'}
+                color={timeRemaining < 300 ? colors.error : colors.primary}
               >
                 {formatTime(timeRemaining)}
               </Text>
@@ -310,9 +329,15 @@ const ExamPage: React.FC = () => {
       {/* Left Sidebar - Mobile Drawer */}
       <Drawer isOpen={isSidebarOpen} placement='left' onClose={onSidebarClose}>
         <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader>Exam Information</DrawerHeader>
+        <DrawerContent bg={colors.cardBg}>
+          <DrawerCloseButton color={colors.textPrimary} />
+          <DrawerHeader
+            color={colors.textPrimary}
+            borderBottomWidth='1px'
+            borderColor={colors.border}
+          >
+            Exam Information
+          </DrawerHeader>
           <DrawerBody p={0}>
             <ExamSidebar
               studentName={userInfo?.name || 'Student'}
@@ -333,7 +358,12 @@ const ExamPage: React.FC = () => {
 
       {/* Middle Section - Current Question */}
       <Box flex='1' minW={0}>
-        <Card h='full'>
+        <Card
+          h='full'
+          bg={colors.cardBg}
+          borderColor={colors.border}
+          borderWidth='1px'
+        >
           <CardBody p={{ base: 3, md: 6 }}>
             <VStack spacing={{ base: 4, md: 6 }} align='stretch' h='full'>
               {/* Question Header */}
@@ -346,7 +376,8 @@ const ExamPage: React.FC = () => {
               >
                 <HStack spacing={2} flexWrap='wrap'>
                   <Badge
-                    colorScheme='blue'
+                    bg={colors.primary}
+                    color='white'
                     fontSize={{ base: 'sm', md: 'md' }}
                     px={{ base: 2, md: 3 }}
                     py={1}
@@ -356,7 +387,8 @@ const ExamPage: React.FC = () => {
 
                   {currentQ.points && (
                     <Badge
-                      colorScheme='gray'
+                      bg={colors.textMuted}
+                      color='white'
                       fontSize={{ base: 'xs', md: 'sm' }}
                       px={2}
                       py={1}
@@ -368,7 +400,12 @@ const ExamPage: React.FC = () => {
                 <Progress
                   value={((currentQuestion + 1) / totalQuestions) * 100}
                   size='sm'
-                  colorScheme='blue'
+                  sx={{
+                    '& > div': {
+                      bg: colors.primary,
+                    },
+                  }}
+                  bg={colors.border}
                   w={{ base: '100%', sm: '200px' }}
                   borderRadius='full'
                 />
@@ -380,6 +417,7 @@ const ExamPage: React.FC = () => {
                   fontSize={{ base: 'lg', md: 'xl' }}
                   fontWeight='semibold'
                   mb={{ base: 4, md: 6 }}
+                  color={colors.textPrimary}
                 >
                   {currentQ.text}
                 </Text>
@@ -398,18 +436,30 @@ const ExamPage: React.FC = () => {
                 <Button
                   onClick={handlePrevious}
                   isDisabled={currentQuestion === 0}
-                  colorScheme='gray'
+                  bg={colors.primary}
+                  color='white'
                   size={{ base: 'md', md: 'lg' }}
                   flex={{ base: 1, sm: 'initial' }}
+                  _hover={{ opacity: 0.8 }}
+                  _disabled={{
+                    opacity: 0.4,
+                    cursor: 'not-allowed',
+                  }}
                 >
                   Previous
                 </Button>
                 <Button
                   onClick={handleNext}
                   isDisabled={currentQuestion === questions.length - 1}
-                  colorScheme='blue'
+                  bg={colors.primary}
+                  color='white'
                   size={{ base: 'md', md: 'lg' }}
                   flex={{ base: 1, sm: 'initial' }}
+                  _hover={{ bg: colors.primaryHover }}
+                  _disabled={{
+                    opacity: 0.4,
+                    cursor: 'not-allowed',
+                  }}
                 >
                   Next
                 </Button>
@@ -439,8 +489,9 @@ const ExamPage: React.FC = () => {
         bottom={0}
         left={0}
         right={0}
+        bg={colors.cardBg}
         borderTop='1px'
-        borderColor='gray.200'
+        borderColor={colors.border}
         zIndex={20}
         shadow='lg'
       >
@@ -455,29 +506,43 @@ const ExamPage: React.FC = () => {
         />
       </Box>
 
+      {/* Alert Dialog */}
       <AlertDialog
         isOpen={isAlertOpen}
         leastDestructiveRef={cancelRef}
         onClose={onAlertClose}
       >
         <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+          <AlertDialogContent bg={colors.cardBg}>
+            <AlertDialogHeader
+              fontSize='lg'
+              fontWeight='bold'
+              color={colors.textPrimary}
+            >
               Unanswered Questions
             </AlertDialogHeader>
 
-            <AlertDialogBody>
+            <AlertDialogBody color={colors.textSecondary}>
               You still have {questions.length - answeredCount} unanswered
               question(s). Are you sure you want to submit?
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onAlertClose}>
+              <Button
+                ref={cancelRef}
+                onClick={onAlertClose}
+                variant='outline'
+                borderColor={colors.border}
+                color={colors.textPrimary}
+                _hover={{ bg: colors.pageBg }}
+              >
                 Return to Test
               </Button>
               <Button
-                colorScheme='green'
+                bg={colors.success}
+                color='white'
                 ml={3}
+                _hover={{ opacity: 0.9 }}
                 onClick={async () => {
                   onAlertClose();
                   try {

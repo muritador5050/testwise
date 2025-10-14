@@ -16,6 +16,7 @@ import {
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useStartAttempt } from '../../api/services/attemptService';
+import { colors, bgStyles, textStyles, buttonStyles } from '../../utils/colors';
 
 export default function ExamInstructions() {
   const navigate = useNavigate();
@@ -49,21 +50,28 @@ export default function ExamInstructions() {
 
   return (
     <Container maxW='container.md' py={8}>
-      <Box shadow='xl' borderRadius='lg' p={8}>
+      <Box shadow='xl' borderRadius='lg' p={8} {...bgStyles.card}>
         <VStack spacing={6} align='stretch'>
-          <Heading as='h1' size='xl' textAlign='center' color='blue.600'>
+          <Heading as='h1' size='xl' textAlign='center' color={colors.primary}>
             Exam Instructions
           </Heading>
 
-          <Divider />
+          <Divider borderColor={colors.border} />
 
-          <Alert status='info' borderRadius='md'>
-            <AlertIcon />
-            Please read all instructions carefully before starting the exam.
+          <Alert
+            status='info'
+            borderRadius='md'
+            bg={colors.sectionBg}
+            borderColor={colors.info}
+          >
+            <AlertIcon color={colors.info} />
+            <Text {...textStyles.body}>
+              Please read all instructions carefully before starting the exam.
+            </Text>
           </Alert>
 
           <Box>
-            <Heading as='h2' size='md' mb={4} color='gray.700'>
+            <Heading as='h2' size='md' mb={4} {...textStyles.heading}>
               General Guidelines:
             </Heading>
             <List spacing={3}>
@@ -71,12 +79,12 @@ export default function ExamInstructions() {
                 <Box
                   as={CheckCircle}
                   size={20}
-                  color='green.500'
+                  color={colors.success}
                   mr={3}
                   mt={1}
                   flexShrink={0}
                 />
-                <Text>
+                <Text {...textStyles.body}>
                   Ensure you have a stable internet connection throughout the
                   exam.
                 </Text>
@@ -85,12 +93,12 @@ export default function ExamInstructions() {
                 <Box
                   as={CheckCircle}
                   size={20}
-                  color='green.500'
+                  color={colors.success}
                   mr={3}
                   mt={1}
                   flexShrink={0}
                 />
-                <Text>
+                <Text {...textStyles.body}>
                   The exam must be completed in one sitting. You cannot pause
                   and resume later.
                 </Text>
@@ -99,23 +107,25 @@ export default function ExamInstructions() {
                 <Box
                   as={CheckCircle}
                   size={20}
-                  color='green.500'
+                  color={colors.success}
                   mr={3}
                   mt={1}
                   flexShrink={0}
                 />
-                <Text>Answer all questions to the best of your ability.</Text>
+                <Text {...textStyles.body}>
+                  Answer all questions to the best of your ability.
+                </Text>
               </ListItem>
               <ListItem display='flex' alignItems='flex-start'>
                 <Box
                   as={CheckCircle}
                   size={20}
-                  color='green.500'
+                  color={colors.success}
                   mr={3}
                   mt={1}
                   flexShrink={0}
                 />
-                <Text>
+                <Text {...textStyles.body}>
                   You can navigate between questions using the navigation
                   buttons.
                 </Text>
@@ -124,18 +134,20 @@ export default function ExamInstructions() {
                 <Box
                   as={CheckCircle}
                   size={20}
-                  color='green.500'
+                  color={colors.success}
                   mr={3}
                   mt={1}
                   flexShrink={0}
                 />
-                <Text>Review your answers before submitting the exam.</Text>
+                <Text {...textStyles.body}>
+                  Review your answers before submitting the exam.
+                </Text>
               </ListItem>
             </List>
           </Box>
 
           <Box>
-            <Heading as='h2' size='md' mb={4} color='gray.700'>
+            <Heading as='h2' size='md' mb={4} {...textStyles.heading}>
               Important Notes:
             </Heading>
             <List spacing={3}>
@@ -143,12 +155,12 @@ export default function ExamInstructions() {
                 <Box
                   as={AlertCircle}
                   size={20}
-                  color='orange.500'
+                  color={colors.warning}
                   mr={3}
                   mt={1}
                   flexShrink={0}
                 />
-                <Text>
+                <Text {...textStyles.body}>
                   The timer will start as soon as you click "Start Exam".
                 </Text>
               </ListItem>
@@ -156,12 +168,12 @@ export default function ExamInstructions() {
                 <Box
                   as={AlertCircle}
                   size={20}
-                  color='orange.500'
+                  color={colors.warning}
                   mr={3}
                   mt={1}
                   flexShrink={0}
                 />
-                <Text>
+                <Text {...textStyles.body}>
                   Do not refresh the page or close the browser during the exam.
                 </Text>
               </ListItem>
@@ -169,24 +181,34 @@ export default function ExamInstructions() {
                 <Box
                   as={AlertCircle}
                   size={20}
-                  color='orange.500'
+                  color={colors.warning}
                   mr={3}
                   mt={1}
                   flexShrink={0}
                 />
-                <Text>Ensure you submit your exam before time runs out.</Text>
+                <Text {...textStyles.body}>
+                  Ensure you submit your exam before time runs out.
+                </Text>
               </ListItem>
             </List>
           </Box>
 
-          <Divider />
+          <Divider borderColor={colors.border} />
 
           <Flex gap={4} justify='center' flexWrap='wrap'>
-            <Button colorScheme='gray' size='lg' px={8} onClick={handleCancel}>
+            <Button
+              colorScheme='gray'
+              size='lg'
+              px={8}
+              onClick={handleCancel}
+              borderColor={colors.border}
+              color={colors.textSecondary}
+              _hover={{ bg: colors.sectionBg }}
+            >
               Cancel
             </Button>
             <Button
-              colorScheme='blue'
+              {...buttonStyles.primary}
               size='lg'
               px={8}
               isLoading={start.isPending}

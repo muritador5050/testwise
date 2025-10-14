@@ -1,4 +1,3 @@
-// components/UserPerformance.tsx
 import React, { useState } from 'react';
 import {
   Box,
@@ -26,12 +25,12 @@ import {
   Spinner,
   Alert,
   AlertIcon,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { Clock, TrendingUp, User, Award, Eye } from 'lucide-react';
 import { useGetAllTests } from '../../api/services/testServices';
 import { useGetTestPerformance } from '../../api/services/attemptService';
 import type { TestPerformance } from '../../types/api';
+import { colors, bgStyles, textStyles } from '../../utils/colors';
 
 interface UserInfo {
   userId: number;
@@ -60,10 +59,6 @@ const UserPerformanceByTest: React.FC = () => {
       setSelectedTestId(testsData.tests[0].id);
     }
   }, [testsData, selectedTestId]);
-
-  const sidebarBg = useColorModeValue('gray.50', 'gray.700');
-  const selectedBg = useColorModeValue('blue.50', 'blue.700');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
 
   const performances: TestPerformance[] = performanceData || [];
   const testId = selectedTestId?.toString() || '';
@@ -157,7 +152,7 @@ const UserPerformanceByTest: React.FC = () => {
     return (
       <Container maxW='container.xl' py={8}>
         <Flex justify='center' align='center' minH='400px'>
-          <Spinner size='xl' color='blue.500' thickness='4px' />
+          <Spinner size='xl' color={colors.primary} thickness='4px' />
         </Flex>
       </Container>
     );
@@ -184,13 +179,13 @@ const UserPerformanceByTest: React.FC = () => {
         {/* Left Sidebar - Tests List */}
         <Box
           w={{ base: '100%', lg: '350px' }}
-          bg={sidebarBg}
+          bg={colors.sectionBg}
           borderRadius='lg'
           p={4}
           border='1px'
-          borderColor={borderColor}
+          borderColor={colors.border}
         >
-          <Heading size='md' mb={4}>
+          <Heading size='md' mb={4} {...textStyles.heading}>
             All Tests ({testsData?.tests?.length || 0})
           </Heading>
 
@@ -200,20 +195,20 @@ const UserPerformanceByTest: React.FC = () => {
                 key={test.id}
                 p={3}
                 borderRadius='md'
-                bg={selectedTestId === test.id ? selectedBg : 'transparent'}
+                bg={selectedTestId === test.id ? colors.cardBg : 'transparent'}
                 border='1px'
                 borderColor={
-                  selectedTestId === test.id ? 'blue.200' : 'transparent'
+                  selectedTestId === test.id ? colors.primary : 'transparent'
                 }
                 cursor='pointer'
                 _hover={{
-                  bg: selectedTestId === test.id ? selectedBg : 'gray.100',
+                  bg: selectedTestId === test.id ? colors.cardBg : 'rgba(255, 255, 255, 0.5)',
                 }}
                 onClick={() => setSelectedTestId(test.id)}
               >
                 <Flex justify='space-between' align='start'>
                   <Box flex={1}>
-                    <Text fontWeight='medium' fontSize='sm' noOfLines={2}>
+                    <Text fontWeight='medium' fontSize='sm' noOfLines={2} {...textStyles.heading}>
                       {test.title}
                     </Text>
                     <HStack spacing={2} mt={1}>
@@ -237,8 +232,7 @@ const UserPerformanceByTest: React.FC = () => {
                       setSelectedTestId(test.id);
                     }}
                   >
-                    <Icon as={Eye} />{' '}
-                    {/* Fixed: Changed from ViewIcon to Eye */}
+                    <Icon as={Eye} />
                   </Button>
                 </Flex>
               </Box>
@@ -269,12 +263,12 @@ const UserPerformanceByTest: React.FC = () => {
           {selectedTest ? (
             performanceLoading ? (
               <Flex justify='center' align='center' minH='400px'>
-                <Spinner size='xl' color='blue.500' thickness='4px' />
+                <Spinner size='xl' color={colors.primary} thickness='4px' />
               </Flex>
             ) : performances.length === 0 ? (
-              <Card>
+              <Card {...bgStyles.card}>
                 <CardBody>
-                  <Text color='gray.500' textAlign='center' py={8}>
+                  <Text {...textStyles.muted} textAlign='center' py={8}>
                     No performance data available for this test.
                   </Text>
                 </CardBody>
@@ -282,14 +276,14 @@ const UserPerformanceByTest: React.FC = () => {
             ) : (
               <VStack spacing={6} align='stretch'>
                 {/* Header with test info and stats */}
-                <Card>
+                <Card {...bgStyles.card}>
                   <CardHeader>
                     <HStack justify='space-between'>
                       <VStack align='start' spacing={1}>
-                        <Heading size='md'>
+                        <Heading size='md' {...textStyles.heading}>
                           Test Performance - {selectedTest.title}
                         </Heading>
-                        <Text color='gray.600' fontSize='sm'>
+                        <Text {...textStyles.body} fontSize='sm'>
                           Test ID: {testId}
                         </Text>
                       </VStack>
@@ -302,18 +296,18 @@ const UserPerformanceByTest: React.FC = () => {
                     <VStack align='start' spacing={4}>
                       {/* User Information */}
                       <Box>
-                        <Text fontWeight='medium' mb={2}>
+                        <Text fontWeight='medium' mb={2} {...textStyles.heading}>
                           Students:
                         </Text>
                         <HStack spacing={4} flexWrap='wrap'>
                           {uniqueUsers.map((user) => (
                             <HStack key={user.userId}>
-                              <Icon as={User} color='blue.500' />
+                              <Icon as={User} color={colors.primary} />
                               <VStack align='start' spacing={0}>
-                                <Text fontSize='sm' fontWeight='medium'>
+                                <Text fontSize='sm' fontWeight='medium' {...textStyles.heading}>
                                   {user.userName}
                                 </Text>
-                                <Text fontSize='xs' color='gray.600'>
+                                <Text fontSize='xs' {...textStyles.body}>
                                   {user.email}
                                 </Text>
                               </VStack>
@@ -325,48 +319,48 @@ const UserPerformanceByTest: React.FC = () => {
                       {/* Performance Stats */}
                       <HStack spacing={6} flexWrap='wrap'>
                         <HStack>
-                          <Icon as={Award} color='green.500' />
+                          <Icon as={Award} color={colors.success} />
                           <VStack align='start' spacing={0}>
-                            <Text fontSize='sm' color='gray.600'>
+                            <Text fontSize='sm' {...textStyles.body}>
                               Best Score
                             </Text>
-                            <Text fontWeight='medium' color='green.600'>
+                            <Text fontWeight='medium' color={colors.success}>
                               {bestScore.toFixed(1)}%
                             </Text>
                           </VStack>
                         </HStack>
 
                         <HStack>
-                          <Icon as={TrendingUp} color='purple.500' />
+                          <Icon as={TrendingUp} color='#8B5CF6' />
                           <VStack align='start' spacing={0}>
-                            <Text fontSize='sm' color='gray.600'>
+                            <Text fontSize='sm' {...textStyles.body}>
                               Average Score
                             </Text>
-                            <Text fontWeight='medium'>
+                            <Text fontWeight='medium' {...textStyles.heading}>
                               {averageScore.toFixed(1)}%
                             </Text>
                           </VStack>
                         </HStack>
 
                         <HStack>
-                          <Icon as={Clock} color='orange.500' />
+                          <Icon as={Clock} color={colors.warning} />
                           <VStack align='start' spacing={0}>
-                            <Text fontSize='sm' color='gray.600'>
+                            <Text fontSize='sm' {...textStyles.body}>
                               Total Time
                             </Text>
-                            <Text fontWeight='medium'>
+                            <Text fontWeight='medium' {...textStyles.heading}>
                               {formatTimeSpent(totalTimeSpent)}
                             </Text>
                           </VStack>
                         </HStack>
 
                         <HStack>
-                          <Icon as={User} color='teal.500' />
+                          <Icon as={User} color={colors.info} />
                           <VStack align='start' spacing={0}>
-                            <Text fontSize='sm' color='gray.600'>
+                            <Text fontSize='sm' {...textStyles.body}>
                               Students
                             </Text>
-                            <Text fontWeight='medium'>
+                            <Text fontWeight='medium' {...textStyles.heading}>
                               {uniqueUsers.length}
                             </Text>
                           </VStack>
@@ -377,9 +371,9 @@ const UserPerformanceByTest: React.FC = () => {
                 </Card>
 
                 {/* Performance Table */}
-                <Card>
+                <Card {...bgStyles.card}>
                   <CardHeader>
-                    <Heading size='md'>Attempt History</Heading>
+                    <Heading size='md' {...textStyles.heading}>Attempt History</Heading>
                   </CardHeader>
                   <CardBody>
                     <Box overflowX='auto'>
@@ -402,24 +396,24 @@ const UserPerformanceByTest: React.FC = () => {
                             >
                               <Td>
                                 <VStack align='start' spacing={0}>
-                                  <Text fontWeight='medium'>
+                                  <Text fontWeight='medium' {...textStyles.heading}>
                                     {performance.userName}
                                   </Text>
-                                  <Text fontSize='xs' color='gray.600'>
+                                  <Text fontSize='xs' {...textStyles.body}>
                                     {performance.email}
                                   </Text>
                                 </VStack>
                               </Td>
-                              <Td fontWeight='medium'>
+                              <Td fontWeight='medium' {...textStyles.heading}>
                                 Attempt {performance.attemptNumber}
                               </Td>
                               <Td>
-                                <Text>{performance.score} points</Text>
+                                <Text {...textStyles.heading}>{performance.score} points</Text>
                               </Td>
                               <Td>
                                 <VStack align='start' spacing={1}>
                                   <HStack>
-                                    <Text fontWeight='medium'>
+                                    <Text fontWeight='medium' {...textStyles.heading}>
                                       {performance.percentScore}%
                                     </Text>
                                     <Badge
@@ -447,7 +441,7 @@ const UserPerformanceByTest: React.FC = () => {
                                 <Tooltip
                                   label={`${performance.timeSpent} seconds`}
                                 >
-                                  <Text>
+                                  <Text {...textStyles.heading}>
                                     {formatTimeSpent(
                                       performance.timeSpent ?? 0
                                     )}
@@ -455,7 +449,7 @@ const UserPerformanceByTest: React.FC = () => {
                                 </Tooltip>
                               </Td>
                               <Td>
-                                <Text fontSize='sm'>
+                                <Text fontSize='sm' {...textStyles.body}>
                                   {formatDate(performance.completedAt ?? '')}
                                 </Text>
                               </Td>
@@ -482,18 +476,18 @@ const UserPerformanceByTest: React.FC = () => {
                 </Card>
 
                 {/* Performance Summary */}
-                <Card>
+                <Card {...bgStyles.card}>
                   <CardHeader>
-                    <Heading size='md'>Performance Summary</Heading>
+                    <Heading size='md' {...textStyles.heading}>Performance Summary</Heading>
                   </CardHeader>
                   <CardBody>
                     <VStack align='start' spacing={4}>
                       <Box width='100%'>
                         <HStack justify='space-between' mb={2}>
-                          <Text fontWeight='medium'>
+                          <Text fontWeight='medium' {...textStyles.heading}>
                             Progress Over Attempts
                           </Text>
-                          <Text fontSize='sm' color='gray.600'>
+                          <Text fontSize='sm' {...textStyles.body}>
                             Best: {bestScore}% • Average:{' '}
                             {averageScore.toFixed(1)}%
                           </Text>
@@ -505,7 +499,7 @@ const UserPerformanceByTest: React.FC = () => {
                               flex={1}
                               spacing={1}
                             >
-                              <Text fontSize='xs' color='gray.600'>
+                              <Text fontSize='xs' {...textStyles.body}>
                                 #{attempt.attemptNumber}
                               </Text>
                               <Progress
@@ -516,7 +510,7 @@ const UserPerformanceByTest: React.FC = () => {
                                   attempt.percentScore ?? 0
                                 )}
                               />
-                              <Text fontSize='xs' fontWeight='medium'>
+                              <Text fontSize='xs' fontWeight='medium' {...textStyles.heading}>
                                 {attempt.percentScore}%
                               </Text>
                             </VStack>
@@ -531,9 +525,9 @@ const UserPerformanceByTest: React.FC = () => {
           ) : (
             !testsLoading && (
               <Flex justify='center' align='center' minH='200px'>
-                <Card>
+                <Card {...bgStyles.card}>
                   <CardBody>
-                    <Text color='gray.500'>
+                    <Text {...textStyles.muted}>
                       Select a test to view user performance
                     </Text>
                   </CardBody>

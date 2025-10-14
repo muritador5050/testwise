@@ -61,7 +61,7 @@ export default function LoginPage() {
   };
 
   return (
-    <Box minH='100vh' bg={colors.pageBg}>
+    <Box minH='100vh' bg={colors.pageBg}  >
       {/* Navigation */}
       <Box
         position='fixed'

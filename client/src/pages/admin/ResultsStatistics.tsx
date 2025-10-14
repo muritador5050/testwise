@@ -7,7 +7,6 @@ import {
   Text,
   Card,
   CardBody,
-  useColorModeValue,
   Stat,
   StatLabel,
   StatNumber,
@@ -27,40 +26,40 @@ import {
 } from 'recharts';
 import { TrendingUp, Users, Target, Clock } from 'lucide-react';
 import { useGetAttemptAnalytics } from '../../api/services/attemptService';
+import { colors, bgStyles, textStyles } from '../../utils/colors';
 
 const ResultsStatistics: React.FC = () => {
   const { data } = useGetAttemptAnalytics();
-
-  const cardBg = useColorModeValue('white', 'gray.700');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const textColor = useColorModeValue('gray.600', 'gray.400');
-  const chartTextColor = useColorModeValue('#374151', '#9CA3AF');
 
   // Data for pie chart - Attempt Status Distribution
   const attemptStatusData = [
     {
       name: 'Completed',
       value: data?.completedAttempts || 0,
-      color: '#10B981',
+      color: colors.success,
     },
     {
       name: 'In Progress',
       value: data?.inProgressAttempts || 0,
-      color: '#F59E0B',
+      color: colors.warning,
     },
-    { name: 'Timed Out', value: data?.timedOutAttempts || 0, color: '#EF4444' },
+    {
+      name: 'Timed Out',
+      value: data?.timedOutAttempts || 0,
+      color: colors.error,
+    },
   ];
 
   // Data for bar chart - Key Metrics Comparison
   const metricsData = [
     { name: 'Pass Rate', value: data?.passRate || 0, fill: '#8B5CF6' },
-    { name: 'Avg Score', value: data?.averageScore || 0, fill: '#3B82F6' },
+    { name: 'Avg Score', value: data?.averageScore || 0, fill: colors.primary },
     {
       name: 'Completion',
       value: data?.totalAttempts
         ? ((data?.completedAttempts || 0) / data.totalAttempts) * 100
         : 0,
-      fill: '#10B981',
+      fill: colors.success,
     },
   ];
 
@@ -74,54 +73,56 @@ const ResultsStatistics: React.FC = () => {
     <VStack spacing={6} align='stretch'>
       {/* Key Metrics Overview */}
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
-        <Card bg={cardBg} borderWidth='1px' borderColor={borderColor}>
+        <Card {...bgStyles.card}>
           <CardBody>
             <Stat>
               <HStack align='center' mb={2}>
-                <Users color='#3B82F6' size={20} />
-                <StatLabel color={textColor}>Total Attempts</StatLabel>
+                <Users color={colors.primary} size={20} />
+                <StatLabel {...textStyles.body}>Total Attempts</StatLabel>
               </HStack>
-              <StatNumber fontSize='2xl'>{data?.totalAttempts || 0}</StatNumber>
+              <StatNumber fontSize='2xl' {...textStyles.heading}>
+                {data?.totalAttempts || 0}
+              </StatNumber>
             </Stat>
           </CardBody>
         </Card>
 
-        <Card bg={cardBg} borderWidth='1px' borderColor={borderColor}>
+        <Card {...bgStyles.card}>
           <CardBody>
             <Stat>
               <HStack align='center' mb={2}>
-                <Target color='#10B981' size={20} />
-                <StatLabel color={textColor}>Pass Rate</StatLabel>
+                <Target color={colors.success} size={20} />
+                <StatLabel {...textStyles.body}>Pass Rate</StatLabel>
               </HStack>
-              <StatNumber fontSize='2xl' color='green.500'>
+              <StatNumber fontSize='2xl' color={colors.success}>
                 {data?.passRate || 0}%
               </StatNumber>
             </Stat>
           </CardBody>
         </Card>
 
-        <Card bg={cardBg} borderWidth='1px' borderColor={borderColor}>
+        <Card {...bgStyles.card}>
           <CardBody>
             <Stat>
               <HStack align='center' mb={2}>
                 <TrendingUp color='#8B5CF6' size={20} />
-                <StatLabel color={textColor}>Avg Score</StatLabel>
+                <StatLabel {...textStyles.body}>Avg Score</StatLabel>
               </HStack>
-              <StatNumber fontSize='2xl' color='purple.500'>
+              <StatNumber fontSize='2xl' color='#8B5CF6'>
                 {(data?.averageScore || 0).toFixed(1)}%
               </StatNumber>
             </Stat>
           </CardBody>
         </Card>
 
-        <Card bg={cardBg} borderWidth='1px' borderColor={borderColor}>
+        <Card {...bgStyles.card}>
           <CardBody>
             <Stat>
               <HStack align='center' mb={2}>
-                <Clock color='#F59E0B' size={20} />
-                <StatLabel color={textColor}>Avg Time</StatLabel>
+                <Clock color={colors.warning} size={20} />
+                <StatLabel {...textStyles.body}>Avg Time</StatLabel>
               </HStack>
-              <StatNumber fontSize='xl' color='orange.500'>
+              <StatNumber fontSize='xl' color={colors.warning}>
                 {formatTime(data?.averageTimeSpent || 0)}
               </StatNumber>
             </Stat>
@@ -132,10 +133,10 @@ const ResultsStatistics: React.FC = () => {
       {/* Charts Grid */}
       <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
         {/* Attempt Status Distribution - Pie Chart */}
-        <Card bg={cardBg} borderWidth='1px' borderColor={borderColor}>
+        <Card {...bgStyles.card}>
           <CardBody>
             <VStack align='stretch' spacing={4}>
-              <Text fontSize='lg' fontWeight='semibold'>
+              <Text fontSize='lg' fontWeight='semibold' {...textStyles.heading}>
                 Attempt Status Distribution
               </Text>
               <Box height='300px'>
@@ -159,9 +160,9 @@ const ResultsStatistics: React.FC = () => {
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: cardBg,
-                        borderColor: borderColor,
-                        color: chartTextColor,
+                        backgroundColor: colors.cardBg,
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
                       }}
                     />
                     <Legend />
@@ -173,36 +174,39 @@ const ResultsStatistics: React.FC = () => {
         </Card>
 
         {/* Key Metrics Comparison - Bar Chart */}
-        <Card bg={cardBg} borderWidth='1px' borderColor={borderColor}>
+        <Card {...bgStyles.card}>
           <CardBody>
             <VStack align='stretch' spacing={4}>
-              <Text fontSize='lg' fontWeight='semibold'>
+              <Text fontSize='lg' fontWeight='semibold' {...textStyles.heading}>
                 Key Metrics Comparison
               </Text>
               <Box height='300px'>
                 <ResponsiveContainer width='100%' height='100%'>
                   <BarChart data={metricsData}>
-                    <CartesianGrid strokeDasharray='3 3' stroke={borderColor} />
+                    <CartesianGrid
+                      strokeDasharray='3 3'
+                      stroke={colors.border}
+                    />
                     <XAxis
                       dataKey='name'
-                      stroke={chartTextColor}
+                      stroke={colors.textSecondary}
                       fontSize={12}
                     />
                     <YAxis
-                      stroke={chartTextColor}
+                      stroke={colors.textSecondary}
                       fontSize={12}
                       label={{
                         value: 'Percentage (%)',
                         angle: -90,
                         position: 'insideLeft',
-                        style: { fill: chartTextColor },
+                        style: { fill: colors.textSecondary },
                       }}
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: cardBg,
-                        borderColor: borderColor,
-                        color: chartTextColor,
+                        backgroundColor: colors.cardBg,
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
                       }}
                     />
                     <Bar dataKey='value' radius={[4, 4, 0, 0]}>
