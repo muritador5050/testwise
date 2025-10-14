@@ -58,6 +58,7 @@ export const useGetAttemptById = (id: number) => {
         },
       });
     },
+    refetchOnWindowFocus: false,
     enabled: !!id,
   });
 };

@@ -66,9 +66,7 @@ const ExamPage: React.FC = () => {
   // API Hooks
   const submitAnswer = useSubmitAnswer();
   const completeAttempt = useCompleteAttempt();
-  const { data: attemptData, isFetching } = useGetAttemptById(
-    Number(attemptId)
-  );
+  const { data: attemptData, isLoading } = useGetAttemptById(Number(attemptId));
 
   // WebSocket hook
   const { isConnected, on, off } = useWebSocket(Number(attemptId));
@@ -194,7 +192,7 @@ const ExamPage: React.FC = () => {
   }, []);
 
   // Loading state
-  if (isFetching) {
+  if (isLoading) {
     return (
       <Flex minH='100vh' align='center' justify='center' bg={colors.pageBg}>
         <VStack spacing={4}>
@@ -211,7 +209,7 @@ const ExamPage: React.FC = () => {
     );
   }
 
-  if (!testData || questions.length === 0) {
+  if (!isLoading && (!testData || questions.length === 0)) {
     return (
       <Flex minH='100vh' align='center' justify='center' bg={colors.pageBg}>
         <Card bg={colors.cardBg} borderColor={colors.border} borderWidth='1px'>
@@ -240,7 +238,7 @@ const ExamPage: React.FC = () => {
   }
 
   const currentQ = questions[currentQuestion];
-  const totalQuestions = testData._count?.questions || questions.length;
+  const totalQuestions = testData?._count?.questions || questions.length;
 
   return (
     <Flex
@@ -319,11 +317,14 @@ const ExamPage: React.FC = () => {
         <ExamSidebar
           studentName={userInfo?.name || 'Student'}
           studentAvatar={userInfo?.avatar || ''}
-          examTitle={testData.title}
-          examDescription={testData.description}
+          examTitle={testData?.title || ''}
+          examDescription={testData?.description || ''}
           totalQuestions={totalQuestions}
           timeRemaining={timeRemaining}
-          timePercentage={getTimePercentage(timeRemaining, testData.duration)}
+          timePercentage={getTimePercentage(
+            timeRemaining,
+            testData?.duration ?? 0
+          )}
           isConnected={isConnected}
         />
       </Box>
@@ -344,13 +345,13 @@ const ExamPage: React.FC = () => {
             <ExamSidebar
               studentName={userInfo?.name || 'Student'}
               studentAvatar={userInfo?.avatar || ''}
-              examTitle={testData.title}
-              examDescription={testData.description}
+              examTitle={testData?.title || ''}
+              examDescription={testData?.description || ''}
               totalQuestions={totalQuestions}
               timeRemaining={timeRemaining}
               timePercentage={getTimePercentage(
                 timeRemaining,
-                testData.duration
+                testData?.duration ?? 0
               )}
               isConnected={isConnected}
             />
@@ -387,7 +388,7 @@ const ExamPage: React.FC = () => {
                     Q {currentQuestion + 1}/{totalQuestions}
                   </Badge>
 
-                  {currentQ.points && (
+                  {currentQ?.points && (
                     <Badge
                       bg={colors.textMuted}
                       color='white'
@@ -421,14 +422,14 @@ const ExamPage: React.FC = () => {
                   mb={{ base: 4, md: 6 }}
                   color={colors.textPrimary}
                 >
-                  {currentQ.text}
+                  {currentQ?.text}
                 </Text>
 
                 <QuestionRenderer
                   question={currentQ}
-                  currentAnswer={answers[currentQ.id]}
+                  currentAnswer={answers[currentQ?.id]}
                   onAnswerChange={(value) =>
-                    handleAnswerChange(currentQ.id, value)
+                    handleAnswerChange(currentQ?.id, value)
                   }
                 />
               </Box>
