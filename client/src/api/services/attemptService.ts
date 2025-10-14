@@ -64,8 +64,6 @@ export const useGetAttemptById = (id: number) => {
 
 // Submit answer
 export const useSubmitAnswer = () => {
-  const queryClient = useQueryClient();
-
   return useMutation<
     Answer,
     Error,
@@ -84,11 +82,6 @@ export const useSubmitAnswer = () => {
           Authorization: `Bearer ${getAuthToken()}`,
         },
         body: JSON.stringify(answerData),
-      });
-    },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ['attempt', variables.attemptId],
       });
     },
   });
