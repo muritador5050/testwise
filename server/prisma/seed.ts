@@ -5,16 +5,18 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seed...');
 
+  const ADMIN_EMAIL = 'admin@testwise.com';
+
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@gmail.com' },
+    where: { email: ADMIN_EMAIL },
     update: {},
     create: {
-      email: 'admin@testwise.com',
+      email: ADMIN_EMAIL,
       name: 'Admin User',
       role: 'ADMIN',
     },
   });
-  console.log('✅ Admin user created:', admin.email);
+  console.log('✅ Admin user processed:', admin.email);
 }
 
 main()
