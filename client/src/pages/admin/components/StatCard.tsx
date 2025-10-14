@@ -30,7 +30,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         transform: 'translateY(-3px)',
       }}
     >
-      <CardBody p={4}>
+      <CardBody p={4} bg={'red'}>
         <HStack align='center' gap={3}>
           <Box p={2.5} borderRadius='lg' bg={color}>
             <Icon as={icon} boxSize={6} color='white' />

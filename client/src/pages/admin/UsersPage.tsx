@@ -473,30 +473,9 @@ export default function UsersPage() {
                   borderColor={colors.border}
                   color='black'
                 >
-                  <option
-                    style={{
-                      color: 'white',
-                    }}
-                    value='ADMIN'
-                  >
-                    Admin
-                  </option>
-                  <option
-                    style={{
-                      color: 'white',
-                    }}
-                    value='INSTRUCTOR'
-                  >
-                    Instructor
-                  </option>
-                  <option
-                    style={{
-                      color: 'white',
-                    }}
-                    value='STUDENT'
-                  >
-                    Student
-                  </option>
+                  <option value='ADMIN'>Admin</option>
+                  <option value='INSTRUCTOR'>Instructor</option>
+                  <option value='STUDENT'>Student</option>
                 </Select>
               </FormControl>
 

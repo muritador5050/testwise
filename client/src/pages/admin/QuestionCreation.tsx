@@ -720,46 +720,15 @@ const QuestionCreation: React.FC = () => {
                           bg={colors.cardBg}
                           color={colors.textPrimary}
                         >
-                          <option
-                            style={{
-                              color: 'white',
-                            }}
-                            value='MULTIPLE_CHOICE'
-                          >
+                          <option value='MULTIPLE_CHOICE'>
                             Multiple Choice
                           </option>
-                          <option
-                            style={{
-                              color: 'white',
-                            }}
-                            value='MULTIPLE_ANSWER'
-                          >
+                          <option value='MULTIPLE_ANSWER'>
                             Multiple Answer
                           </option>
-                          <option
-                            style={{
-                              color: 'white',
-                            }}
-                            value='TRUE_FALSE'
-                          >
-                            True/False
-                          </option>
-                          <option
-                            style={{
-                              color: 'white',
-                            }}
-                            value='SHORT_ANSWER'
-                          >
-                            Short Answer
-                          </option>
-                          <option
-                            style={{
-                              color: 'white',
-                            }}
-                            value='ESSAY'
-                          >
-                            Essay
-                          </option>
+                          <option value='TRUE_FALSE'>True/False</option>
+                          <option value='SHORT_ANSWER'>Short Answer</option>
+                          <option value='ESSAY'>Essay</option>
                         </Select>
                       </FormControl>
 

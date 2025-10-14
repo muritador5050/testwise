@@ -1,6 +1,5 @@
 import React from 'react';
 import { SimpleGrid, Heading, VStack, Stack } from '@chakra-ui/react';
-import StatCard from '../../components/admin/StatCard';
 import {
   BookCheck,
   CircleCheck,
@@ -16,6 +15,7 @@ import { useTestsStats } from '../../api/services/testServices';
 import { useGetQuestions } from '../../api/services/questionServices';
 import { useGetAttemptAnalytics } from '../../api/services/attemptService';
 import { colors, textStyles } from '../../utils/colors';
+import AdminStatCard from '../../components/admin/AdminStatCard';
 
 const AdminDashboard: React.FC = () => {
   const { data: users } = useUserAnalytics();
@@ -28,39 +28,33 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <VStack
-      spacing={6}
-      align='stretch'
-      p={6}
-      border={'3px solid red'}
-      minH='100vh'
-    >
+    <VStack spacing={6} align='stretch' p={6} minH='100vh'>
       <Heading size='lg' {...textStyles.heading}>
         Dashboard
       </Heading>
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-        <StatCard
+        <AdminStatCard
           title='Attempts'
           count={attempts?.totalAttempts ?? 0}
           iconBg={colors.error}
           icon={<Repeat />}
         />
-        <StatCard
+        <AdminStatCard
           title='Questions'
           count={questions ?? 0}
           iconBg={colors.success}
           icon={<CircleQuestionMark />}
         />
 
-        <StatCard
+        <AdminStatCard
           title='Total Users'
           count={users?.total}
           iconBg={colors.primary}
           icon={<Users />}
         />
 
-        <StatCard
+        <AdminStatCard
           title='Tests'
           count={tests?.length ?? 0}
           iconBg={colors.warning}
@@ -69,19 +63,19 @@ const AdminDashboard: React.FC = () => {
       </SimpleGrid>
 
       <Stack spacing={3} maxW={{ base: '100%', lg: '300px' }}>
-        <StatCard
+        <AdminStatCard
           title='Completed Attempts'
           count={attempts?.completedAttempts ?? 0}
           iconBg={colors.success}
           icon={<CircleCheck />}
         />
-        <StatCard
+        <AdminStatCard
           title='In Progress Attempts'
           count={attempts?.inProgressAttempts ?? 0}
           iconBg={colors.info}
           icon={<Loader />}
         />
-        <StatCard
+        <AdminStatCard
           title='Timed Out Attempts'
           count={attempts?.timedOutAttempts ?? 0}
           iconBg={colors.error}

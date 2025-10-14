@@ -4,10 +4,10 @@ import {
   Stat,
   StatLabel,
   StatNumber,
-  useColorModeValue,
   Stack,
   Flex,
 } from '@chakra-ui/react';
+import { colors, textStyles } from '../../utils/colors';
 
 interface CardProps {
   title: string;
@@ -16,9 +16,7 @@ interface CardProps {
   icon: ReactElement;
 }
 
-const StatCard: React.FC<CardProps> = ({ title, count, icon, iconBg }) => {
-  const iconColor = useColorModeValue('gray.500', 'gray.400');
-
+const AdminStatCard: React.FC<CardProps> = ({ title, count, icon, iconBg }) => {
   return (
     <Stat
       px={{ base: 3, md: 4 }}
@@ -27,11 +25,13 @@ const StatCard: React.FC<CardProps> = ({ title, count, icon, iconBg }) => {
       _hover={{ shadow: 'md' }}
       transition='all 0.2s'
       borderRadius='lg'
-      bg={'whiteAlpha.200'}
+      bg={colors.cardBg}
+      borderWidth='1px'
+      borderColor={colors.border}
     >
       <Flex align='center' gap={{ base: 2, sm: 3, md: 4 }}>
         <Box
-          color={iconColor}
+          color='white'
           display='flex'
           justifyContent='center'
           alignItems='center'
@@ -44,9 +44,18 @@ const StatCard: React.FC<CardProps> = ({ title, count, icon, iconBg }) => {
         >
           {icon}
         </Box>
-        <Stack flex={1}>
-          <StatLabel textTransform='uppercase'>{title}</StatLabel>
-          <StatNumber fontSize={{ base: 'xl', md: '2xl' }}>
+        <Stack flex={1} spacing={1}>
+          <StatLabel
+            textTransform='uppercase'
+            fontSize='xs'
+            {...textStyles.muted}
+          >
+            {title}
+          </StatLabel>
+          <StatNumber
+            fontSize={{ base: 'xl', md: '2xl' }}
+            {...textStyles.heading}
+          >
             {count && count.toLocaleString()}
           </StatNumber>
         </Stack>
@@ -55,4 +64,4 @@ const StatCard: React.FC<CardProps> = ({ title, count, icon, iconBg }) => {
   );
 };
 
-export default StatCard;
+export default AdminStatCard;
