@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Text, Flex, Icon } from '@chakra-ui/react';
+import { Card, CardBody, Box, Text, Icon, HStack } from '@chakra-ui/react';
 import { type LucideIcon } from 'lucide-react';
 import { colors, textStyles } from '../../../utils/colors';
 
@@ -17,29 +17,34 @@ export const StatCard: React.FC<StatCardProps> = ({
   color,
 }) => {
   return (
-    <Flex
-      align='center'
-      gap={3}
-      p={4}
+    <Card
       bg={colors.cardBg}
-      borderRadius='xl'
       borderLeft='4px solid'
       borderColor={color}
+      borderWidth='1px'
       boxShadow='md'
-      _hover={{ boxShadow: 'xl', transform: 'translateY(-3px)' }}
+      borderRadius='xl'
       transition='all 0.25s ease-in-out'
+      _hover={{
+        boxShadow: 'xl',
+        transform: 'translateY(-3px)',
+      }}
     >
-      <Box p={2.5} borderRadius='lg' bg={color}>
-        <Icon as={icon} boxSize={6} color='white' />
-      </Box>
-      <Box>
-        <Text fontSize='xs' {...textStyles.muted}>
-          {label}
-        </Text>
-        <Text fontSize='md' fontWeight='semibold' {...textStyles.heading}>
-          {value}
-        </Text>
-      </Box>
-    </Flex>
+      <CardBody p={4}>
+        <HStack align='center' gap={3}>
+          <Box p={2.5} borderRadius='lg' bg={color}>
+            <Icon as={icon} boxSize={6} color='white' />
+          </Box>
+          <Box>
+            <Text fontSize='xs' {...textStyles.muted}>
+              {label}
+            </Text>
+            <Text fontSize='md' fontWeight='semibold' {...textStyles.heading}>
+              {value}
+            </Text>
+          </Box>
+        </HStack>
+      </CardBody>
+    </Card>
   );
 };

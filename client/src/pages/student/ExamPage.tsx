@@ -66,7 +66,9 @@ const ExamPage: React.FC = () => {
   // API Hooks
   const submitAnswer = useSubmitAnswer();
   const completeAttempt = useCompleteAttempt();
-  const { data: attemptData, isLoading } = useGetAttemptById(Number(attemptId));
+  const { data: attemptData, isFetching } = useGetAttemptById(
+    Number(attemptId)
+  );
 
   // WebSocket hook
   const { isConnected, on, off } = useWebSocket(Number(attemptId));
@@ -192,7 +194,7 @@ const ExamPage: React.FC = () => {
   }, []);
 
   // Loading state
-  if (isLoading) {
+  if (isFetching) {
     return (
       <Flex minH='100vh' align='center' justify='center' bg={colors.pageBg}>
         <VStack spacing={4}>
@@ -209,33 +211,33 @@ const ExamPage: React.FC = () => {
     );
   }
 
- if (!testData || questions.length === 0) {
-   return (
-     <Flex minH='100vh' align='center' justify='center' bg={colors.pageBg}>
-       <Card bg={colors.cardBg} borderColor={colors.border} borderWidth='1px'>
-         <CardBody>
-           <VStack spacing={4} p={8}>
-             <Text fontSize='xl' fontWeight='bold' color={colors.error}>
-               Exam Not Found
-             </Text>
-             <Text color={colors.textSecondary}>
-               The exam you're looking for doesn't exist or has no questions
-               yet!
-             </Text>
-             <Button
-               bg={colors.primary}
-               color='white'
-               _hover={{ bg: colors.primaryHover }}
-               onClick={() => window.history.back()}
-             >
-               Go Back
-             </Button>
-           </VStack>
-         </CardBody>
-       </Card>
-     </Flex>
-   );
- }
+  if (!testData || questions.length === 0) {
+    return (
+      <Flex minH='100vh' align='center' justify='center' bg={colors.pageBg}>
+        <Card bg={colors.cardBg} borderColor={colors.border} borderWidth='1px'>
+          <CardBody>
+            <VStack spacing={4} p={8}>
+              <Text fontSize='xl' fontWeight='bold' color={colors.error}>
+                Exam Not Found
+              </Text>
+              <Text color={colors.textSecondary}>
+                The exam you're looking for doesn't exist or has no questions
+                yet!
+              </Text>
+              <Button
+                bg={colors.primary}
+                color='white'
+                _hover={{ bg: colors.primaryHover }}
+                onClick={() => window.history.back()}
+              >
+                Go Back
+              </Button>
+            </VStack>
+          </CardBody>
+        </Card>
+      </Flex>
+    );
+  }
 
   const currentQ = questions[currentQuestion];
   const totalQuestions = testData._count?.questions || questions.length;

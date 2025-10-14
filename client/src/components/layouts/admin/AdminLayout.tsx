@@ -14,7 +14,6 @@ import {
 import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
 import { Route, Routes } from 'react-router-dom';
-import { colors } from '../../../utils/colors';
 
 const AdminDashboard = lazy(
   () => import('../../../pages/admin/AdminDashboard')
@@ -151,7 +150,7 @@ const AdminLayout: React.FC = () => {
   const contentMarginLeft = isMobile ? '0' : isSidebarOpen ? '64' : '16';
 
   return (
-    <Box minH='100vh' bg={colors.pageBg}>
+    <Box minH='100vh'>
       <AdminNavbar
         onToggle={handleToggleSidebar}
         isSidebarOpen={isSidebarOpen}

@@ -44,9 +44,9 @@ export const TestStatisticsCard: React.FC<TestStatisticsCardProps> = ({
   return (
     <Card
       {...bgStyles.card}
-      bg={colors.cardBg} // Explicitly set card background
+      bg={colors.cardBg}
       borderColor={colors.border}
-      boxShadow='0 1px 3px rgba(0, 0, 0, 0.1)' // Added base shadow
+      boxShadow='0 1px 3px rgba(0, 0, 0, 0.1)'
       _hover={{
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
         transform: 'translateY(-2px)',
