@@ -1094,9 +1094,11 @@ const QuestionCreation: React.FC = () => {
                               {question.text}
                             </Text>
 
-                            {['MULTIPLE_CHOICE', 'TRUE_FALSE'].includes(
-                              question.questionType
-                            ) &&
+                            {[
+                              'MULTIPLE_CHOICE',
+                              'MULTIPLE_ANSWER',
+                              'TRUE_FALSE',
+                            ].includes(question.questionType) &&
                               question.options && (
                                 <VStack align='stretch' spacing={1}>
                                   {question.options
