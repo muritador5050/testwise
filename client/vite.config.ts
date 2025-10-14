@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       manifest: {
-        name: 'TestWise - Computer Based Testing Platform',
+        name: 'TestWise Computer Based Testing Platform',
         short_name: 'TestWise',
         description:
           'Take tests, practice quizzes, and track your progress offline',
