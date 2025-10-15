@@ -153,6 +153,55 @@ class AttemptController {
     }
   }
 
+  static async updateStatus(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      // Validate id parameter
+      if (!id || isNaN(parseInt(id))) {
+        return res.status(400).json({ error: 'Valid attempt ID is required' });
+      }
+
+      // Validate status
+      if (!['IN_PROGRESS', 'COMPLETED', 'TIMED_OUT'].includes(status)) {
+        return res.status(400).json({ error: 'Invalid status value' });
+      }
+
+      const attemptId = parseInt(id);
+
+      // Verify attempt exists
+      const attempt = await prisma.attempt.findUnique({
+        where: { id: attemptId },
+      });
+
+      if (!attempt) {
+        return res.status(404).json({ error: 'Attempt not found' });
+      }
+
+      const updatedAttempt = await AttemptService.updateStatus(
+        attemptId,
+        status
+      );
+
+      res.json(updatedAttempt);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getAllAttempts(req: AuthenticatedRequest, res: Response) {
+    try {
+      if (req.user!.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      const attempts = await AttemptService.getAllAttempts();
+      res.json(attempts);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   static async getUserAttempts(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = req.user!.id;

@@ -138,7 +138,7 @@ const ExamPage: React.FC = () => {
   );
 
   // Tab switch detection
-  useTabSwitchDetection(onTimeUp, 13);
+  useTabSwitchDetection(onTimeUp, 3);
 
   // WebSocket event listeners
   useEffect(() => {

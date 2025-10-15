@@ -19,7 +19,6 @@ export const useWebSocket = (attemptId?: number) => {
     );
 
     socketRef.current.on('connect', () => {
-      console.log('WebSocket connected');
       setIsConnected(true);
 
       // Only join attempt room if attemptId is provided (for students)
@@ -29,7 +28,6 @@ export const useWebSocket = (attemptId?: number) => {
     });
 
     socketRef.current.on('disconnect', () => {
-      console.log('WebSocket disconnected');
       setIsConnected(false);
     });
 

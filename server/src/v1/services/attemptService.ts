@@ -149,6 +149,8 @@ class AttemptService {
   }
 
   static async submitAnswer(attemptId: number, answerData: SubmitAnswerData) {
+    await this.updateExpiredAttempts();
+
     const attempt = await prisma.attempt.findUnique({
       where: { id: attemptId },
       include: {
@@ -237,6 +239,26 @@ class AttemptService {
     return answer;
   }
 
+  static async updateStatus(
+    attemptId: number,
+    status: 'IN_PROGRESS' | 'COMPLETED' | 'TIMED_OUT'
+  ) {
+    return await prisma.attempt.update({
+      where: { id: attemptId },
+      data: { status },
+    });
+  }
+
+  static async getAllAttempts() {
+    return await prisma.attempt.findMany({
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        test: { select: { id: true, title: true, duration: true } },
+      },
+      orderBy: { startedAt: 'desc' },
+    });
+  }
+
   static async completeAttempt(attemptId: number) {
     const attempt = await prisma.attempt.findUnique({
       where: { id: attemptId },
@@ -277,10 +299,14 @@ class AttemptService {
     const incorrectAnswers = totalQuestions - correctAnswers;
     const unansweredQuestions = totalQuestions - attempt.answers.length;
 
+    const isTimedOut = attempt.expiresAt
+      ? new Date() > attempt.expiresAt
+      : false;
+
     const newAttempt = await prisma.attempt.update({
       where: { id: attemptId },
       data: {
-        status: 'COMPLETED',
+        status: isTimedOut ? 'TIMED_OUT' : 'COMPLETED',
         completedAt: new Date(),
         score,
         maxScore,

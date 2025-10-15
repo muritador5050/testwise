@@ -147,6 +147,7 @@ export interface Attempt {
   percentScore: number | null;
   status: AttemptStatus;
   startedAt: string;
+  expiresAt?: string;
   completedAt: string | null;
   timeSpent: number | null;
   attemptNumber: number;
@@ -156,6 +157,24 @@ export interface Attempt {
   test: Test;
   answers: Answer[];
   user: User;
+}
+
+export interface TestAttempt {
+  id: number;
+  score: number;
+  maxScore: number | null;
+  percentScore: number | null;
+  status: string;
+  startedAt: string;
+  expiresAt: string | null;
+  completedAt: string | null;
+  timeSpent: number | null;
+  attemptNumber: number;
+  ipAddress: string;
+  userId: number;
+  testId: number;
+  user: User;
+  test: Test;
 }
 
 export interface AttemptAnalytics {
@@ -267,8 +286,15 @@ export interface StudentCompletedEvent {
   totalQuestions: number;
 }
 
+export interface StudentTimeoutEvent {
+  attemptId: number;
+  percentScore: number;
+  correctAnswers: number;
+  totalQuestions: number;
+}
+
 export interface ActivityFeedItem {
-  type: 'started' | 'completed' | 'answered';
+  type: 'started' | 'completed' | 'answered' | 'timed_out';
   message: string;
   timestamp: Date;
 }

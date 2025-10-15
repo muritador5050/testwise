@@ -6,6 +6,7 @@ import {
   StudentAnsweredEvent,
   StudentCompletedEvent,
   ActivityFeedItem,
+  StudentTimeoutEvent,
 } from '../types/api';
 
 export const useAdminMonitoring = () => {
@@ -65,6 +66,20 @@ export const useAdminMonitoring = () => {
         ...prev.slice(0, 49),
       ]);
     };
+    const handleStudentTimedOut = (data: StudentTimeoutEvent) => {
+      setLiveAttempts((prev) =>
+        prev.filter((attempt) => attempt.attemptId !== data.attemptId)
+      );
+
+      setActivityFeed((prev) => [
+        {
+          type: 'timed_out',
+          message: `Exam timed out - Score: ${data.percentScore.toFixed(1)}%`,
+          timestamp: new Date(),
+        },
+        ...prev.slice(0, 49),
+      ]);
+    };
 
     const handleStudentCompleted = (data: StudentCompletedEvent) => {
       setLiveAttempts((prev) =>
@@ -86,6 +101,7 @@ export const useAdminMonitoring = () => {
       'student_answered_question',
       handleStudentAnswered
     );
+    on<StudentTimeoutEvent>('student_timed_out', handleStudentTimedOut);
     on<StudentCompletedEvent>('student_completed_exam', handleStudentCompleted);
 
     return () => {
@@ -94,6 +110,7 @@ export const useAdminMonitoring = () => {
         'student_answered_question',
         handleStudentAnswered
       );
+      off<StudentTimeoutEvent>('student_timed_out', handleStudentTimedOut);
       off<StudentCompletedEvent>(
         'student_completed_exam',
         handleStudentCompleted

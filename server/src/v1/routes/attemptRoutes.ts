@@ -6,6 +6,12 @@ import { authorize } from '../../middleware/authorization.js';
 
 export const attemptRoutes = Router();
 
+attemptRoutes.get(
+  '/',
+  authenticate,
+  authorize('ADMIN'),
+  AttemptController.getAllAttempts
+);
 attemptRoutes.get('/user', authenticate, AttemptController.getUserAttempts);
 
 attemptRoutes.get(
@@ -40,6 +46,13 @@ attemptRoutes.get(
   authenticate,
   authorize('ADMIN'),
   AttemptController.getTestPerformance
+);
+
+attemptRoutes.patch(
+  '/:attemptId/status',
+  authenticate,
+  authorize('ADMIN'),
+  AttemptController.updateStatus
 );
 
 attemptRoutes.get(

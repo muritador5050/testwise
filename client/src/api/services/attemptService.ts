@@ -9,6 +9,7 @@ import type {
   UserPerformanceHistory,
   ScoreDistribution,
   LiveAttemptResponse,
+  TestAttempt,
 } from '../../types/api';
 
 // Get user attempts
@@ -17,6 +18,20 @@ export const useGetUserAttempts = (testId?: number) => {
     queryKey: ['user-attempts', testId],
     queryFn: async () => {
       return apiClient(`attempts/user`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+  });
+};
+
+export const useGetAllAttempts = () => {
+  return useQuery<TestAttempt[]>({
+    queryKey: ['all-attempts'],
+    queryFn: async () => {
+      return apiClient(`attempts/`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getAuthToken()}`,
@@ -92,6 +107,32 @@ export const useGetLiveAttempts = () => {
       });
     },
     refetchInterval: 5000,
+  });
+};
+
+export const useUpdateStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      attemptId,
+      status,
+    }: {
+      attemptId: number;
+      status: 'IN_PROGRESS' | 'COMPLETED' | 'TIMED_OUT';
+    }) => {
+      return apiClient(`attempts/${attemptId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['attempts'] });
+    },
   });
 };
 

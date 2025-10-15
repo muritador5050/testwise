@@ -197,6 +197,8 @@ const LiveMonitoring: React.FC = () => {
                             ? 'blue'
                             : activity.type === 'completed'
                             ? 'green'
+                            : activity.type === 'timed_out'
+                            ? 'red'
                             : 'yellow'
                         }
                       >

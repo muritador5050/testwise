@@ -39,6 +39,8 @@ const UserPerformanceByTest = lazy(
   () => import('../../../pages/admin/UserPerformanceByTest')
 );
 
+const TestAttempts = lazy(() => import('../../../pages/admin/TestAttempts'));
+
 const LiveMonitoring = lazy(
   () => import('../../../pages/admin/LiveMonitoring')
 );
@@ -111,6 +113,12 @@ const navItems = [
         icon: '🎓',
       },
     ],
+  },
+
+  {
+    name: 'TestAttempts',
+    path: '/admin/attempts',
+    icon: '📊',
   },
   {
     name: 'Results',
@@ -220,6 +228,7 @@ const AdminLayout: React.FC = () => {
             path='exams/performances'
             element={<UserPerformanceByTest />}
           />
+          <Route path='/attempts' element={<TestAttempts />} />
           <Route path='live-monitoring' element={<LiveMonitoring />} />
         </Routes>
       </Box>
