@@ -18,6 +18,51 @@ class AttemptController {
             res.status(500).json({ error: error.message });
         }
     }
+    static async getRemainingTime(req, res) {
+        try {
+            const { id } = req.params;
+            const attempt = await prisma.attempt.findUnique({
+                where: { id: parseInt(id) },
+            });
+            if (!attempt || attempt.userId !== req.user.id) {
+                return res.status(403).json({ error: 'Access denied' });
+            }
+            const remainingTime = await AttemptService.getRemainingTime(parseInt(id));
+            res.json({ remainingTime });
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+    static async getLiveAttempts(req, res) {
+        try {
+            if (req.user.role !== 'ADMIN') {
+                return res.status(403).json({ error: 'Admin access required' });
+            }
+            const liveAttempts = await prisma.attempt.findMany({
+                where: { status: 'IN_PROGRESS' },
+                include: {
+                    user: { select: { id: true, name: true, email: true } },
+                    test: { select: { id: true, title: true, duration: true } },
+                    answers: { select: { id: true, isCorrect: true } },
+                },
+                orderBy: { startedAt: 'desc' },
+            });
+            const formatted = liveAttempts.map((attempt) => ({
+                attemptId: attempt.id,
+                user: attempt.user,
+                test: attempt.test,
+                startedAt: attempt.startedAt,
+                expiresAt: attempt.expiresAt,
+                answeredQuestions: attempt.answers.length,
+                correctAnswers: attempt.answers.filter((a) => a.isCorrect).length,
+            }));
+            res.json(formatted);
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
     static async getById(req, res) {
         try {
             const { id } = req.params;

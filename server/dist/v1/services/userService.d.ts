@@ -44,6 +44,7 @@ declare class UserService {
             score: number;
             maxScore: number | null;
             startedAt: Date;
+            expiresAt: Date | null;
             completedAt: Date | null;
             timeSpent: number | null;
             attemptNumber: number;

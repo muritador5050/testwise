@@ -159,7 +159,6 @@ class AttemptService {
       throw new Error('Question not found');
     }
 
-    // Calculate if answer is correct and points earned
     let isCorrect = false;
     let pointsEarned = 0;
 

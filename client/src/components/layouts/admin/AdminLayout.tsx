@@ -14,7 +14,6 @@ import {
 import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
 import { Route, Routes } from 'react-router-dom';
-import LiveMonitoring from '../../../pages/admin/LiveMonitoring';
 
 const AdminDashboard = lazy(
   () => import('../../../pages/admin/AdminDashboard')
@@ -38,6 +37,10 @@ const ScoreDistributionChart = lazy(
 );
 const UserPerformanceByTest = lazy(
   () => import('../../../pages/admin/UserPerformanceByTest')
+);
+
+const LiveMonitoring = lazy(
+  () => import('../../../pages/admin/LiveMonitoring')
 );
 
 //Navigation links

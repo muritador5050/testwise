@@ -8,12 +8,14 @@ declare class AttemptService {
         score: number;
         maxScore: number | null;
         startedAt: Date;
+        expiresAt: Date | null;
         completedAt: Date | null;
         timeSpent: number | null;
         attemptNumber: number;
         ipAddress: string | null;
         testId: number;
     }>;
+    static getRemainingTime(attemptId: number): Promise<number>;
     static getAttemptById(id: number): Promise<({
         user: {
             id: number;
@@ -87,6 +89,7 @@ declare class AttemptService {
         score: number;
         maxScore: number | null;
         startedAt: Date;
+        expiresAt: Date | null;
         completedAt: Date | null;
         timeSpent: number | null;
         attemptNumber: number;
@@ -117,6 +120,7 @@ declare class AttemptService {
             score: number;
             maxScore: number | null;
             startedAt: Date;
+            expiresAt: Date | null;
             completedAt: Date | null;
             timeSpent: number | null;
             attemptNumber: number;
@@ -143,6 +147,7 @@ declare class AttemptService {
         score: number;
         maxScore: number | null;
         startedAt: Date;
+        expiresAt: Date | null;
         completedAt: Date | null;
         timeSpent: number | null;
         attemptNumber: number;
