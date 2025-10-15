@@ -138,7 +138,7 @@ const ExamPage: React.FC = () => {
   );
 
   // Tab switch detection
-  useTabSwitchDetection(onTimeUp, 3);
+  useTabSwitchDetection(onTimeUp, 13);
 
   // WebSocket event listeners
   useEffect(() => {
@@ -252,7 +252,7 @@ const ExamPage: React.FC = () => {
       p={{ base: 2, md: 4, lg: 6 }}
       direction={{ base: 'column', lg: 'row' }}
       gap={{ base: 3, md: 6 }}
-      pb={{ base: '120px', lg: 6 }}
+      pb={{ base: '140px', lg: 6 }}
     >
       {/* Mobile: Fixed Header with Timer and Menu */}
       <Box
@@ -372,7 +372,7 @@ const ExamPage: React.FC = () => {
           borderColor={colors.border}
           borderWidth='1px'
         >
-          <CardBody p={{ base: 3, md: 6 }}>
+          <CardBody p={{ base: 2, md: 6 }}>
             <VStack spacing={{ base: 4, md: 6 }} align='stretch' h='full'>
               {/* Question Header */}
               <Flex
@@ -440,7 +440,7 @@ const ExamPage: React.FC = () => {
               </Box>
 
               {/* Navigation Buttons */}
-              <HStack justify='space-between' pt={2}>
+              <HStack justify='space-between'>
                 <Button
                   onClick={handlePrevious}
                   isDisabled={currentQuestion === 0}

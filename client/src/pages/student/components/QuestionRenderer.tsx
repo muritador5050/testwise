@@ -32,11 +32,11 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           value={currentAnswer as string}
           onChange={(value) => onAnswerChange(value)}
         >
-          <Stack spacing={4}>
+          <Stack spacing={3}>
             {question.options?.map((option) => (
               <Box
                 key={option.id}
-                p={4}
+                p={{ base: 2, lg: 4 }}
                 borderWidth='2px'
                 borderRadius='lg'
                 borderColor={
@@ -92,11 +92,11 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           value={(currentAnswer as string[]) || []}
           onChange={(value) => onAnswerChange(value as string[])}
         >
-          <Stack spacing={4}>
+          <Stack spacing={3}>
             {question.options?.map((option) => (
               <Box
                 key={option.id}
-                p={4}
+                p={{ base: 2, lg: 4 }}
                 borderWidth='2px'
                 borderRadius='lg'
                 borderColor={
