@@ -17,7 +17,7 @@ enum QuestionType {
   MULTIPLE_ANSWER
   TRUE_FALSE
   SHORT_ANSWER
-  ESSAY  
+  ESSAY
 }
 
 enum AttemptStatus {
@@ -27,116 +27,114 @@ enum AttemptStatus {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
   name      String?
-  role      Role     @default(STUDENT)
+  role      Role      @default(STUDENT)
   avatar    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  attempts Attempt[]
-  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  attempts  Attempt[]
+
   @@map("users")
 }
 
 model Test {
-  id          Int      @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   title       String
   description String?
-  duration    Int     
-  maxAttempts Int      @default(1)  
-  isPublished Boolean  @default(false)
-  
+  duration    Int
+  maxAttempts Int     @default(1)
+  isPublished Boolean @default(false)
+
   // Scheduling
   availableFrom  DateTime?
   availableUntil DateTime?
-  
+
   // Metadata
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   questions Question[]
   attempts  Attempt[]
-  
+
   @@map("tests")
 }
-
 
 model Question {
   id           Int          @id @default(autoincrement())
   text         String
   questionType QuestionType
-  points       Float        @default(1.0)  
-  order        Int         
-  
+  points       Float        @default(1.0)
+  order        Int
+
   testId Int
   test   Test @relation(fields: [testId], references: [id], onDelete: Cascade)
-  
+
   options Option[]
   answers Answer[]
-  
+
   @@map("questions")
 }
-
 
 model Option {
   id        Int     @id @default(autoincrement())
   text      String
   isCorrect Boolean @default(false)
-  order     Int   
-  
+  order     Int
+
   questionId Int
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  
+
   answers Answer[]
-  
+
   @@map("options")
 }
 
-
 model Attempt {
-  id            Int           @id @default(autoincrement())
-  score         Float         @default(0)    
-  maxScore      Float?       
-  percentScore  Float?        
-  status        AttemptStatus @default(IN_PROGRESS)
-  
+  id           Int           @id @default(autoincrement())
+  score        Float         @default(0)
+  maxScore     Float?
+  percentScore Float?
+  status       AttemptStatus @default(IN_PROGRESS)
+
   // Timing
   startedAt   DateTime  @default(now())
+  expiresAt   DateTime?
   completedAt DateTime?
-  timeSpent   Int?     
-  
-  attemptNumber Int       
+  timeSpent   Int?
+
+  attemptNumber Int
   ipAddress     String?
-  
+
   userId Int
   user   User @relation(fields: [userId], references: [id])
-  
+
   testId Int
-  test   Test @relation(fields: [testId], references: [id],  onDelete:Cascade )
-  
+  test   Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
   answers Answer[]
-  
+
   @@unique([userId, testId, attemptNumber])
   @@map("attempts")
 }
 
 model Answer {
   id           Int     @id @default(autoincrement())
-  textAnswer   String? 
+  textAnswer   String?
   isCorrect    Boolean @default(false)
-  pointsEarned Float   @default(0)    
-  timeSpent    Int?    
-  
+  pointsEarned Float   @default(0)
+  timeSpent    Int?
+
   attemptId Int
   attempt   Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  
+
   questionId Int
   question   Question @relation(fields: [questionId], references: [id])
-  
-  optionId Int? 
+
+  optionId Int?
   option   Option? @relation(fields: [optionId], references: [id])
-  
-  @@unique([attemptId, questionId]) 
+
+  @@unique([attemptId, questionId])
   @@map("answers")
 }

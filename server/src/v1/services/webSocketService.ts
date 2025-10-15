@@ -21,7 +21,7 @@ class WebSocketService {
       }
 
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
         socket.data.user = decoded;
         next();
       } catch (err) {
@@ -31,6 +31,12 @@ class WebSocketService {
 
     this.io.on('connection', (socket) => {
       console.log(`User ${socket.data.user.id} connected`);
+
+      // Admin room for live monitoring
+      if (socket.data.user.role === 'ADMIN') {
+        socket.join('admin-room');
+        console.log(`Admin ${socket.data.user.id} joined monitoring room`);
+      }
 
       socket.on('join-attempt', (attemptId) => {
         // Verify user owns this attempt
@@ -48,8 +54,16 @@ class WebSocketService {
     this.io.to(`attempt-${attemptId}`).emit(event, data);
   }
 
+  emitToAdmins(event: string, data: any) {
+    this.io.to('admin-room').emit(event, data);
+  }
+
   emitToAll(event: string, data: any) {
     this.io.emit(event, data);
+  }
+
+  getIO() {
+    return this.io;
   }
 }
 

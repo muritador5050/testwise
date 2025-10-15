@@ -15,11 +15,24 @@ attemptRoutes.get(
   AttemptController.getAnalytics
 );
 
+attemptRoutes.get(
+  '/live',
+  authenticate,
+  authorize('ADMIN'),
+  AttemptController.getLiveAttempts
+);
+
 attemptRoutes.post(
   '/test/:testId/start',
   authenticate,
   attemptRateLimit,
   AttemptController.start
+);
+
+attemptRoutes.get(
+  '/:id/remaining-time',
+  authenticate,
+  AttemptController.getRemainingTime
 );
 
 attemptRoutes.get(

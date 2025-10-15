@@ -3,7 +3,6 @@ import TestService from './testService.js';
 import webSocketService from './webSocketService.js';
 import { PrismaClient } from '@prisma/client';
 
-// Initialize Prisma Client
 const prisma = new PrismaClient();
 
 class AttemptService {
@@ -36,12 +35,15 @@ class AttemptService {
       throw new Error('Maximum attempts reached');
     }
 
-    // Check for existing in-progress attempt
+    // Calculate expiration time
+    const expiresAt = new Date(Date.now() + test.duration * 60 * 1000);
+
     const existingAttempt = await prisma.attempt.findFirst({
       where: {
         userId,
         testId,
         status: 'IN_PROGRESS',
+        expiresAt: { gt: new Date() },
       },
     });
 
@@ -49,25 +51,57 @@ class AttemptService {
       return existingAttempt;
     }
 
-    webSocketService.emitToAttempt(
-      existingAttempt || attemptCount + 1,
-      'attempt_started',
-      {
-        userId,
-        testId,
-        attemptNumber: attemptCount + 1,
-      }
-    );
     // Create new attempt
-    return await prisma.attempt.create({
+    const newAttempt = await prisma.attempt.create({
       data: {
         userId,
         testId,
         attemptNumber: attemptCount + 1,
         ipAddress,
         status: 'IN_PROGRESS',
+        expiresAt,
       },
     });
+
+    // Emit socket events AFTER creating attempt
+    webSocketService.emitToAttempt(newAttempt.id, 'attempt_started', {
+      userId,
+      testId,
+      attemptNumber: attemptCount + 1,
+    });
+
+    // Notify admins
+    webSocketService.emitToAdmins('student_started_exam', {
+      attemptId: newAttempt.id,
+      userId,
+      testId,
+      userName: (await prisma.user.findUnique({ where: { id: userId } }))?.name,
+      testTitle: test.title,
+      startedAt: newAttempt.startedAt,
+    });
+
+    return newAttempt;
+  }
+
+  static async getRemainingTime(attemptId: number) {
+    const attempt = await prisma.attempt.findUnique({
+      where: { id: attemptId },
+      select: { expiresAt: true, status: true },
+    });
+
+    if (!attempt || !attempt.expiresAt) {
+      throw new Error('Attempt not found');
+    }
+
+    if (attempt.status !== 'IN_PROGRESS') {
+      return 0;
+    }
+
+    const now = Date.now();
+    const expiresAt = attempt.expiresAt.getTime();
+    const remainingMs = expiresAt - now;
+
+    return Math.max(0, Math.floor(remainingMs / 1000));
   }
 
   static async getAttemptById(id: number) {
@@ -174,6 +208,13 @@ class AttemptService {
       pointsEarned,
     });
 
+    webSocketService.emitToAdmins('student_answered_question', {
+      attemptId,
+      userId: attempt.userId,
+      questionId: answerData.questionId,
+      isCorrect,
+    });
+
     return answer;
   }
 
@@ -238,6 +279,16 @@ class AttemptService {
       score,
       percentScore,
       timeSpent,
+    });
+
+    webSocketService.emitToAdmins('student_completed_exam', {
+      attemptId,
+      userId: attempt.userId,
+      testId: attempt.testId,
+      score,
+      percentScore,
+      timeSpent,
+      completedAt: new Date(),
     });
 
     return {
