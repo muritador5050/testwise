@@ -1,6 +1,5 @@
 # 🧠 TestWise — Computer-Based Testing App
 
-![CBT App Screenshot](./screenshot.png)
 
 > A modern and interactive **Computer-Based Testing (CBT)** application built with **React + Vite** on the frontend and **Express.js + Prisma** on the backend.  
 > TestWise allows admins to create and manage tests while students can take quizzes in real-time with analytics and progress tracking.
@@ -9,10 +8,10 @@
 
 ## 🚀 Live Demo
 
-- 🌐 **Frontend:** [https://your-frontend-url-here](https://your-frontend-url-here)  
-- 🛠️ **Backend API:** [https://your-backend-url-here](https://your-backend-url-here)
+- 🌐 **Frontend:** [https://testwise-cbt.netlify.app]
+- 🛠️ **Backend API:** [https://testwise-xbfl.onrender.com]
 
-*(You can remove this section if you haven’t deployed yet.)*
+
 
 ---
 
@@ -36,7 +35,6 @@
 - Real-time updates using Socket.io
 - Data visualization with Recharts
 - Cloudinary for media storage
-- Light/Dark mode support
 
 ---
 
@@ -55,7 +53,7 @@
 ### **Backend**
 - 🧱 Express.js (TypeScript)
 - 🧪 Prisma ORM
-- 🗄️ PostgreSQL / MySQL (configurable)
+- 🗄️ PostgreSQL(configurable)
 - 🔐 JSON Web Token (JWT)
 - 📡 Socket.io
 - 🪵 Winston (logging)
@@ -78,11 +76,6 @@ testwise/
 │   ├── prisma/
 │   ├── src/
 │   └── package.json
-│
-├── screenshots/
-│   ├── dashboard.png
-│   ├── test.png
-│   └── analytics.png
 └── README.md
 
 
@@ -104,5 +97,5 @@ Muritador Abdulazeez
 💼 Full-Stack JavaScript Developer
 
 
-git clone https://github.com/your-username/testwise.git
+git clone https://github.com/muritador5050/testwise.git
 cd testwise
