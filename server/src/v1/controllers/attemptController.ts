@@ -54,6 +54,7 @@ class AttemptController {
       if (req.user!.role !== 'ADMIN') {
         return res.status(403).json({ error: 'Admin access required' });
       }
+      await AttemptService.updateExpiredAttempts();
 
       const liveAttempts = await prisma.attempt.findMany({
         where: { status: 'IN_PROGRESS' },

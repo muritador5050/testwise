@@ -6,6 +6,17 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 class AttemptService {
+  //Utility to update expired attempts
+  static async updateExpiredAttempts() {
+    return await prisma.attempt.updateMany({
+      where: {
+        status: 'IN_PROGRESS',
+        expiresAt: { lt: new Date() },
+      },
+      data: { status: 'TIMED_OUT' },
+    });
+  }
+
   static async startAttempt(
     userId: number,
     testId: number,
@@ -71,12 +82,19 @@ class AttemptService {
     });
 
     // Notify admins
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, email: true },
+    });
+
     webSocketService.emitToAdmins('student_started_exam', {
       attemptId: newAttempt.id,
-      userId,
-      testId,
-      userName: (await prisma.user.findUnique({ where: { id: userId } }))?.name,
-      testTitle: test.title,
+      user: user,
+      test: {
+        id: test.id,
+        title: test.title,
+        duration: test.duration,
+      },
       startedAt: newAttempt.startedAt,
     });
 
@@ -84,6 +102,8 @@ class AttemptService {
   }
 
   static async getRemainingTime(attemptId: number) {
+    await this.updateExpiredAttempts();
+
     const attempt = await prisma.attempt.findUnique({
       where: { id: attemptId },
       select: { expiresAt: true, status: true },

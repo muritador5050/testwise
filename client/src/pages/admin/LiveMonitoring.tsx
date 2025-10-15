@@ -154,7 +154,7 @@ const LiveMonitoring: React.FC = () => {
                           </Box>
                         </HStack>
                         <VStack spacing={1} align='flex-end'>
-                          <Badge colorScheme='green'>In Progress</Badge>
+                          <Badge colorScheme='green'>In Progress </Badge>
                           <Text fontSize='xs' color={colors.textSecondary}>
                             {attempt?.answeredQuestions} answered
                           </Text>

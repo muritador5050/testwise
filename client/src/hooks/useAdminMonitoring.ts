@@ -17,6 +17,11 @@ export const useAdminMonitoring = () => {
     if (!isConnected) return;
 
     const handleStudentStarted = (data: StudentStartedEvent) => {
+      if (!data.user || !data.test) {
+        console.warn('Received incomplete student_started_exam event', data);
+        return;
+      }
+
       setLiveAttempts((prev) => [
         {
           attemptId: data.attemptId,
@@ -29,14 +34,13 @@ export const useAdminMonitoring = () => {
         },
         ...prev,
       ]);
-
       setActivityFeed((prev) => [
         {
           type: 'started',
-          message: `${data.user.name} started ${data.test.title}`,
+          message: `${data.user?.name} started ${data.test?.title}`,
           timestamp: new Date(),
         },
-        ...prev.slice(0, 49), // Keep only the latest 50 activities
+        ...prev.slice(0, 49),
       ]);
     };
 
