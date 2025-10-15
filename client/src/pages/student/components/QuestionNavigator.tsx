@@ -62,14 +62,14 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
               </HStack>
             </HStack>
 
-            {/* Scrollable Question Grid Container */}
+            {/* Scrollable Question Grid Container - Horizontal Scroll */}
             <Box
-              maxH='90px'
-              overflowY='auto'
+              overflowX='auto'
+              overflowY='hidden'
               mb={2}
               css={{
                 '&::-webkit-scrollbar': {
-                  width: '4px',
+                  height: '4px',
                 },
                 '&::-webkit-scrollbar-track': {
                   background: colors.border,
@@ -80,7 +80,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                 },
               }}
             >
-              <Grid templateColumns='repeat(8, 1fr)' gap={1.5}>
+              <HStack spacing={1.5} minW='min-content'>
                 {questions.map((q, index) => (
                   <Button
                     key={q.id}
@@ -116,6 +116,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                     h='32px'
                     w='32px'
                     minW='32px'
+                    flexShrink={0}
                     p={0}
                     borderRadius='md'
                     fontSize='xs'
@@ -124,7 +125,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                     {index + 1}
                   </Button>
                 ))}
-              </Grid>
+              </HStack>
             </Box>
 
             {/* Submit Button */}

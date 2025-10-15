@@ -252,7 +252,7 @@ const ExamPage: React.FC = () => {
       p={{ base: 2, md: 4, lg: 6 }}
       direction={{ base: 'column', lg: 'row' }}
       gap={{ base: 3, md: 6 }}
-      pb={{ base: '160px', lg: 6 }}
+      pb={{ base: '120px', lg: 6 }}
     >
       {/* Mobile: Fixed Header with Timer and Menu */}
       <Box
