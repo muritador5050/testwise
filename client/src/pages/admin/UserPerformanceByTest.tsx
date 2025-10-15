@@ -174,7 +174,7 @@ const UserPerformanceByTest: React.FC = () => {
   }
 
   return (
-    <Container maxW='container.xl' py={8} px={0}>
+    <Container maxW='container.xl' py={6} px={0}>
       <Flex direction={{ base: 'column', lg: 'row' }} gap={6}>
         {/* Left Sidebar - Tests List */}
         <Box
@@ -202,13 +202,21 @@ const UserPerformanceByTest: React.FC = () => {
                 }
                 cursor='pointer'
                 _hover={{
-                  bg: selectedTestId === test.id ? colors.cardBg : 'rgba(255, 255, 255, 0.5)',
+                  bg:
+                    selectedTestId === test.id
+                      ? colors.cardBg
+                      : 'rgba(255, 255, 255, 0.5)',
                 }}
                 onClick={() => setSelectedTestId(test.id)}
               >
                 <Flex justify='space-between' align='start'>
                   <Box flex={1}>
-                    <Text fontWeight='medium' fontSize='sm' noOfLines={2} {...textStyles.heading}>
+                    <Text
+                      fontWeight='medium'
+                      fontSize='sm'
+                      noOfLines={2}
+                      {...textStyles.heading}
+                    >
                       {test.title}
                     </Text>
                     <HStack spacing={2} mt={1}>
@@ -296,7 +304,11 @@ const UserPerformanceByTest: React.FC = () => {
                     <VStack align='start' spacing={4}>
                       {/* User Information */}
                       <Box>
-                        <Text fontWeight='medium' mb={2} {...textStyles.heading}>
+                        <Text
+                          fontWeight='medium'
+                          mb={2}
+                          {...textStyles.heading}
+                        >
                           Students:
                         </Text>
                         <HStack spacing={4} flexWrap='wrap'>
@@ -304,7 +316,11 @@ const UserPerformanceByTest: React.FC = () => {
                             <HStack key={user.userId}>
                               <Icon as={User} color={colors.primary} />
                               <VStack align='start' spacing={0}>
-                                <Text fontSize='sm' fontWeight='medium' {...textStyles.heading}>
+                                <Text
+                                  fontSize='sm'
+                                  fontWeight='medium'
+                                  {...textStyles.heading}
+                                >
                                   {user.userName}
                                 </Text>
                                 <Text fontSize='xs' {...textStyles.body}>
@@ -373,7 +389,9 @@ const UserPerformanceByTest: React.FC = () => {
                 {/* Performance Table */}
                 <Card {...bgStyles.card}>
                   <CardHeader>
-                    <Heading size='md' {...textStyles.heading}>Attempt History</Heading>
+                    <Heading size='md' {...textStyles.heading}>
+                      Attempt History
+                    </Heading>
                   </CardHeader>
                   <CardBody>
                     <Box overflowX='auto'>
@@ -396,7 +414,10 @@ const UserPerformanceByTest: React.FC = () => {
                             >
                               <Td>
                                 <VStack align='start' spacing={0}>
-                                  <Text fontWeight='medium' {...textStyles.heading}>
+                                  <Text
+                                    fontWeight='medium'
+                                    {...textStyles.heading}
+                                  >
                                     {performance.userName}
                                   </Text>
                                   <Text fontSize='xs' {...textStyles.body}>
@@ -408,12 +429,17 @@ const UserPerformanceByTest: React.FC = () => {
                                 Attempt {performance.attemptNumber}
                               </Td>
                               <Td>
-                                <Text {...textStyles.heading}>{performance.score} points</Text>
+                                <Text {...textStyles.heading}>
+                                  {performance.score} points
+                                </Text>
                               </Td>
                               <Td>
                                 <VStack align='start' spacing={1}>
                                   <HStack>
-                                    <Text fontWeight='medium' {...textStyles.heading}>
+                                    <Text
+                                      fontWeight='medium'
+                                      {...textStyles.heading}
+                                    >
                                       {performance.percentScore}%
                                     </Text>
                                     <Badge
@@ -478,7 +504,9 @@ const UserPerformanceByTest: React.FC = () => {
                 {/* Performance Summary */}
                 <Card {...bgStyles.card}>
                   <CardHeader>
-                    <Heading size='md' {...textStyles.heading}>Performance Summary</Heading>
+                    <Heading size='md' {...textStyles.heading}>
+                      Performance Summary
+                    </Heading>
                   </CardHeader>
                   <CardBody>
                     <VStack align='start' spacing={4}>
@@ -510,7 +538,11 @@ const UserPerformanceByTest: React.FC = () => {
                                   attempt.percentScore ?? 0
                                 )}
                               />
-                              <Text fontSize='xs' fontWeight='medium' {...textStyles.heading}>
+                              <Text
+                                fontSize='xs'
+                                fontWeight='medium'
+                                {...textStyles.heading}
+                              >
                                 {attempt.percentScore}%
                               </Text>
                             </VStack>

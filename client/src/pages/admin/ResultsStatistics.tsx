@@ -95,7 +95,7 @@ const ResultsStatistics: React.FC = () => {
                 <StatLabel {...textStyles.body}>Pass Rate</StatLabel>
               </HStack>
               <StatNumber fontSize='2xl' color={colors.success}>
-                {data?.passRate || 0}%
+                {(data?.passRate || 0).toFixed(1)}%
               </StatNumber>
             </Stat>
           </CardBody>

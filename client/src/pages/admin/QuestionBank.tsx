@@ -99,7 +99,7 @@ export default function QuestionBank() {
   }
 
   return (
-    <Box p={6} bg={colors.pageBg} minH='100vh'>
+    <Box py={4} bg={colors.pageBg} minH='100vh'>
       <VStack spacing={6} align='stretch'>
         <Heading size='lg' {...textStyles.heading}>
           Question Bank

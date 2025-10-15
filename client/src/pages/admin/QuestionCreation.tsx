@@ -493,7 +493,7 @@ const QuestionCreation: React.FC = () => {
   }
 
   return (
-    <Box p={{ base: 4, md: 6 }} minH='100vh' {...bgStyles.page}>
+    <Box py={4} minH='100vh' {...bgStyles.page}>
       <VStack spacing={{ base: 4, md: 6 }} align='stretch'>
         {/* Header */}
         <Flex justify='space-between' align='center' flexWrap='wrap' gap={4}>

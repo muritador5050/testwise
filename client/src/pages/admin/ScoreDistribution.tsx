@@ -99,7 +99,7 @@ const ScoreDistributionChart: React.FC = () => {
   }
 
   return (
-    <Container maxW='container.xl' py={8} px={0}>
+    <Container maxW='container.xl' py={6} px={0}>
       <Flex direction={{ base: 'column', lg: 'row' }} gap={6}>
         {/* Left Sidebar - Tests List */}
         <Box

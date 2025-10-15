@@ -118,7 +118,6 @@ const ExamCreation: React.FC = () => {
       direction={{ base: 'column', lg: 'row' }}
       align='flex-start'
       spacing={{ base: 6, md: 8 }}
-      p={{ base: 4, md: 6, lg: 8 }}
       bg={colors.pageBg}
       minH='100vh'
     >

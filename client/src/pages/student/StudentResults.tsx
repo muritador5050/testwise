@@ -64,7 +64,7 @@ const StudentResults: React.FC = () => {
   const { data } = useGetUserPerformance();
 
   return (
-    <VStack spacing={8} align='stretch' w='full' p={6} bg={colors.pageBg}>
+    <VStack spacing={8} align='stretch' w='full' p={4} bg={colors.pageBg}>
       {/* Attempts History */}
       <Card {...bgStyles.card} shadow='md'>
         <CardHeader pb={4}>

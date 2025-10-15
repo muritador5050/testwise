@@ -208,7 +208,7 @@ export default function UsersPage() {
     );
 
   return (
-    <Box p={4} w='full' {...bgStyles.page}>
+    <Box py={4} w='full' {...bgStyles.page}>
       <Heading size='lg' mb={6} {...textStyles.heading}>
         Manage Users
       </Heading>

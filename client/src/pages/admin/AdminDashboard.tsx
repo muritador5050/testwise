@@ -28,7 +28,7 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <VStack spacing={6} align='stretch' p={6} minH='100vh'>
+    <VStack spacing={6} align='stretch' p={2} minH='100vh'>
       <Heading size='lg' {...textStyles.heading}>
         Dashboard
       </Heading>

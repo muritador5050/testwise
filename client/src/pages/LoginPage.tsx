@@ -61,7 +61,7 @@ export default function LoginPage() {
   };
 
   return (
-    <Box minH='100vh' bg={colors.pageBg}  >
+    <Box minH='100vh' bg={colors.pageBg}>
       {/* Navigation */}
       <Box
         position='fixed'
@@ -97,12 +97,12 @@ export default function LoginPage() {
         </Container>
       </Box>
 
-      <Flex minH='100vh' align='center' justify='center' py={8} px={4} pt={20}>
+      <Flex minH='100vh' align='center' justify='center' py={8} pt={20}>
         <Container maxW='md'>
           <VStack spacing={8}>
             {/* Header */}
             <Box textAlign='center'>
-              <Heading size='xl' color={colors.textPrimary} mb={3}>
+              <Heading size='xl' color={colors.primary} mb={3}>
                 Welcome Back
               </Heading>
               <Text fontSize='lg' color={colors.textSecondary}>
@@ -166,24 +166,21 @@ export default function LoginPage() {
                     </Box>
                   )}
                 </VStack>
+                <VStack spacing={4} textAlign='center' mt={7}>
+                  <Text fontSize='sm' color={colors.textMuted}>
+                    <Link
+                      as={RouterLink}
+                      to='/users/signUp'
+                      color={colors.primary}
+                      fontWeight='medium'
+                      _hover={{ textDecoration: 'underline' }}
+                    >
+                      Don't have account yet ?
+                    </Link>
+                  </Text>
+                </VStack>
               </CardBody>
             </Card>
-
-            {/* Footer Links */}
-            <VStack spacing={4} textAlign='center'>
-              <Text fontSize='sm' color={colors.textMuted}>
-                ←{' '}
-                <Link
-                  as={RouterLink}
-                  to='/'
-                  color={colors.primary}
-                  fontWeight='medium'
-                  _hover={{ textDecoration: 'underline' }}
-                >
-                  Back to homepage
-                </Link>
-              </Text>
-            </VStack>
           </VStack>
         </Container>
       </Flex>

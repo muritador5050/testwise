@@ -50,7 +50,7 @@ export default function ExamInstructions() {
 
   return (
     <Container maxW='container.md' py={8}>
-      <Box shadow='xl' borderRadius='lg' p={8} {...bgStyles.card}>
+      <Box shadow='xl' borderRadius='lg' p={4} {...bgStyles.card}>
         <VStack spacing={6} align='stretch'>
           <Heading as='h1' size='xl' textAlign='center' color={colors.primary}>
             Exam Instructions

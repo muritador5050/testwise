@@ -72,7 +72,7 @@ const ExamsStats: React.FC = () => {
       : 0;
 
   return (
-    <Box minH='100vh' bg={colors.pageBg} py={8} px={4}>
+    <Box minH='100vh' bg={colors.pageBg}>
       <Container maxW='7xl'>
         <Box mb={8}>
           <Heading size='xl' mb={2} {...textStyles.heading}>

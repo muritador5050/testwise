@@ -134,7 +134,7 @@ export default function Students() {
     );
 
   return (
-    <Box p={4} w='full' bg={colors.pageBg} minH='100vh'>
+    <Box py={4} w='full' bg={colors.pageBg} minH='100vh'>
       <Heading size='lg' mb={6} {...textStyles.heading}>
         Students
       </Heading>
