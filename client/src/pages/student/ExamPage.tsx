@@ -66,7 +66,12 @@ const ExamPage: React.FC = () => {
   // API Hooks
   const submitAnswer = useSubmitAnswer();
   const completeAttempt = useCompleteAttempt();
-  const { data: attemptData, isLoading } = useGetAttemptById(Number(attemptId));
+  const {
+    data: attemptData,
+    isFetching,
+    isError,
+    isFetched,
+  } = useGetAttemptById(Number(attemptId));
 
   // WebSocket hook
   const { isConnected, on, off } = useWebSocket(Number(attemptId));
@@ -192,7 +197,7 @@ const ExamPage: React.FC = () => {
   }, []);
 
   // Loading state
-  if (isLoading) {
+  if (isFetching) {
     return (
       <Flex minH='100vh' align='center' justify='center' bg={colors.pageBg}>
         <VStack spacing={4}>
@@ -209,7 +214,7 @@ const ExamPage: React.FC = () => {
     );
   }
 
-  if (!isLoading && (!testData || questions.length === 0)) {
+  if (isFetched && (!testData || isError)) {
     return (
       <Flex minH='100vh' align='center' justify='center' bg={colors.pageBg}>
         <Card bg={colors.cardBg} borderColor={colors.border} borderWidth='1px'>
@@ -362,7 +367,7 @@ const ExamPage: React.FC = () => {
       {/* Middle Section - Current Question */}
       <Box flex='1' minW={0}>
         <Card
-          h='full'
+          // h='full'
           bg={colors.cardBg}
           borderColor={colors.border}
           borderWidth='1px'
