@@ -49,7 +49,7 @@ attemptRoutes.get(
 );
 
 attemptRoutes.patch(
-  '/:attemptId/status',
+  '/:id/status',
   authenticate,
   authorize('ADMIN'),
   AttemptController.updateStatus

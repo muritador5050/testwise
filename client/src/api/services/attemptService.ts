@@ -131,7 +131,7 @@ export const useUpdateStatus = () => {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['attempts'] });
+      queryClient.invalidateQueries({ queryKey: ['all-attempts'] });
     },
   });
 };

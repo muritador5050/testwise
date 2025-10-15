@@ -10,10 +10,8 @@ export const useExamTimer = (
   const timerRef = useRef<number | null>(null);
   const hasCalledTimeUp = useRef(false);
 
-  // Fetch remaining time from server
   const { data: timeData, isSuccess } = useGetRemainingTime(attemptId);
 
-  // Initialize timer with server time
   useEffect(() => {
     if (isSuccess && timeData?.remainingTime !== undefined) {
       setTimeRemaining(timeData.remainingTime);
