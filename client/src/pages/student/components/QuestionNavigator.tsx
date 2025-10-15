@@ -113,7 +113,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                           : colors.pageBg,
                       opacity: isQuestionAnswered(q.id) ? 0.9 : 1,
                     }}
-                    h='32px'
+                    h='42px'
                     w='32px'
                     minW='32px'
                     flexShrink={0}

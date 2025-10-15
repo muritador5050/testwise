@@ -107,7 +107,7 @@ export default function HomePage() {
               Practice, learn, and excel with our intelligent platform.
             </Text>
 
-            <Stack direction={{ base: 'column', sm: 'row' }} spacing={4} pt={4}>
+            <Stack pt={4}>
               <Button
                 size='lg'
                 {...buttonStyles.primary}
@@ -115,15 +115,6 @@ export default function HomePage() {
                 onClick={() => navigate('/users/signup')}
               >
                 Get Started Free
-              </Button>
-              <Button
-                size='lg'
-                variant='outline'
-                borderColor={colors.primary}
-                color={colors.primary}
-                _hover={{ bg: colors.sectionBg }}
-              >
-                Watch Demo
               </Button>
             </Stack>
           </VStack>
