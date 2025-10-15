@@ -8,6 +8,7 @@ import type {
   QuestionPerformance,
   UserPerformanceHistory,
   ScoreDistribution,
+  LiveAttemptResponse,
 } from '../../types/api';
 
 // Get user attempts
@@ -60,6 +61,37 @@ export const useGetAttemptById = (id: number) => {
     },
     refetchOnWindowFocus: false,
     enabled: !!id,
+  });
+};
+
+export const useGetRemainingTime = (attemptId: number) => {
+  return useQuery<{ remainingTime: number }>({
+    queryKey: ['remaining-time', attemptId],
+    queryFn: async () => {
+      return apiClient(`attempts/${attemptId}/remaining-time`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+    enabled: !!attemptId,
+    refetchInterval: 30000,
+  });
+};
+
+export const useGetLiveAttempts = () => {
+  return useQuery<LiveAttemptResponse[]>({
+    queryKey: ['live-attempts'],
+    queryFn: async () => {
+      return apiClient(`attempts/live`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+    },
+    refetchInterval: 5000,
   });
 };
 

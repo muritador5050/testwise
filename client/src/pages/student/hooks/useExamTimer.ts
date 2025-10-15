@@ -1,29 +1,36 @@
 import { useState, useEffect, useRef } from 'react';
+import { useGetRemainingTime } from '../../../api/services/attemptService';
 
 export const useExamTimer = (
-  duration: number,
+  attemptId: number,
   onTimeUp: () => void,
-  isActive: boolean
+  enabled: boolean
 ) => {
-  const [timeRemaining, setTimeRemaining] = useState(duration * 60);
+  const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const timerRef = useRef<number | null>(null);
+  const hasCalledTimeUp = useRef(false);
 
-  // Update time remaining when duration changes
+  // Fetch remaining time from server
+  const { data: timeData, isSuccess } = useGetRemainingTime(attemptId);
+
+  // Initialize timer with server time
   useEffect(() => {
-    if (duration) {
-      setTimeRemaining(duration * 60);
+    if (isSuccess && timeData?.remainingTime !== undefined) {
+      setTimeRemaining(timeData.remainingTime);
     }
-  }, [duration]);
+  }, [isSuccess, timeData]);
 
-  // Start timer
+  // Countdown timer
   useEffect(() => {
-    if (!isActive) return;
+    if (!enabled || timeRemaining <= 0) return;
 
     timerRef.current = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          onTimeUp();
+          if (!hasCalledTimeUp.current) {
+            hasCalledTimeUp.current = true;
+            onTimeUp();
+          }
           return 0;
         }
         return prev - 1;
@@ -31,9 +38,11 @@ export const useExamTimer = (
     }, 1000);
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
     };
-  }, [isActive, onTimeUp]);
+  }, [enabled, timeRemaining, onTimeUp]);
 
   return timeRemaining;
 };

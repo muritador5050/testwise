@@ -14,6 +14,7 @@ import {
 import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
 import { Route, Routes } from 'react-router-dom';
+import LiveMonitoring from '../../../pages/admin/LiveMonitoring';
 
 const AdminDashboard = lazy(
   () => import('../../../pages/admin/AdminDashboard')
@@ -46,6 +47,7 @@ const navItems = [
     path: '/admin',
     icon: '📊',
   },
+
   {
     name: 'Exams',
     path: '/admin/exams',
@@ -123,6 +125,11 @@ const navItems = [
         icon: '📉',
       },
     ],
+  },
+  {
+    name: 'Live',
+    path: '/admin/live-monitoring',
+    icon: '📊',
   },
 ];
 
@@ -210,6 +217,7 @@ const AdminLayout: React.FC = () => {
             path='exams/performances'
             element={<UserPerformanceByTest />}
           />
+          <Route path='live-monitoring' element={<LiveMonitoring />} />
         </Routes>
       </Box>
     </Box>

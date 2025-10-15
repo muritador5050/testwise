@@ -219,3 +219,56 @@ export interface ScoreDistribution {
   range: string;
   count: number;
 }
+
+export type LiveAttemptResponse = {
+  attemptId: number;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  test: {
+    id: number;
+    title: string;
+    duration: number;
+  };
+  startedAt: string; // ISO date string
+  expiresAt: string; // ISO date string
+  answeredQuestions: number;
+  correctAnswers: number;
+};
+
+// For WebSocket events
+export interface StudentStartedEvent {
+  attemptId: number;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  test: {
+    id: number;
+    title: string;
+    duration: number;
+  };
+  startedAt: string;
+}
+
+export interface StudentAnsweredEvent {
+  attemptId: number;
+  questionId: number;
+  answeredQuestions: number;
+}
+
+export interface StudentCompletedEvent {
+  attemptId: number;
+  percentScore: number;
+  correctAnswers: number;
+  totalQuestions: number;
+}
+
+export interface ActivityFeedItem {
+  type: 'started' | 'completed' | 'answered';
+  message: string;
+  timestamp: Date;
+}

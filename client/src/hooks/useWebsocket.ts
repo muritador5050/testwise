@@ -7,8 +7,6 @@ export const useWebSocket = (attemptId?: number) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    if (!attemptId) return;
-
     const token = getAuthToken();
     if (!token) return;
 
@@ -24,8 +22,10 @@ export const useWebSocket = (attemptId?: number) => {
       console.log('WebSocket connected');
       setIsConnected(true);
 
-      // Join the attempt room
-      socketRef.current?.emit('join-attempt', attemptId);
+      // Only join attempt room if attemptId is provided (for students)
+      if (attemptId) {
+        socketRef.current?.emit('join-attempt', attemptId);
+      }
     });
 
     socketRef.current.on('disconnect', () => {
@@ -33,9 +33,11 @@ export const useWebSocket = (attemptId?: number) => {
       setIsConnected(false);
     });
 
-    socketRef.current.on('joined-attempt', (data) => {
-      console.log('Joined attempt room:', data.attemptId);
-    });
+    if (attemptId) {
+      socketRef.current.on('joined-attempt', (data: { attemptId: number }) => {
+        console.log('Joined attempt room:', data.attemptId);
+      });
+    }
 
     return () => {
       socketRef.current?.disconnect();
@@ -45,14 +47,14 @@ export const useWebSocket = (attemptId?: number) => {
   const socket = socketRef.current;
 
   const on = useCallback(
-    (event: string, callback: (data: unknown) => void) => {
+    <T = unknown>(event: string, callback: (data: T) => void) => {
       socket?.on(event, callback);
     },
     [socket]
   );
 
   const off = useCallback(
-    (event: string, callback: (data: unknown) => void) => {
+    <T = unknown>(event: string, callback: (data: T) => void) => {
       socket?.off(event, callback);
     },
     [socket]

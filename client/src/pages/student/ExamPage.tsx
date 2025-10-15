@@ -132,9 +132,9 @@ const ExamPage: React.FC = () => {
 
   // Timer hook
   const timeRemaining = useExamTimer(
-    testData?.duration || 60,
+    Number(attemptId),
     onTimeUp,
-    !!testData
+    !!testData && attemptData?.status === 'IN_PROGRESS'
   );
 
   // Tab switch detection
