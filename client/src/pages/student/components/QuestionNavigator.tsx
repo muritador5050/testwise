@@ -45,7 +45,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
         <CardBody p={{ base: 3, lg: 4 }}>
           {/* Mobile Compact Layout */}
           <Box display={{ base: 'block', lg: 'none' }}>
-            <HStack spacing={2} mb={3} justify='space-between'>
+            <HStack spacing={2} mb={2} justify='space-between'>
               <HStack spacing={2} fontSize='xs'>
                 <Box w={2} h={2} bg={colors.success} borderRadius='sm' />
                 <Text color={colors.textSecondary}>Answered</Text>
@@ -62,52 +62,70 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
               </HStack>
             </HStack>
 
-            {/* Compact Question Grid */}
-            <Grid templateColumns='repeat(8, 1fr)' gap={1.5} mb={3}>
-              {questions.map((q, index) => (
-                <Button
-                  key={q.id}
-                  onClick={() => onQuestionJump(index)}
-                  size='sm'
-                  variant={currentQuestion === index ? 'solid' : 'outline'}
-                  bg={
-                    currentQuestion === index
-                      ? colors.primary
-                      : isQuestionAnswered(q.id)
-                      ? colors.success
-                      : 'white'
-                  }
-                  color={
-                    currentQuestion === index || isQuestionAnswered(q.id)
-                      ? 'white'
-                      : colors.textPrimary
-                  }
-                  borderColor={
-                    isQuestionAnswered(q.id) && currentQuestion !== index
-                      ? colors.success
-                      : colors.border
-                  }
-                  _hover={{
-                    bg:
+            {/* Scrollable Question Grid Container */}
+            <Box
+              maxH='90px'
+              overflowY='auto'
+              mb={2}
+              css={{
+                '&::-webkit-scrollbar': {
+                  width: '4px',
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: colors.border,
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: colors.textMuted,
+                  borderRadius: '2px',
+                },
+              }}
+            >
+              <Grid templateColumns='repeat(8, 1fr)' gap={1.5}>
+                {questions.map((q, index) => (
+                  <Button
+                    key={q.id}
+                    onClick={() => onQuestionJump(index)}
+                    size='sm'
+                    variant={currentQuestion === index ? 'solid' : 'outline'}
+                    bg={
                       currentQuestion === index
-                        ? colors.primaryHover
+                        ? colors.primary
                         : isQuestionAnswered(q.id)
                         ? colors.success
-                        : colors.pageBg,
-                    opacity: isQuestionAnswered(q.id) ? 0.9 : 1,
-                  }}
-                  h='36px'
-                  w='36px'
-                  minW='36px'
-                  p={0}
-                  borderRadius='md'
-                  fontSize='xs'
-                  fontWeight='semibold'
-                >
-                  {index + 1}
-                </Button>
-              ))}
-            </Grid>
+                        : 'white'
+                    }
+                    color={
+                      currentQuestion === index || isQuestionAnswered(q.id)
+                        ? 'white'
+                        : colors.textPrimary
+                    }
+                    borderColor={
+                      isQuestionAnswered(q.id) && currentQuestion !== index
+                        ? colors.success
+                        : colors.border
+                    }
+                    _hover={{
+                      bg:
+                        currentQuestion === index
+                          ? colors.primaryHover
+                          : isQuestionAnswered(q.id)
+                          ? colors.success
+                          : colors.pageBg,
+                      opacity: isQuestionAnswered(q.id) ? 0.9 : 1,
+                    }}
+                    h='32px'
+                    w='32px'
+                    minW='32px'
+                    p={0}
+                    borderRadius='md'
+                    fontSize='xs'
+                    fontWeight='semibold'
+                  >
+                    {index + 1}
+                  </Button>
+                ))}
+              </Grid>
+            </Box>
 
             {/* Submit Button */}
             <Button
